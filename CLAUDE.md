@@ -1,0 +1,188 @@
+# Travel Booking Project
+
+## プロジェクト概要
+
+Flutter モバイルアプリ（`travel_booking_mobile`）と Node.js/GraphQL バックエンド（`travel_booking_backend`）からなる Melos モノレポ構成の旅行予約システム。
+
+## アーキテクチャ
+
+### モバイル (travel_booking_mobile) — Dart 63%
+
+**パターン**: MVVM + Repository
+
+```
+lib/
+├── core/
+│   ├── config/graphql_config.dart     # GraphQLHttpClient 設定 (http://localhost:4000/graphql)
+│   ├── database/app_database.dart     # SharedPreferences ラッパー
+│   ├── router/app_router.dart         # go_router ルート定義
+│   └── theme/app_theme.dart           # アプリテーマ
+├── data/
+│   ├── models/                        # データモデル (freezed 非使用、手書き fromJson/toJson)
+│   ├── datasources/
+│   │   ├── remote/travel_plan_remote_datasource.dart  # GraphQL クエリ/ミューテーション
+│   │   └── local/favorite_local_datasource.dart       # SharedPreferences
+│   └── repositories/
+│       ├── travel_plan_repository.dart      # インターフェース
+│       ├── travel_plan_repository_impl.dart # 実装
+│       ├── favorite_repository.dart         # インターフェース
+│       └── favorite_repository_impl.dart   # 実装
+└── presentation/
+    ├── viewmodels/   # @riverpod AsyncNotifier — .g.dart は自動生成
+    ├── screens/      # home / plan_detail / booking / favorites
+    └── widgets/      # 共通ウィジェット (rating_stars, loading_indicator, app_error_widget)
+```
+
+**状態管理**: Riverpod 3.x（`riverpod_generator` によるコード生成必須）  
+**ナビゲーション**: go_router 14.x  
+**GraphQL 通信**: http パッケージで手書きクエリ（クエリは datasource 内に定数として定義）
+
+### バックエンド (travel_booking_backend) — TypeScript 37%
+
+```
+src/
+├── index.ts                          # Apollo Server エントリポイント (port 4000)
+└── graphql/
+    ├── typeDefs.ts                   # GraphQL スキーマ定義
+    └── resolvers/
+        ├── planResolver.ts           # TravelPlan クエリ
+        └── bookingResolver.ts        # Booking ミューテーション
+prisma/
+├── schema.prisma                     # MySQL スキーマ (TravelPlan, Booking 等)
+└── seed.ts                           # 初期データ
+```
+
+**GraphQL エンドポイント**: `http://localhost:4000/graphql`  
+**ORM**: Prisma 5.x + MySQL 8.0  
+**コンテナ**: Docker Compose（MySQL + バックエンドサービス）
+
+## よく使うコマンド
+
+### 初回セットアップ
+
+```bash
+# モノレポ依存関係インストール
+melos bootstrap
+
+# バックエンド Docker 起動
+cd travel_booking_backend && docker-compose up -d
+
+# DB マイグレーション & シードデータ投入
+cd travel_booking_backend && npm run db:migrate && npm run db:seed
+```
+
+### モバイル開発
+
+```bash
+melos run build_runner        # Riverpod .g.dart 生成（モデル変更後は必須）
+melos run build_runner:watch  # ウォッチモード（開発中は常時起動推奨）
+melos run test                # 全ユニットテスト実行
+melos run analyze             # 静的解析
+melos run format              # コードフォーマット
+melos run clean               # ビルドキャッシュ削除
+melos run get                 # 依存関係更新
+```
+
+### バックエンド操作
+
+```bash
+cd travel_booking_backend
+npm run dev           # 開発サーバー起動（nodemon + ts-node）
+npm run db:migrate    # マイグレーション実行
+npm run db:seed       # シードデータ投入
+npm run db:studio     # Prisma Studio 起動
+npm run db:reset      # DB 完全リセット（開発環境のみ）
+```
+
+## 開発規約
+
+### Riverpod コード生成
+- ViewModel は `@riverpod` アノテーションを使用した `AsyncNotifier` パターン
+- `*.g.dart` ファイルは自動生成 → **手動編集禁止**
+- モデルや ViewModel を変更した後は必ず `melos run build_runner` を実行
+
+### Repository パターン
+- 必ずインターフェース（抽象クラス）と実装クラスをペアで作成
+- DataSource → Repository → ViewModel の依存方向を維持
+- Riverpod Provider で DI（依存性注入）
+
+### GraphQL クエリ
+- クエリ/ミューテーションは `TravelPlanRemoteDataSource` 内に文字列定数として定義
+- フィールド追加時は **バックエンド typeDefs → Prisma スキーマ → モバイル DataSource** の順に更新
+- assets フォルダ (`assets/graphql/`) の `.graphql` ファイルも同期して更新
+
+### ファイル命名
+- Dart: `snake_case.dart`
+- TypeScript: `camelCase.ts`
+- GraphQL 型名: `PascalCase`
+
+## テスト戦略
+
+### ViewModel テスト（既存パターン）
+テストは `test/viewmodels/` 以下に配置。4つの ViewModel テストが存在する。
+
+```
+test/viewmodels/
+├── plan_list_viewmodel_test.dart         # PlanListViewModel
+├── plan_list_viewmodel_test.mocks.dart   # 自動生成モック
+├── plan_detail_viewmodel_test.dart
+├── plan_detail_viewmodel_test.mocks.dart
+├── booking_viewmodel_test.dart
+├── booking_viewmodel_test.mocks.dart
+├── favorite_viewmodel_test.dart
+└── favorite_viewmodel_test.mocks.dart
+```
+
+**テストの書き方（plan_list_viewmodel_test.dart を参照）:**
+1. `@GenerateMocks([TravelPlanRepository])` アノテーションを付ける
+2. `melos run build_runner` でモッククラス（`.mocks.dart`）を生成
+3. `ProviderContainer(overrides: [repositoryProvider.overrideWithValue(mock)])` で DI
+4. `setUp` / `tearDown` で `container.dispose()` を忘れずに
+5. テストデータは日本語の現実的な値で作成（例: `'東京エクスプローラー5日間'`）
+
+### カバーすべきテストケース
+- 初期状態の確認
+- 成功時（データ取得 → state 変化）
+- 失敗時（エラーセット → `isLoading: false`）
+- エッジケース（空リスト、null 値、ページネーション境界値）
+
+## 既知の注意点
+
+### GraphQL エンドポイントのハードコード
+`core/config/graphql_config.dart` の `_baseUrl` が IP アドレスハードコード。
+開発環境変更時は `--dart-define=GRAPHQL_URL=http://x.x.x.x:4000/graphql` で渡すか直接書き換える。
+- iOS シミュレーター: `http://localhost:4000/graphql`
+- Android エミュレーター: `http://10.0.2.2:4000/graphql`
+- 実機: `http://<ホストPCのIP>:4000/graphql`
+
+### .g.dart の再生成忘れ
+`@riverpod` アノテーション付きクラスを変更後に `build_runner` 未実行だと古い生成コードが残る。
+**症状**: `The getter 'xxxProvider' isn't defined for the class`  
+**解消**: `melos run build_runner`
+
+### iOS での HTTP 通信
+`GraphQLHttpClient` は `dart:io HttpClient` を直接使用（`http` パッケージの `IOClient` は iOS で Keep-Alive 問題があるため回避）。
+`http://` エンドポイントを使う場合は `ios/Runner/Info.plist` に `NSAllowsArbitraryLoads: true` が必要。
+
+### 予約フォームのバリデーション
+`BookingViewModel._validate()` の validation エラーは `validationErrors` Map で管理。
+メソッドを追加する際は `_removeError(key)` を `updateXxx()` でも呼ぶこと。
+
+### Prisma スキーマ変更の影響範囲
+フィールドを1つ追加するだけで以下の全レイヤーに変更が必要:
+`schema.prisma` → `typeDefs.ts` → Resolver → Dart モデル → DataSource クエリ文字列 → DB マイグレーション → `build_runner`
+
+## カスタムスキル一覧
+
+| コマンド | 概要 |
+|---|---|
+| `/flutter-gen` | Riverpod コード生成（build_runner 実行） |
+| `/backend-up` | Docker バックエンド環境起動 |
+| `/db-reset` | 開発用 DB 初期化（マイグレーション + シード） |
+| `/add-feature` | MVVM + Repository パターンでの機能スキャフォールド |
+| `/graphql-check` | バックエンド schema とモバイル query の整合性チェック |
+| `/bug-trace` | エラーメッセージからバグ原因を特定・修正方法を提示 |
+| `/add-viewmodel-test` | 既存パターンに沿った ViewModel テスト追加 |
+| `/schema-update` | DB→GraphQL→Dart の全レイヤースキーマ変更ガイド |
+| `/fix-endpoint` | GraphQL エンドポイント確認・変更 |
+| `/state-audit` | ViewModel の状態管理問題チェック |

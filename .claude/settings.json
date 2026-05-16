@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(melos *)",
+      "Bash(flutter *)",
+      "Bash(dart *)",
+      "Bash(npm run dev)",
+      "Bash(npm run build)",
+      "Bash(npm run start)",
+      "Bash(npm run db:generate)",
+      "Bash(npm run db:migrate)",
+      "Bash(npm run db:push)",
+      "Bash(npm run db:seed)",
+      "Bash(npm run db:studio)",
+      "Bash(npx prisma *)",
+      "Bash(docker-compose up*)",
+      "Bash(docker-compose down*)",
+      "Bash(docker-compose ps*)",
+      "Bash(docker-compose logs*)",
+      "Bash(docker-compose restart*)",
+      "Bash(docker-compose exec*)",
+      "Bash(npm run lint*)",
+      "Bash(npm run typecheck*)",
+      "Bash(npm run type-check*)"
+    ]
+  }
+}
