@@ -1,0 +1,128 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model TravelPlan {
+  id                 String                @id @default(uuid())
+  title              String
+  description        String                @db.Text
+  destination        String
+  country            String
+  region             String
+  latitude           Float
+  longitude          Float
+  price              Float
+  discountPrice      Float?
+  durationDays       Int
+  maxParticipants    Int
+  currentBookings    Int                   @default(0)
+  category           String
+  difficulty         String
+  rating             Float                 @default(0.0)
+  reviewCount        Int                   @default(0)
+  isAvailable        Boolean               @default(true)
+  availableFrom      DateTime?
+  availableTo        DateTime?
+  language           String                @default("日本語")
+  meetingPoint       String
+  cancellationPolicy String                @db.Text
+  minimumAge         Int?
+  tags               String                @db.Text
+  images             TravelPlanImage[]
+  highlights         TravelPlanHighlight[]
+  itinerary          ItineraryDay[]
+  includedItems      IncludedItem[]
+  excludedItems      ExcludedItem[]
+  reviews            Review[]
+  bookings           Booking[]
+  createdAt          DateTime              @default(now())
+  updatedAt          DateTime              @updatedAt
+}
+
+model TravelPlanImage {
+  id           String     @id @default(uuid())
+  url          String
+  caption      String?
+  isPrimary    Boolean    @default(false)
+  displayOrder Int        @default(0)
+  plan         TravelPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  planId       String
+}
+
+model TravelPlanHighlight {
+  id     String     @id @default(uuid())
+  text   String
+  plan   TravelPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  planId String
+}
+
+model ItineraryDay {
+  id            String              @id @default(uuid())
+  dayNumber     Int
+  title         String
+  description   String              @db.Text
+  accommodation String?
+  meals         String              @default("")
+  activities    ItineraryActivity[]
+  plan          TravelPlan          @relation(fields: [planId], references: [id], onDelete: Cascade)
+  planId        String
+}
+
+model ItineraryActivity {
+  id          String       @id @default(uuid())
+  name        String
+  startTime   String?
+  duration    String
+  description String       @db.Text
+  location    String?
+  day         ItineraryDay @relation(fields: [dayId], references: [id], onDelete: Cascade)
+  dayId       String
+}
+
+model IncludedItem {
+  id     String     @id @default(uuid())
+  item   String
+  plan   TravelPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  planId String
+}
+
+model ExcludedItem {
+  id     String     @id @default(uuid())
+  item   String
+  plan   TravelPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  planId String
+}
+
+model Review {
+  id           String     @id @default(uuid())
+  reviewerName String
+  rating       Float
+  comment      String     @db.Text
+  travelDate   DateTime
+  plan         TravelPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  planId       String
+  createdAt    DateTime   @default(now())
+}
+
+model Booking {
+  id              String     @id @default(uuid())
+  customerName    String
+  customerEmail   String
+  customerPhone   String
+  numberOfPeople  Int
+  travelDate      DateTime
+  specialRequests String?    @db.Text
+  totalPrice      Float
+  status          String     @default("PENDING")
+  paymentMethod   String?
+  plan            TravelPlan @relation(fields: [planId], references: [id])
+  planId          String
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+}

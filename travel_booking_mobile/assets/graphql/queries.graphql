@@ -1,0 +1,180 @@
+query GetTravelPlans($filter: PlanFilterInput, $page: Int, $pageSize: Int) {
+  travelPlans(filter: $filter, page: $page, pageSize: $pageSize) {
+    plans {
+      id
+      title
+      description
+      destination
+      country
+      region
+      latitude
+      longitude
+      price
+      discountPrice
+      effectivePrice
+      durationDays
+      maxParticipants
+      currentBookings
+      availableSpots
+      category
+      difficulty
+      rating
+      reviewCount
+      isAvailable
+      availableFrom
+      availableTo
+      language
+      tags
+      images {
+        id
+        url
+        caption
+        isPrimary
+        displayOrder
+      }
+      highlights {
+        id
+        text
+      }
+      createdAt
+    }
+    totalCount
+    hasNextPage
+    currentPage
+    totalPages
+  }
+}
+
+query GetTravelPlan($id: ID!) {
+  travelPlan(id: $id) {
+    id
+    title
+    description
+    destination
+    country
+    region
+    latitude
+    longitude
+    price
+    discountPrice
+    effectivePrice
+    durationDays
+    maxParticipants
+    currentBookings
+    availableSpots
+    category
+    difficulty
+    rating
+    reviewCount
+    isAvailable
+    availableFrom
+    availableTo
+    language
+    meetingPoint
+    cancellationPolicy
+    minimumAge
+    tags
+    images {
+      id
+      url
+      caption
+      isPrimary
+      displayOrder
+    }
+    highlights {
+      id
+      text
+    }
+    itinerary {
+      id
+      dayNumber
+      title
+      description
+      accommodation
+      meals
+      activities {
+        id
+        name
+        startTime
+        duration
+        description
+        location
+      }
+    }
+    includedItems {
+      id
+      item
+    }
+    excludedItems {
+      id
+      item
+    }
+    reviews {
+      id
+      reviewerName
+      rating
+      comment
+      travelDate
+      createdAt
+    }
+    createdAt
+    updatedAt
+  }
+}
+
+query GetBookings($customerEmail: String) {
+  bookings(customerEmail: $customerEmail) {
+    id
+    planId
+    customerName
+    customerEmail
+    customerPhone
+    numberOfPeople
+    travelDate
+    specialRequests
+    totalPrice
+    status
+    paymentMethod
+    createdAt
+    updatedAt
+    plan {
+      id
+      title
+      destination
+      images {
+        url
+        isPrimary
+      }
+    }
+  }
+}
+
+query GetBooking($id: ID!) {
+  booking(id: $id) {
+    id
+    planId
+    customerName
+    customerEmail
+    customerPhone
+    numberOfPeople
+    travelDate
+    specialRequests
+    totalPrice
+    status
+    paymentMethod
+    createdAt
+    updatedAt
+    plan {
+      id
+      title
+      destination
+      country
+      price
+      discountPrice
+      images {
+        url
+        isPrimary
+      }
+    }
+  }
+}

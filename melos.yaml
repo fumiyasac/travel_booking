@@ -1,0 +1,54 @@
+name: travel_booking
+repository: https://github.com/fumiyasac/travel_booking
+
+packages:
+  - travel_booking_mobile
+
+sdkPath: auto
+
+command:
+  bootstrap:
+    usePubspecOverrides: true
+
+scripts:
+  build_runner:
+    description: Run build_runner to generate code
+    exec: dart run build_runner build --delete-conflicting-outputs
+    packageFilters:
+      dirExists: lib
+
+  build_runner:watch:
+    description: Watch and regenerate code
+    exec: dart run build_runner watch --delete-conflicting-outputs
+    packageFilters:
+      dirExists: lib
+
+  test:
+    description: Run all unit tests
+    exec: flutter test
+    packageFilters:
+      dirExists: test
+
+  analyze:
+    description: Run static analysis
+    exec: flutter analyze
+    packageFilters:
+      dirExists: lib
+
+  format:
+    description: Format source code
+    exec: dart format lib/ test/
+    packageFilters:
+      dirExists: lib
+
+  clean:
+    description: Clean build artifacts
+    exec: flutter clean
+    packageFilters:
+      dirExists: lib
+
+  get:
+    description: Get dependencies
+    exec: flutter pub get
+    packageFilters:
+      dirExists: lib

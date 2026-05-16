@@ -1,0 +1,31 @@
+{
+  "name": "travel-booking-backend",
+  "version": "1.0.0",
+  "description": "Travel booking backend service with GraphQL API",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "nodemon --exec ts-node src/index.ts --ext ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "db:generate": "npx prisma generate",
+    "db:migrate": "npx prisma migrate dev",
+    "db:migrate:prod": "npx prisma migrate deploy",
+    "db:push": "npx prisma db push",
+    "db:seed": "npx ts-node prisma/seed.ts",
+    "db:reset": "npx prisma migrate reset --force",
+    "db:studio": "npx prisma studio"
+  },
+  "dependencies": {
+    "@apollo/server": "^4.10.0",
+    "@prisma/client": "^5.13.0",
+    "dotenv": "^16.4.5",
+    "graphql": "^16.8.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.0",
+    "nodemon": "^3.1.0",
+    "prisma": "^5.13.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  }
+}

@@ -1,0 +1,704 @@
+[custom_lint] 2026-05-16T21:31:44.617194 ProcessException: No such file or directory
+[custom_lint] 2026-05-16T21:31:44.617194   Command: dart lib/custom_lint_client.dart ::1 58662
+[custom_lint] 2026-05-16T21:31:44.617194 #0      _ProcessImpl._start (dart:io-patch/process_patch.dart:411)
+[custom_lint] 2026-05-16T21:31:44.617194 #1      Process.start (dart:io-patch/process_patch.dart:42)
+[custom_lint] 2026-05-16T21:31:44.617194 #2      SocketCustomLintServerToClientChannel._startProcess.<anonymous closure> (package:custom_lint/src/v2/server_to_client_channel.dart:155)
+[custom_lint] 2026-05-16T21:31:44.617194 #3      _asyncRetry (package:custom_lint/src/v2/server_to_client_channel.dart:24)
+[custom_lint] 2026-05-16T21:31:44.617194 #4      SocketCustomLintServerToClientChannel._startProcess (package:custom_lint/src/v2/server_to_client_channel.dart:154)
+[custom_lint] 2026-05-16T21:31:44.617194 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:31:44.617194 #5      SocketCustomLintServerToClientChannel.init (package:custom_lint/src/v2/server_to_client_channel.dart:111)
+[custom_lint] 2026-05-16T21:31:44.617194 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:31:44.617194 #6      CustomLintServer._maybeSpawnCustomLintPlugin (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:396)
+[custom_lint] 2026-05-16T21:31:44.617194 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:31:44.617194 #7      CustomLintServer._handleAnalysisSetContextRoots.<anonymous closure> (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:343)
+[custom_lint] 2026-05-16T21:31:44.617194 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:31:44.617194 #8      PendingOperation.run (package:custom_lint/src/async_operation.dart:22)
+[custom_lint] 2026-05-16T21:31:44.617194 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:31:44.617194 #9      CustomLintServer._handleRequest (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:175)
+[custom_lint] 2026-05-16T21:31:44.617194 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:31:44.617194
+[custom_lint] 2026-05-16T21:31:44.629033 ProcessException: No such file or directory
+[custom_lint] 2026-05-16T21:31:44.629033   Command: dart lib/custom_lint_client.dart ::1 58662
+[custom_lint] 2026-05-16T21:31:44.629033 #0      _ProcessImpl._start (dart:io-patch/process_patch.dart:411)
+[custom_lint] 2026-05-16T21:31:44.629033 #1      Process.start (dart:io-patch/process_patch.dart:42)
+[custom_lint] 2026-05-16T21:31:44.629033 #2      SocketCustomLintServerToClientChannel._startProcess.<anonymous closure> (package:custom_lint/src/v2/server_to_client_channel.dart:155)
+[custom_lint] 2026-05-16T21:31:44.629033 #3      _asyncRetry (package:custom_lint/src/v2/server_to_client_channel.dart:24)
+[custom_lint] 2026-05-16T21:31:44.629033 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:31:44.629033 #4      SocketCustomLintServerToClientChannel.init (package:custom_lint/src/v2/server_to_client_channel.dart:111)
+[custom_lint] 2026-05-16T21:31:44.629033 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:31:44.629033 #5      CustomLintServer._maybeSpawnCustomLintPlugin (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:396)
+[custom_lint] 2026-05-16T21:31:44.629033 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:31:44.629033 #6      CustomLintServer._handleAnalysisSetContextRoots.<anonymous closure> (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:343)
+[custom_lint] 2026-05-16T21:31:44.629033 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:31:44.629033 #7      PendingOperation.run (package:custom_lint/src/async_operation.dart:22)
+[custom_lint] 2026-05-16T21:31:44.629033 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:31:44.629033 #8      CustomLintServer._handleRequest (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:175)
+[custom_lint] 2026-05-16T21:31:44.629033 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:31:44.629033
+[custom_lint] 2026-05-16T21:31:44.631840 ProcessException: No such file or directory
+[custom_lint] 2026-05-16T21:31:44.631840   Command: dart lib/custom_lint_client.dart ::1 58662
+[custom_lint] 2026-05-16T21:31:44.631840 #0      _ProcessImpl._start (dart:io-patch/process_patch.dart:411)
+[custom_lint] 2026-05-16T21:31:44.631840 #1      Process.start (dart:io-patch/process_patch.dart:42)
+[custom_lint] 2026-05-16T21:31:44.631840 #2      SocketCustomLintServerToClientChannel._startProcess.<anonymous closure> (package:custom_lint/src/v2/server_to_client_channel.dart:155)
+[custom_lint] 2026-05-16T21:31:44.631840 #3      _asyncRetry (package:custom_lint/src/v2/server_to_client_channel.dart:24)
+[custom_lint] 2026-05-16T21:31:44.631840 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:31:44.631840 #4      SocketCustomLintServerToClientChannel.init (package:custom_lint/src/v2/server_to_client_channel.dart:111)
+[custom_lint] 2026-05-16T21:31:44.631840 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:31:44.631840 #5      CustomLintServer._maybeSpawnCustomLintPlugin (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:396)
+[custom_lint] 2026-05-16T21:31:44.631840 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:31:44.631840 #6      CustomLintServer._handleAnalysisSetContextRoots.<anonymous closure> (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:343)
+[custom_lint] 2026-05-16T21:31:44.631840 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:31:44.631840 #7      PendingOperation.run (package:custom_lint/src/async_operation.dart:22)
+[custom_lint] 2026-05-16T21:31:44.631840 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:31:44.631840 #8      CustomLintServer._handleRequest (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:175)
+[custom_lint] 2026-05-16T21:31:44.631840 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:31:44.631840
+[custom_lint] 2026-05-16T21:31:44.633881 ProcessException: No such file or directory
+[custom_lint] 2026-05-16T21:31:44.633881   Command: dart lib/custom_lint_client.dart ::1 58662
+[custom_lint] 2026-05-16T21:31:44.633881 #0      _ProcessImpl._start (dart:io-patch/process_patch.dart:411)
+[custom_lint] 2026-05-16T21:31:44.633881 #1      Process.start (dart:io-patch/process_patch.dart:42)
+[custom_lint] 2026-05-16T21:31:44.633881 #2      SocketCustomLintServerToClientChannel._startProcess.<anonymous closure> (package:custom_lint/src/v2/server_to_client_channel.dart:155)
+[custom_lint] 2026-05-16T21:31:44.633881 #3      _asyncRetry (package:custom_lint/src/v2/server_to_client_channel.dart:24)
+[custom_lint] 2026-05-16T21:31:44.633881 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:31:44.633881 #4      SocketCustomLintServerToClientChannel.init (package:custom_lint/src/v2/server_to_client_channel.dart:111)
+[custom_lint] 2026-05-16T21:31:44.633881 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:31:44.633881 #5      CustomLintServer._maybeSpawnCustomLintPlugin (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:396)
+[custom_lint] 2026-05-16T21:31:44.633881 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:31:44.633881 #6      CustomLintServer._handleAnalysisSetContextRoots.<anonymous closure> (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:343)
+[custom_lint] 2026-05-16T21:31:44.633881 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:31:44.633881 #7      PendingOperation.run (package:custom_lint/src/async_operation.dart:22)
+[custom_lint] 2026-05-16T21:31:44.633881 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:31:44.633881 #8      CustomLintServer._handleRequest (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:175)
+[custom_lint] 2026-05-16T21:31:44.633881 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:31:44.633881
+[custom_lint] 2026-05-16T21:31:44.636515 ProcessException: No such file or directory
+[custom_lint] 2026-05-16T21:31:44.636515   Command: dart lib/custom_lint_client.dart ::1 58662
+[custom_lint] 2026-05-16T21:31:44.636515 #0      _ProcessImpl._start (dart:io-patch/process_patch.dart:411)
+[custom_lint] 2026-05-16T21:31:44.636515 #1      Process.start (dart:io-patch/process_patch.dart:42)
+[custom_lint] 2026-05-16T21:31:44.636515 #2      SocketCustomLintServerToClientChannel._startProcess.<anonymous closure> (package:custom_lint/src/v2/server_to_client_channel.dart:155)
+[custom_lint] 2026-05-16T21:31:44.636515 #3      _asyncRetry (package:custom_lint/src/v2/server_to_client_channel.dart:24)
+[custom_lint] 2026-05-16T21:31:44.636515 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:31:44.636515 #4      SocketCustomLintServerToClientChannel.init (package:custom_lint/src/v2/server_to_client_channel.dart:111)
+[custom_lint] 2026-05-16T21:31:44.636515 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:31:44.636515 #5      CustomLintServer._maybeSpawnCustomLintPlugin (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:396)
+[custom_lint] 2026-05-16T21:31:44.636515 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:31:44.636515 #6      CustomLintServer._handleAnalysisSetContextRoots.<anonymous closure> (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:343)
+[custom_lint] 2026-05-16T21:31:44.636515 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:31:44.636515 #7      PendingOperation.run (package:custom_lint/src/async_operation.dart:22)
+[custom_lint] 2026-05-16T21:31:44.636515 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:31:44.636515 #8      CustomLintServer._handleRequest (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:175)
+[custom_lint] 2026-05-16T21:31:44.636515 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:31:44.636515
+The request analysis.setContextRoots failed with the following error:
+RequestErrorCode.PLUGIN_ERROR
+ProcessException: No such file or directory
+  Command: dart lib/custom_lint_client.dart ::1 58662
+at:
+#0      _ProcessImpl._start (dart:io-patch/process_patch.dart:411)
+#1      Process.start (dart:io-patch/process_patch.dart:42)
+#2      SocketCustomLintServerToClientChannel._startProcess.<anonymous closure> (package:custom_lint/src/v2/server_to_client_channel.dart:155)
+#3      _asyncRetry (package:custom_lint/src/v2/server_to_client_channel.dart:24)
+<asynchronous suspension>
+#4      SocketCustomLintServerToClientChannel.init (package:custom_lint/src/v2/server_to_client_channel.dart:111)
+<asynchronous suspension>
+#5      CustomLintServer._maybeSpawnCustomLintPlugin (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:396)
+<asynchronous suspension>
+#6      CustomLintServer._handleAnalysisSetContextRoots.<anonymous closure> (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:343)
+<asynchronous suspension>
+#7      PendingOperation.run (package:custom_lint/src/async_operation.dart:22)
+<asynchronous suspension>
+#8      CustomLintServer._handleRequest (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:175)
+<asynchronous suspension>
+
+The request analysis.setContextRoots failed with the following error:
+RequestErrorCode.PLUGIN_ERROR
+The plugin flutter_localizations was not found in the package config at /Users/sakaifumiya/Desktop/FlutterApp/travel_booking/travel_booking_mobile. Make sure to run `pub get` first.
+at:
+#0      CustomLintProject.parse.<anonymous closure> (package:custom_lint/src/workspace.dart:948)
+#1      MappedIterator.moveNext (dart:_internal/iterable.dart:420)
+#2      Future.wait (dart:async/future.dart:544)
+#3      CustomLintProject.parse (package:custom_lint/src/workspace.dart:940)
+<asynchronous suspension>
+#4      Future.wait.<anonymous closure> (dart:async/future.dart:546)
+<asynchronous suspension>
+#5      CustomLintWorkspace.fromContextRoots (package:custom_lint/src/workspace.dart:515)
+<asynchronous suspension>
+#6      SocketCustomLintServerToClientChannel.create (package:custom_lint/src/v2/server_to_client_channel.dart:54)
+<asynchronous suspension>
+#7      CustomLintServer._maybeSpawnCustomLintPlugin (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:362)
+<asynchronous suspension>
+#8      CustomLintServer._handleAnalysisSetContextRoots.<anonymous closure> (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:343)
+<asynchronous suspension>
+#9      PendingOperation.run (package:custom_lint/src/async_operation.dart:22)
+<asynchronous suspension>
+#10     CustomLintServer._handleRequest (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:175)
+<asynchronous suspension>
+
+The request analysis.setSubscriptions failed with the following error:
+RequestErrorCode.PLUGIN_ERROR
+The plugin flutter_localizations was not found in the package config at /Users/sakaifumiya/Desktop/FlutterApp/travel_booking/travel_booking_mobile. Make sure to run `pub get` first.
+at:
+#0      CustomLintProject.parse.<anonymous closure> (package:custom_lint/src/workspace.dart:948)
+#1      MappedIterator.moveNext (dart:_internal/iterable.dart:420)
+#2      Future.wait (dart:async/future.dart:544)
+#3      CustomLintProject.parse (package:custom_lint/src/workspace.dart:940)
+<asynchronous suspension>
+#4      Future.wait.<anonymous closure> (dart:async/future.dart:546)
+<asynchronous suspension>
+#5      CustomLintWorkspace.fromContextRoots (package:custom_lint/src/workspace.dart:515)
+<asynchronous suspension>
+#6      SocketCustomLintServerToClientChannel.create (package:custom_lint/src/v2/server_to_client_channel.dart:54)
+<asynchronous suspension>
+#7      CustomLintServer._maybeSpawnCustomLintPlugin (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:362)
+<asynchronous suspension>
+#8      CustomLintServer._handleAnalysisSetContextRoots.<anonymous closure> (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:343)
+<asynchronous suspension>
+#9      PendingOperation.run (package:custom_lint/src/async_operation.dart:22)
+<asynchronous suspension>
+#10     CustomLintServer._handleRequest (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:175)
+<asynchronous suspension>
+
+The request analysis.setPriorityFiles failed with the following error:
+RequestErrorCode.PLUGIN_ERROR
+The plugin flutter_localizations was not found in the package config at /Users/sakaifumiya/Desktop/FlutterApp/travel_booking/travel_booking_mobile. Make sure to run `pub get` first.
+at:
+#0      CustomLintProject.parse.<anonymous closure> (package:custom_lint/src/workspace.dart:948)
+#1      MappedIterator.moveNext (dart:_internal/iterable.dart:420)
+#2      Future.wait (dart:async/future.dart:544)
+#3      CustomLintProject.parse (package:custom_lint/src/workspace.dart:940)
+<asynchronous suspension>
+#4      Future.wait.<anonymous closure> (dart:async/future.dart:546)
+<asynchronous suspension>
+#5      CustomLintWorkspace.fromContextRoots (package:custom_lint/src/workspace.dart:515)
+<asynchronous suspension>
+#6      SocketCustomLintServerToClientChannel.create (package:custom_lint/src/v2/server_to_client_channel.dart:54)
+<asynchronous suspension>
+#7      CustomLintServer._maybeSpawnCustomLintPlugin (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:362)
+<asynchronous suspension>
+#8      CustomLintServer._handleAnalysisSetContextRoots.<anonymous closure> (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:343)
+<asynchronous suspension>
+#9      PendingOperation.run (package:custom_lint/src/async_operation.dart:22)
+<asynchronous suspension>
+#10     CustomLintServer._handleRequest (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:175)
+<asynchronous suspension>
+
+The request analysis.setContextRoots failed with the following error:
+RequestErrorCode.PLUGIN_ERROR
+The plugin flutter_localizations was not found in the package config at /Users/sakaifumiya/Desktop/FlutterApp/travel_booking/travel_booking_mobile. Make sure to run `pub get` first.
+at:
+#0      CustomLintProject.parse.<anonymous closure> (package:custom_lint/src/workspace.dart:948)
+#1      MappedIterator.moveNext (dart:_internal/iterable.dart:420)
+#2      Future.wait (dart:async/future.dart:544)
+#3      CustomLintProject.parse (package:custom_lint/src/workspace.dart:940)
+<asynchronous suspension>
+#4      Future.wait.<anonymous closure> (dart:async/future.dart:546)
+<asynchronous suspension>
+#5      CustomLintWorkspace.fromContextRoots (package:custom_lint/src/workspace.dart:515)
+<asynchronous suspension>
+#6      SocketCustomLintServerToClientChannel.create (package:custom_lint/src/v2/server_to_client_channel.dart:54)
+<asynchronous suspension>
+#7      CustomLintServer._maybeSpawnCustomLintPlugin (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:362)
+<asynchronous suspension>
+#8      CustomLintServer._handleAnalysisSetContextRoots.<anonymous closure> (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:343)
+<asynchronous suspension>
+#9      PendingOperation.run (package:custom_lint/src/async_operation.dart:22)
+<asynchronous suspension>
+#10     CustomLintServer._handleRequest (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:175)
+<asynchronous suspension>
+
+The request analysis.setSubscriptions failed with the following error:
+RequestErrorCode.PLUGIN_ERROR
+The plugin flutter_localizations was not found in the package config at /Users/sakaifumiya/Desktop/FlutterApp/travel_booking/travel_booking_mobile. Make sure to run `pub get` first.
+at:
+#0      CustomLintProject.parse.<anonymous closure> (package:custom_lint/src/workspace.dart:948)
+#1      MappedIterator.moveNext (dart:_internal/iterable.dart:420)
+#2      Future.wait (dart:async/future.dart:544)
+#3      CustomLintProject.parse (package:custom_lint/src/workspace.dart:940)
+<asynchronous suspension>
+#4      Future.wait.<anonymous closure> (dart:async/future.dart:546)
+<asynchronous suspension>
+#5      CustomLintWorkspace.fromContextRoots (package:custom_lint/src/workspace.dart:515)
+<asynchronous suspension>
+#6      SocketCustomLintServerToClientChannel.create (package:custom_lint/src/v2/server_to_client_channel.dart:54)
+<asynchronous suspension>
+#7      CustomLintServer._maybeSpawnCustomLintPlugin (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:362)
+<asynchronous suspension>
+#8      CustomLintServer._handleAnalysisSetContextRoots.<anonymous closure> (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:343)
+<asynchronous suspension>
+#9      PendingOperation.run (package:custom_lint/src/async_operation.dart:22)
+<asynchronous suspension>
+#10     CustomLintServer._handleRequest (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:175)
+<asynchronous suspension>
+
+The request analysis.setPriorityFiles failed with the following error:
+RequestErrorCode.PLUGIN_ERROR
+The plugin flutter_localizations was not found in the package config at /Users/sakaifumiya/Desktop/FlutterApp/travel_booking/travel_booking_mobile. Make sure to run `pub get` first.
+at:
+#0      CustomLintProject.parse.<anonymous closure> (package:custom_lint/src/workspace.dart:948)
+#1      MappedIterator.moveNext (dart:_internal/iterable.dart:420)
+#2      Future.wait (dart:async/future.dart:544)
+#3      CustomLintProject.parse (package:custom_lint/src/workspace.dart:940)
+<asynchronous suspension>
+#4      Future.wait.<anonymous closure> (dart:async/future.dart:546)
+<asynchronous suspension>
+#5      CustomLintWorkspace.fromContextRoots (package:custom_lint/src/workspace.dart:515)
+<asynchronous suspension>
+#6      SocketCustomLintServerToClientChannel.create (package:custom_lint/src/v2/server_to_client_channel.dart:54)
+<asynchronous suspension>
+#7      CustomLintServer._maybeSpawnCustomLintPlugin (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:362)
+<asynchronous suspension>
+#8      CustomLintServer._handleAnalysisSetContextRoots.<anonymous closure> (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:343)
+<asynchronous suspension>
+#9      PendingOperation.run (package:custom_lint/src/async_operation.dart:22)
+<asynchronous suspension>
+#10     CustomLintServer._handleRequest (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:175)
+<asynchronous suspension>
+
+[custom_lint] 2026-05-16T21:51:18.360634 ProcessException: No such file or directory
+[custom_lint] 2026-05-16T21:51:18.360634   Command: dart lib/custom_lint_client.dart ::1 59786
+[custom_lint] 2026-05-16T21:51:18.360634 #0      _ProcessImpl._start (dart:io-patch/process_patch.dart:411)
+[custom_lint] 2026-05-16T21:51:18.360634 #1      Process.start (dart:io-patch/process_patch.dart:42)
+[custom_lint] 2026-05-16T21:51:18.360634 #2      SocketCustomLintServerToClientChannel._startProcess.<anonymous closure> (package:custom_lint/src/v2/server_to_client_channel.dart:155)
+[custom_lint] 2026-05-16T21:51:18.360634 #3      _asyncRetry (package:custom_lint/src/v2/server_to_client_channel.dart:24)
+[custom_lint] 2026-05-16T21:51:18.360634 #4      SocketCustomLintServerToClientChannel._startProcess (package:custom_lint/src/v2/server_to_client_channel.dart:154)
+[custom_lint] 2026-05-16T21:51:18.360634 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:51:18.360634 #5      SocketCustomLintServerToClientChannel.init (package:custom_lint/src/v2/server_to_client_channel.dart:111)
+[custom_lint] 2026-05-16T21:51:18.360634 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:51:18.360634 #6      CustomLintServer._maybeSpawnCustomLintPlugin (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:396)
+[custom_lint] 2026-05-16T21:51:18.360634 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:51:18.360634 #7      CustomLintServer._handleAnalysisSetContextRoots.<anonymous closure> (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:343)
+[custom_lint] 2026-05-16T21:51:18.360634 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:51:18.360634 #8      PendingOperation.run (package:custom_lint/src/async_operation.dart:22)
+[custom_lint] 2026-05-16T21:51:18.360634 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:51:18.360634 #9      CustomLintServer._handleRequest (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:175)
+[custom_lint] 2026-05-16T21:51:18.360634 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:51:18.360634
+[custom_lint] 2026-05-16T21:51:18.363245 ProcessException: No such file or directory
+[custom_lint] 2026-05-16T21:51:18.363245   Command: dart lib/custom_lint_client.dart ::1 59786
+[custom_lint] 2026-05-16T21:51:18.363245 #0      _ProcessImpl._start (dart:io-patch/process_patch.dart:411)
+[custom_lint] 2026-05-16T21:51:18.363245 #1      Process.start (dart:io-patch/process_patch.dart:42)
+[custom_lint] 2026-05-16T21:51:18.363245 #2      SocketCustomLintServerToClientChannel._startProcess.<anonymous closure> (package:custom_lint/src/v2/server_to_client_channel.dart:155)
+[custom_lint] 2026-05-16T21:51:18.363245 #3      _asyncRetry (package:custom_lint/src/v2/server_to_client_channel.dart:24)
+[custom_lint] 2026-05-16T21:51:18.363245 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:51:18.363245 #4      SocketCustomLintServerToClientChannel.init (package:custom_lint/src/v2/server_to_client_channel.dart:111)
+[custom_lint] 2026-05-16T21:51:18.363245 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:51:18.363245 #5      CustomLintServer._maybeSpawnCustomLintPlugin (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:396)
+[custom_lint] 2026-05-16T21:51:18.363245 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:51:18.363245 #6      CustomLintServer._handleAnalysisSetContextRoots.<anonymous closure> (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:343)
+[custom_lint] 2026-05-16T21:51:18.363245 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:51:18.363245 #7      PendingOperation.run (package:custom_lint/src/async_operation.dart:22)
+[custom_lint] 2026-05-16T21:51:18.363245 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:51:18.363245 #8      CustomLintServer._handleRequest (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:175)
+[custom_lint] 2026-05-16T21:51:18.363245 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:51:18.363245
+[custom_lint] 2026-05-16T21:51:18.365845 ProcessException: No such file or directory
+[custom_lint] 2026-05-16T21:51:18.365845   Command: dart lib/custom_lint_client.dart ::1 59786
+[custom_lint] 2026-05-16T21:51:18.365845 #0      _ProcessImpl._start (dart:io-patch/process_patch.dart:411)
+[custom_lint] 2026-05-16T21:51:18.365845 #1      Process.start (dart:io-patch/process_patch.dart:42)
+[custom_lint] 2026-05-16T21:51:18.365845 #2      SocketCustomLintServerToClientChannel._startProcess.<anonymous closure> (package:custom_lint/src/v2/server_to_client_channel.dart:155)
+[custom_lint] 2026-05-16T21:51:18.365845 #3      _asyncRetry (package:custom_lint/src/v2/server_to_client_channel.dart:24)
+[custom_lint] 2026-05-16T21:51:18.365845 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:51:18.365845 #4      SocketCustomLintServerToClientChannel.init (package:custom_lint/src/v2/server_to_client_channel.dart:111)
+[custom_lint] 2026-05-16T21:51:18.365845 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:51:18.365845 #5      CustomLintServer._maybeSpawnCustomLintPlugin (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:396)
+[custom_lint] 2026-05-16T21:51:18.365845 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:51:18.365845 #6      CustomLintServer._handleAnalysisSetContextRoots.<anonymous closure> (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:343)
+[custom_lint] 2026-05-16T21:51:18.365845 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:51:18.365845 #7      PendingOperation.run (package:custom_lint/src/async_operation.dart:22)
+[custom_lint] 2026-05-16T21:51:18.365845 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:51:18.365845 #8      CustomLintServer._handleRequest (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:175)
+[custom_lint] 2026-05-16T21:51:18.365845 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:51:18.365845
+[custom_lint] 2026-05-16T21:51:18.368122 ProcessException: No such file or directory
+[custom_lint] 2026-05-16T21:51:18.368122   Command: dart lib/custom_lint_client.dart ::1 59786
+[custom_lint] 2026-05-16T21:51:18.368122 #0      _ProcessImpl._start (dart:io-patch/process_patch.dart:411)
+[custom_lint] 2026-05-16T21:51:18.368122 #1      Process.start (dart:io-patch/process_patch.dart:42)
+[custom_lint] 2026-05-16T21:51:18.368122 #2      SocketCustomLintServerToClientChannel._startProcess.<anonymous closure> (package:custom_lint/src/v2/server_to_client_channel.dart:155)
+[custom_lint] 2026-05-16T21:51:18.368122 #3      _asyncRetry (package:custom_lint/src/v2/server_to_client_channel.dart:24)
+[custom_lint] 2026-05-16T21:51:18.368122 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:51:18.368122 #4      SocketCustomLintServerToClientChannel.init (package:custom_lint/src/v2/server_to_client_channel.dart:111)
+[custom_lint] 2026-05-16T21:51:18.368122 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:51:18.368122 #5      CustomLintServer._maybeSpawnCustomLintPlugin (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:396)
+[custom_lint] 2026-05-16T21:51:18.368122 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:51:18.368122 #6      CustomLintServer._handleAnalysisSetContextRoots.<anonymous closure> (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:343)
+[custom_lint] 2026-05-16T21:51:18.368122 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:51:18.368122 #7      PendingOperation.run (package:custom_lint/src/async_operation.dart:22)
+[custom_lint] 2026-05-16T21:51:18.368122 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:51:18.368122 #8      CustomLintServer._handleRequest (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:175)
+[custom_lint] 2026-05-16T21:51:18.368122 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:51:18.368122
+[custom_lint] 2026-05-16T21:51:18.370171 ProcessException: No such file or directory
+[custom_lint] 2026-05-16T21:51:18.370171   Command: dart lib/custom_lint_client.dart ::1 59786
+[custom_lint] 2026-05-16T21:51:18.370171 #0      _ProcessImpl._start (dart:io-patch/process_patch.dart:411)
+[custom_lint] 2026-05-16T21:51:18.370171 #1      Process.start (dart:io-patch/process_patch.dart:42)
+[custom_lint] 2026-05-16T21:51:18.370171 #2      SocketCustomLintServerToClientChannel._startProcess.<anonymous closure> (package:custom_lint/src/v2/server_to_client_channel.dart:155)
+[custom_lint] 2026-05-16T21:51:18.370171 #3      _asyncRetry (package:custom_lint/src/v2/server_to_client_channel.dart:24)
+[custom_lint] 2026-05-16T21:51:18.370171 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:51:18.370171 #4      SocketCustomLintServerToClientChannel.init (package:custom_lint/src/v2/server_to_client_channel.dart:111)
+[custom_lint] 2026-05-16T21:51:18.370171 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:51:18.370171 #5      CustomLintServer._maybeSpawnCustomLintPlugin (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:396)
+[custom_lint] 2026-05-16T21:51:18.370171 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:51:18.370171 #6      CustomLintServer._handleAnalysisSetContextRoots.<anonymous closure> (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:343)
+[custom_lint] 2026-05-16T21:51:18.370171 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:51:18.370171 #7      PendingOperation.run (package:custom_lint/src/async_operation.dart:22)
+[custom_lint] 2026-05-16T21:51:18.370171 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:51:18.370171 #8      CustomLintServer._handleRequest (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:175)
+[custom_lint] 2026-05-16T21:51:18.370171 <asynchronous suspension>
+[custom_lint] 2026-05-16T21:51:18.370171
+The request analysis.setContextRoots failed with the following error:
+RequestErrorCode.PLUGIN_ERROR
+ProcessException: No such file or directory
+  Command: dart lib/custom_lint_client.dart ::1 59786
+at:
+#0      _ProcessImpl._start (dart:io-patch/process_patch.dart:411)
+#1      Process.start (dart:io-patch/process_patch.dart:42)
+#2      SocketCustomLintServerToClientChannel._startProcess.<anonymous closure> (package:custom_lint/src/v2/server_to_client_channel.dart:155)
+#3      _asyncRetry (package:custom_lint/src/v2/server_to_client_channel.dart:24)
+<asynchronous suspension>
+#4      SocketCustomLintServerToClientChannel.init (package:custom_lint/src/v2/server_to_client_channel.dart:111)
+<asynchronous suspension>
+#5      CustomLintServer._maybeSpawnCustomLintPlugin (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:396)
+<asynchronous suspension>
+#6      CustomLintServer._handleAnalysisSetContextRoots.<anonymous closure> (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:343)
+<asynchronous suspension>
+#7      PendingOperation.run (package:custom_lint/src/async_operation.dart:22)
+<asynchronous suspension>
+#8      CustomLintServer._handleRequest (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:175)
+<asynchronous suspension>
+
+[custom_lint] 2026-05-16T22:06:20.488956 ProcessException: No such file or directory
+[custom_lint] 2026-05-16T22:06:20.488956   Command: dart lib/custom_lint_client.dart ::1 60704
+[custom_lint] 2026-05-16T22:06:20.488956 #0      _ProcessImpl._start (dart:io-patch/process_patch.dart:411)
+[custom_lint] 2026-05-16T22:06:20.488956 #1      Process.start (dart:io-patch/process_patch.dart:42)
+[custom_lint] 2026-05-16T22:06:20.488956 #2      SocketCustomLintServerToClientChannel._startProcess.<anonymous closure> (package:custom_lint/src/v2/server_to_client_channel.dart:155)
+[custom_lint] 2026-05-16T22:06:20.488956 #3      _asyncRetry (package:custom_lint/src/v2/server_to_client_channel.dart:24)
+[custom_lint] 2026-05-16T22:06:20.488956 #4      SocketCustomLintServerToClientChannel._startProcess (package:custom_lint/src/v2/server_to_client_channel.dart:154)
+[custom_lint] 2026-05-16T22:06:20.488956 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:06:20.488956 #5      SocketCustomLintServerToClientChannel.init (package:custom_lint/src/v2/server_to_client_channel.dart:111)
+[custom_lint] 2026-05-16T22:06:20.488956 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:06:20.488956 #6      CustomLintServer._maybeSpawnCustomLintPlugin (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:396)
+[custom_lint] 2026-05-16T22:06:20.488956 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:06:20.488956 #7      CustomLintServer._handleAnalysisSetContextRoots.<anonymous closure> (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:343)
+[custom_lint] 2026-05-16T22:06:20.488956 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:06:20.488956 #8      PendingOperation.run (package:custom_lint/src/async_operation.dart:22)
+[custom_lint] 2026-05-16T22:06:20.488956 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:06:20.488956 #9      CustomLintServer._handleRequest (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:175)
+[custom_lint] 2026-05-16T22:06:20.488956 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:06:20.488956
+[custom_lint] 2026-05-16T22:06:20.492426 ProcessException: No such file or directory
+[custom_lint] 2026-05-16T22:06:20.492426   Command: dart lib/custom_lint_client.dart ::1 60704
+[custom_lint] 2026-05-16T22:06:20.492426 #0      _ProcessImpl._start (dart:io-patch/process_patch.dart:411)
+[custom_lint] 2026-05-16T22:06:20.492426 #1      Process.start (dart:io-patch/process_patch.dart:42)
+[custom_lint] 2026-05-16T22:06:20.492426 #2      SocketCustomLintServerToClientChannel._startProcess.<anonymous closure> (package:custom_lint/src/v2/server_to_client_channel.dart:155)
+[custom_lint] 2026-05-16T22:06:20.492426 #3      _asyncRetry (package:custom_lint/src/v2/server_to_client_channel.dart:24)
+[custom_lint] 2026-05-16T22:06:20.492426 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:06:20.492426 #4      SocketCustomLintServerToClientChannel.init (package:custom_lint/src/v2/server_to_client_channel.dart:111)
+[custom_lint] 2026-05-16T22:06:20.492426 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:06:20.492426 #5      CustomLintServer._maybeSpawnCustomLintPlugin (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:396)
+[custom_lint] 2026-05-16T22:06:20.492426 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:06:20.492426 #6      CustomLintServer._handleAnalysisSetContextRoots.<anonymous closure> (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:343)
+[custom_lint] 2026-05-16T22:06:20.492426 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:06:20.492426 #7      PendingOperation.run (package:custom_lint/src/async_operation.dart:22)
+[custom_lint] 2026-05-16T22:06:20.492426 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:06:20.492426 #8      CustomLintServer._handleRequest (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:175)
+[custom_lint] 2026-05-16T22:06:20.492426 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:06:20.492426
+[custom_lint] 2026-05-16T22:06:20.496073 ProcessException: No such file or directory
+[custom_lint] 2026-05-16T22:06:20.496073   Command: dart lib/custom_lint_client.dart ::1 60704
+[custom_lint] 2026-05-16T22:06:20.496073 #0      _ProcessImpl._start (dart:io-patch/process_patch.dart:411)
+[custom_lint] 2026-05-16T22:06:20.496073 #1      Process.start (dart:io-patch/process_patch.dart:42)
+[custom_lint] 2026-05-16T22:06:20.496073 #2      SocketCustomLintServerToClientChannel._startProcess.<anonymous closure> (package:custom_lint/src/v2/server_to_client_channel.dart:155)
+[custom_lint] 2026-05-16T22:06:20.496073 #3      _asyncRetry (package:custom_lint/src/v2/server_to_client_channel.dart:24)
+[custom_lint] 2026-05-16T22:06:20.496073 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:06:20.496073 #4      SocketCustomLintServerToClientChannel.init (package:custom_lint/src/v2/server_to_client_channel.dart:111)
+[custom_lint] 2026-05-16T22:06:20.496073 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:06:20.496073 #5      CustomLintServer._maybeSpawnCustomLintPlugin (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:396)
+[custom_lint] 2026-05-16T22:06:20.496073 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:06:20.496073 #6      CustomLintServer._handleAnalysisSetContextRoots.<anonymous closure> (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:343)
+[custom_lint] 2026-05-16T22:06:20.496073 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:06:20.496073 #7      PendingOperation.run (package:custom_lint/src/async_operation.dart:22)
+[custom_lint] 2026-05-16T22:06:20.496073 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:06:20.496073 #8      CustomLintServer._handleRequest (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:175)
+[custom_lint] 2026-05-16T22:06:20.496073 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:06:20.496073
+[custom_lint] 2026-05-16T22:06:20.499408 ProcessException: No such file or directory
+[custom_lint] 2026-05-16T22:06:20.499408   Command: dart lib/custom_lint_client.dart ::1 60704
+[custom_lint] 2026-05-16T22:06:20.499408 #0      _ProcessImpl._start (dart:io-patch/process_patch.dart:411)
+[custom_lint] 2026-05-16T22:06:20.499408 #1      Process.start (dart:io-patch/process_patch.dart:42)
+[custom_lint] 2026-05-16T22:06:20.499408 #2      SocketCustomLintServerToClientChannel._startProcess.<anonymous closure> (package:custom_lint/src/v2/server_to_client_channel.dart:155)
+[custom_lint] 2026-05-16T22:06:20.499408 #3      _asyncRetry (package:custom_lint/src/v2/server_to_client_channel.dart:24)
+[custom_lint] 2026-05-16T22:06:20.499408 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:06:20.499408 #4      SocketCustomLintServerToClientChannel.init (package:custom_lint/src/v2/server_to_client_channel.dart:111)
+[custom_lint] 2026-05-16T22:06:20.499408 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:06:20.499408 #5      CustomLintServer._maybeSpawnCustomLintPlugin (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:396)
+[custom_lint] 2026-05-16T22:06:20.499408 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:06:20.499408 #6      CustomLintServer._handleAnalysisSetContextRoots.<anonymous closure> (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:343)
+[custom_lint] 2026-05-16T22:06:20.499408 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:06:20.499408 #7      PendingOperation.run (package:custom_lint/src/async_operation.dart:22)
+[custom_lint] 2026-05-16T22:06:20.499408 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:06:20.499408 #8      CustomLintServer._handleRequest (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:175)
+[custom_lint] 2026-05-16T22:06:20.499408 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:06:20.499408
+[custom_lint] 2026-05-16T22:06:20.502741 ProcessException: No such file or directory
+[custom_lint] 2026-05-16T22:06:20.502741   Command: dart lib/custom_lint_client.dart ::1 60704
+[custom_lint] 2026-05-16T22:06:20.502741 #0      _ProcessImpl._start (dart:io-patch/process_patch.dart:411)
+[custom_lint] 2026-05-16T22:06:20.502741 #1      Process.start (dart:io-patch/process_patch.dart:42)
+[custom_lint] 2026-05-16T22:06:20.502741 #2      SocketCustomLintServerToClientChannel._startProcess.<anonymous closure> (package:custom_lint/src/v2/server_to_client_channel.dart:155)
+[custom_lint] 2026-05-16T22:06:20.502741 #3      _asyncRetry (package:custom_lint/src/v2/server_to_client_channel.dart:24)
+[custom_lint] 2026-05-16T22:06:20.502741 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:06:20.502741 #4      SocketCustomLintServerToClientChannel.init (package:custom_lint/src/v2/server_to_client_channel.dart:111)
+[custom_lint] 2026-05-16T22:06:20.502741 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:06:20.502741 #5      CustomLintServer._maybeSpawnCustomLintPlugin (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:396)
+[custom_lint] 2026-05-16T22:06:20.502741 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:06:20.502741 #6      CustomLintServer._handleAnalysisSetContextRoots.<anonymous closure> (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:343)
+[custom_lint] 2026-05-16T22:06:20.502741 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:06:20.502741 #7      PendingOperation.run (package:custom_lint/src/async_operation.dart:22)
+[custom_lint] 2026-05-16T22:06:20.502741 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:06:20.502741 #8      CustomLintServer._handleRequest (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:175)
+[custom_lint] 2026-05-16T22:06:20.502741 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:06:20.502741
+The request analysis.setContextRoots failed with the following error:
+RequestErrorCode.PLUGIN_ERROR
+ProcessException: No such file or directory
+  Command: dart lib/custom_lint_client.dart ::1 60704
+at:
+#0      _ProcessImpl._start (dart:io-patch/process_patch.dart:411)
+#1      Process.start (dart:io-patch/process_patch.dart:42)
+#2      SocketCustomLintServerToClientChannel._startProcess.<anonymous closure> (package:custom_lint/src/v2/server_to_client_channel.dart:155)
+#3      _asyncRetry (package:custom_lint/src/v2/server_to_client_channel.dart:24)
+<asynchronous suspension>
+#4      SocketCustomLintServerToClientChannel.init (package:custom_lint/src/v2/server_to_client_channel.dart:111)
+<asynchronous suspension>
+#5      CustomLintServer._maybeSpawnCustomLintPlugin (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:396)
+<asynchronous suspension>
+#6      CustomLintServer._handleAnalysisSetContextRoots.<anonymous closure> (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:343)
+<asynchronous suspension>
+#7      PendingOperation.run (package:custom_lint/src/async_operation.dart:22)
+<asynchronous suspension>
+#8      CustomLintServer._handleRequest (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:175)
+<asynchronous suspension>
+
+[custom_lint] 2026-05-16T22:15:51.505603 ProcessException: No such file or directory
+[custom_lint] 2026-05-16T22:15:51.505603   Command: dart lib/custom_lint_client.dart ::1 61167
+[custom_lint] 2026-05-16T22:15:51.505603 #0      _ProcessImpl._start (dart:io-patch/process_patch.dart:411)
+[custom_lint] 2026-05-16T22:15:51.505603 #1      Process.start (dart:io-patch/process_patch.dart:42)
+[custom_lint] 2026-05-16T22:15:51.505603 #2      SocketCustomLintServerToClientChannel._startProcess.<anonymous closure> (package:custom_lint/src/v2/server_to_client_channel.dart:155)
+[custom_lint] 2026-05-16T22:15:51.505603 #3      _asyncRetry (package:custom_lint/src/v2/server_to_client_channel.dart:24)
+[custom_lint] 2026-05-16T22:15:51.505603 #4      SocketCustomLintServerToClientChannel._startProcess (package:custom_lint/src/v2/server_to_client_channel.dart:154)
+[custom_lint] 2026-05-16T22:15:51.505603 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:15:51.505603 #5      SocketCustomLintServerToClientChannel.init (package:custom_lint/src/v2/server_to_client_channel.dart:111)
+[custom_lint] 2026-05-16T22:15:51.505603 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:15:51.505603 #6      CustomLintServer._maybeSpawnCustomLintPlugin (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:396)
+[custom_lint] 2026-05-16T22:15:51.505603 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:15:51.505603 #7      CustomLintServer._handleAnalysisSetContextRoots.<anonymous closure> (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:343)
+[custom_lint] 2026-05-16T22:15:51.505603 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:15:51.505603 #8      PendingOperation.run (package:custom_lint/src/async_operation.dart:22)
+[custom_lint] 2026-05-16T22:15:51.505603 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:15:51.505603 #9      CustomLintServer._handleRequest (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:175)
+[custom_lint] 2026-05-16T22:15:51.505603 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:15:51.505603
+[custom_lint] 2026-05-16T22:15:51.507528 ProcessException: No such file or directory
+[custom_lint] 2026-05-16T22:15:51.507528   Command: dart lib/custom_lint_client.dart ::1 61167
+[custom_lint] 2026-05-16T22:15:51.507528 #0      _ProcessImpl._start (dart:io-patch/process_patch.dart:411)
+[custom_lint] 2026-05-16T22:15:51.507528 #1      Process.start (dart:io-patch/process_patch.dart:42)
+[custom_lint] 2026-05-16T22:15:51.507528 #2      SocketCustomLintServerToClientChannel._startProcess.<anonymous closure> (package:custom_lint/src/v2/server_to_client_channel.dart:155)
+[custom_lint] 2026-05-16T22:15:51.507528 #3      _asyncRetry (package:custom_lint/src/v2/server_to_client_channel.dart:24)
+[custom_lint] 2026-05-16T22:15:51.507528 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:15:51.507528 #4      SocketCustomLintServerToClientChannel.init (package:custom_lint/src/v2/server_to_client_channel.dart:111)
+[custom_lint] 2026-05-16T22:15:51.507528 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:15:51.507528 #5      CustomLintServer._maybeSpawnCustomLintPlugin (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:396)
+[custom_lint] 2026-05-16T22:15:51.507528 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:15:51.507528 #6      CustomLintServer._handleAnalysisSetContextRoots.<anonymous closure> (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:343)
+[custom_lint] 2026-05-16T22:15:51.507528 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:15:51.507528 #7      PendingOperation.run (package:custom_lint/src/async_operation.dart:22)
+[custom_lint] 2026-05-16T22:15:51.507528 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:15:51.507528 #8      CustomLintServer._handleRequest (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:175)
+[custom_lint] 2026-05-16T22:15:51.507528 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:15:51.507528
+[custom_lint] 2026-05-16T22:15:51.509157 ProcessException: No such file or directory
+[custom_lint] 2026-05-16T22:15:51.509157   Command: dart lib/custom_lint_client.dart ::1 61167
+[custom_lint] 2026-05-16T22:15:51.509157 #0      _ProcessImpl._start (dart:io-patch/process_patch.dart:411)
+[custom_lint] 2026-05-16T22:15:51.509157 #1      Process.start (dart:io-patch/process_patch.dart:42)
+[custom_lint] 2026-05-16T22:15:51.509157 #2      SocketCustomLintServerToClientChannel._startProcess.<anonymous closure> (package:custom_lint/src/v2/server_to_client_channel.dart:155)
+[custom_lint] 2026-05-16T22:15:51.509157 #3      _asyncRetry (package:custom_lint/src/v2/server_to_client_channel.dart:24)
+[custom_lint] 2026-05-16T22:15:51.509157 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:15:51.509157 #4      SocketCustomLintServerToClientChannel.init (package:custom_lint/src/v2/server_to_client_channel.dart:111)
+[custom_lint] 2026-05-16T22:15:51.509157 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:15:51.509157 #5      CustomLintServer._maybeSpawnCustomLintPlugin (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:396)
+[custom_lint] 2026-05-16T22:15:51.509157 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:15:51.509157 #6      CustomLintServer._handleAnalysisSetContextRoots.<anonymous closure> (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:343)
+[custom_lint] 2026-05-16T22:15:51.509157 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:15:51.509157 #7      PendingOperation.run (package:custom_lint/src/async_operation.dart:22)
+[custom_lint] 2026-05-16T22:15:51.509157 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:15:51.509157 #8      CustomLintServer._handleRequest (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:175)
+[custom_lint] 2026-05-16T22:15:51.509157 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:15:51.509157
+[custom_lint] 2026-05-16T22:15:51.510896 ProcessException: No such file or directory
+[custom_lint] 2026-05-16T22:15:51.510896   Command: dart lib/custom_lint_client.dart ::1 61167
+[custom_lint] 2026-05-16T22:15:51.510896 #0      _ProcessImpl._start (dart:io-patch/process_patch.dart:411)
+[custom_lint] 2026-05-16T22:15:51.510896 #1      Process.start (dart:io-patch/process_patch.dart:42)
+[custom_lint] 2026-05-16T22:15:51.510896 #2      SocketCustomLintServerToClientChannel._startProcess.<anonymous closure> (package:custom_lint/src/v2/server_to_client_channel.dart:155)
+[custom_lint] 2026-05-16T22:15:51.510896 #3      _asyncRetry (package:custom_lint/src/v2/server_to_client_channel.dart:24)
+[custom_lint] 2026-05-16T22:15:51.510896 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:15:51.510896 #4      SocketCustomLintServerToClientChannel.init (package:custom_lint/src/v2/server_to_client_channel.dart:111)
+[custom_lint] 2026-05-16T22:15:51.510896 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:15:51.510896 #5      CustomLintServer._maybeSpawnCustomLintPlugin (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:396)
+[custom_lint] 2026-05-16T22:15:51.510896 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:15:51.510896 #6      CustomLintServer._handleAnalysisSetContextRoots.<anonymous closure> (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:343)
+[custom_lint] 2026-05-16T22:15:51.510896 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:15:51.510896 #7      PendingOperation.run (package:custom_lint/src/async_operation.dart:22)
+[custom_lint] 2026-05-16T22:15:51.510896 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:15:51.510896 #8      CustomLintServer._handleRequest (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:175)
+[custom_lint] 2026-05-16T22:15:51.510896 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:15:51.510896
+[custom_lint] 2026-05-16T22:15:51.513457 ProcessException: No such file or directory
+[custom_lint] 2026-05-16T22:15:51.513457   Command: dart lib/custom_lint_client.dart ::1 61167
+[custom_lint] 2026-05-16T22:15:51.513457 #0      _ProcessImpl._start (dart:io-patch/process_patch.dart:411)
+[custom_lint] 2026-05-16T22:15:51.513457 #1      Process.start (dart:io-patch/process_patch.dart:42)
+[custom_lint] 2026-05-16T22:15:51.513457 #2      SocketCustomLintServerToClientChannel._startProcess.<anonymous closure> (package:custom_lint/src/v2/server_to_client_channel.dart:155)
+[custom_lint] 2026-05-16T22:15:51.513457 #3      _asyncRetry (package:custom_lint/src/v2/server_to_client_channel.dart:24)
+[custom_lint] 2026-05-16T22:15:51.513457 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:15:51.513457 #4      SocketCustomLintServerToClientChannel.init (package:custom_lint/src/v2/server_to_client_channel.dart:111)
+[custom_lint] 2026-05-16T22:15:51.513457 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:15:51.513457 #5      CustomLintServer._maybeSpawnCustomLintPlugin (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:396)
+[custom_lint] 2026-05-16T22:15:51.513457 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:15:51.513457 #6      CustomLintServer._handleAnalysisSetContextRoots.<anonymous closure> (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:343)
+[custom_lint] 2026-05-16T22:15:51.513457 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:15:51.513457 #7      PendingOperation.run (package:custom_lint/src/async_operation.dart:22)
+[custom_lint] 2026-05-16T22:15:51.513457 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:15:51.513457 #8      CustomLintServer._handleRequest (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:175)
+[custom_lint] 2026-05-16T22:15:51.513457 <asynchronous suspension>
+[custom_lint] 2026-05-16T22:15:51.513457
+The request analysis.setContextRoots failed with the following error:
+RequestErrorCode.PLUGIN_ERROR
+ProcessException: No such file or directory
+  Command: dart lib/custom_lint_client.dart ::1 61167
+at:
+#0      _ProcessImpl._start (dart:io-patch/process_patch.dart:411)
+#1      Process.start (dart:io-patch/process_patch.dart:42)
+#2      SocketCustomLintServerToClientChannel._startProcess.<anonymous closure> (package:custom_lint/src/v2/server_to_client_channel.dart:155)
+#3      _asyncRetry (package:custom_lint/src/v2/server_to_client_channel.dart:24)
+<asynchronous suspension>
+#4      SocketCustomLintServerToClientChannel.init (package:custom_lint/src/v2/server_to_client_channel.dart:111)
+<asynchronous suspension>
+#5      CustomLintServer._maybeSpawnCustomLintPlugin (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:396)
+<asynchronous suspension>
+#6      CustomLintServer._handleAnalysisSetContextRoots.<anonymous closure> (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:343)
+<asynchronous suspension>
+#7      PendingOperation.run (package:custom_lint/src/async_operation.dart:22)
+<asynchronous suspension>
+#8      CustomLintServer._handleRequest (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:175)
+<asynchronous suspension>
+
+[custom_lint] 2026-05-16T23:40:21.761964 ProcessException: No such file or directory
+[custom_lint] 2026-05-16T23:40:21.761964   Command: dart lib/custom_lint_client.dart ::1 49616
+[custom_lint] 2026-05-16T23:40:21.761964 #0      _ProcessImpl._start (dart:io-patch/process_patch.dart:411)
+[custom_lint] 2026-05-16T23:40:21.761964 #1      Process.start (dart:io-patch/process_patch.dart:42)
+[custom_lint] 2026-05-16T23:40:21.761964 #2      SocketCustomLintServerToClientChannel._startProcess.<anonymous closure> (package:custom_lint/src/v2/server_to_client_channel.dart:155)
+[custom_lint] 2026-05-16T23:40:21.761964 #3      _asyncRetry (package:custom_lint/src/v2/server_to_client_channel.dart:24)
+[custom_lint] 2026-05-16T23:40:21.761964 #4      SocketCustomLintServerToClientChannel._startProcess (package:custom_lint/src/v2/server_to_client_channel.dart:154)
+[custom_lint] 2026-05-16T23:40:21.761964 <asynchronous suspension>
+[custom_lint] 2026-05-16T23:40:21.761964 #5      SocketCustomLintServerToClientChannel.init (package:custom_lint/src/v2/server_to_client_channel.dart:111)
+[custom_lint] 2026-05-16T23:40:21.761964 <asynchronous suspension>
+[custom_lint] 2026-05-16T23:40:21.761964 #6      CustomLintServer._maybeSpawnCustomLintPlugin (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:396)
+[custom_lint] 2026-05-16T23:40:21.761964 <asynchronous suspension>
+[custom_lint] 2026-05-16T23:40:21.761964 #7      CustomLintServer._handleAnalysisSetContextRoots.<anonymous closure> (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:343)
+[custom_lint] 2026-05-16T23:40:21.761964 <asynchronous suspension>
+[custom_lint] 2026-05-16T23:40:21.761964 #8      PendingOperation.run (package:custom_lint/src/async_operation.dart:22)
+[custom_lint] 2026-05-16T23:40:21.761964 <asynchronous suspension>
+[custom_lint] 2026-05-16T23:40:21.761964 #9      CustomLintServer._handleRequest (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:175)
+[custom_lint] 2026-05-16T23:40:21.761964 <asynchronous suspension>
+[custom_lint] 2026-05-16T23:40:21.761964
+[custom_lint] 2026-05-16T23:40:21.782583 ProcessException: No such file or directory
+[custom_lint] 2026-05-16T23:40:21.782583   Command: dart lib/custom_lint_client.dart ::1 49616
+[custom_lint] 2026-05-16T23:40:21.782583 #0      _ProcessImpl._start (dart:io-patch/process_patch.dart:411)
+[custom_lint] 2026-05-16T23:40:21.782583 #1      Process.start (dart:io-patch/process_patch.dart:42)
+[custom_lint] 2026-05-16T23:40:21.782583 #2      SocketCustomLintServerToClientChannel._startProcess.<anonymous closure> (package:custom_lint/src/v2/server_to_client_channel.dart:155)
+[custom_lint] 2026-05-16T23:40:21.782583 #3      _asyncRetry (package:custom_lint/src/v2/server_to_client_channel.dart:24)
+[custom_lint] 2026-05-16T23:40:21.782583 <asynchronous suspension>
+[custom_lint] 2026-05-16T23:40:21.782583 #4      SocketCustomLintServerToClientChannel.init (package:custom_lint/src/v2/server_to_client_channel.dart:111)
+[custom_lint] 2026-05-16T23:40:21.782583 <asynchronous suspension>
+[custom_lint] 2026-05-16T23:40:21.782583 #5      CustomLintServer._maybeSpawnCustomLintPlugin (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:396)
+[custom_lint] 2026-05-16T23:40:21.782583 <asynchronous suspension>
+[custom_lint] 2026-05-16T23:40:21.782583 #6      CustomLintServer._handleAnalysisSetContextRoots.<anonymous closure> (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:343)
+[custom_lint] 2026-05-16T23:40:21.782583 <asynchronous suspension>
+[custom_lint] 2026-05-16T23:40:21.782583 #7      PendingOperation.run (package:custom_lint/src/async_operation.dart:22)
+[custom_lint] 2026-05-16T23:40:21.782583 <asynchronous suspension>
+[custom_lint] 2026-05-16T23:40:21.782583 #8      CustomLintServer._handleRequest (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:175)
+[custom_lint] 2026-05-16T23:40:21.782583 <asynchronous suspension>
+[custom_lint] 2026-05-16T23:40:21.782583
+[custom_lint] 2026-05-16T23:40:21.809016 ProcessException: No such file or directory
+[custom_lint] 2026-05-16T23:40:21.809016   Command: dart lib/custom_lint_client.dart ::1 49616
+[custom_lint] 2026-05-16T23:40:21.809016 #0      _ProcessImpl._start (dart:io-patch/process_patch.dart:411)
+[custom_lint] 2026-05-16T23:40:21.809016 #1      Process.start (dart:io-patch/process_patch.dart:42)
+[custom_lint] 2026-05-16T23:40:21.809016 #2      SocketCustomLintServerToClientChannel._startProcess.<anonymous closure> (package:custom_lint/src/v2/server_to_client_channel.dart:155)
+[custom_lint] 2026-05-16T23:40:21.809016 #3      _asyncRetry (package:custom_lint/src/v2/server_to_client_channel.dart:24)
+[custom_lint] 2026-05-16T23:40:21.809016 <asynchronous suspension>
+[custom_lint] 2026-05-16T23:40:21.809016 #4      SocketCustomLintServerToClientChannel.init (package:custom_lint/src/v2/server_to_client_channel.dart:111)
+[custom_lint] 2026-05-16T23:40:21.809016 <asynchronous suspension>
+[custom_lint] 2026-05-16T23:40:21.809016 #5      CustomLintServer._maybeSpawnCustomLintPlugin (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:396)
+[custom_lint] 2026-05-16T23:40:21.809016 <asynchronous suspension>
+[custom_lint] 2026-05-16T23:40:21.809016 #6      CustomLintServer._handleAnalysisSetContextRoots.<anonymous closure> (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:343)
+[custom_lint] 2026-05-16T23:40:21.809016 <asynchronous suspension>
+[custom_lint] 2026-05-16T23:40:21.809016 #7      PendingOperation.run (package:custom_lint/src/async_operation.dart:22)
+[custom_lint] 2026-05-16T23:40:21.809016 <asynchronous suspension>
+[custom_lint] 2026-05-16T23:40:21.809016 #8      CustomLintServer._handleRequest (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:175)
+[custom_lint] 2026-05-16T23:40:21.809016 <asynchronous suspension>
+[custom_lint] 2026-05-16T23:40:21.809016
+[custom_lint] 2026-05-16T23:40:21.826981 ProcessException: No such file or directory
+[custom_lint] 2026-05-16T23:40:21.826981   Command: dart lib/custom_lint_client.dart ::1 49616
+[custom_lint] 2026-05-16T23:40:21.826981 #0      _ProcessImpl._start (dart:io-patch/process_patch.dart:411)
+[custom_lint] 2026-05-16T23:40:21.826981 #1      Process.start (dart:io-patch/process_patch.dart:42)
+[custom_lint] 2026-05-16T23:40:21.826981 #2      SocketCustomLintServerToClientChannel._startProcess.<anonymous closure> (package:custom_lint/src/v2/server_to_client_channel.dart:155)
+[custom_lint] 2026-05-16T23:40:21.826981 #3      _asyncRetry (package:custom_lint/src/v2/server_to_client_channel.dart:24)
+[custom_lint] 2026-05-16T23:40:21.826981 <asynchronous suspension>
+[custom_lint] 2026-05-16T23:40:21.826981 #4      SocketCustomLintServerToClientChannel.init (package:custom_lint/src/v2/server_to_client_channel.dart:111)
+[custom_lint] 2026-05-16T23:40:21.826981 <asynchronous suspension>
+[custom_lint] 2026-05-16T23:40:21.826981 #5      CustomLintServer._maybeSpawnCustomLintPlugin (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:396)
+[custom_lint] 2026-05-16T23:40:21.826981 <asynchronous suspension>
+[custom_lint] 2026-05-16T23:40:21.826981 #6      CustomLintServer._handleAnalysisSetContextRoots.<anonymous closure> (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:343)
+[custom_lint] 2026-05-16T23:40:21.826981 <asynchronous suspension>
+[custom_lint] 2026-05-16T23:40:21.826981 #7      PendingOperation.run (package:custom_lint/src/async_operation.dart:22)
+[custom_lint] 2026-05-16T23:40:21.826981 <asynchronous suspension>
+[custom_lint] 2026-05-16T23:40:21.826981 #8      CustomLintServer._handleRequest (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:175)
+[custom_lint] 2026-05-16T23:40:21.826981 <asynchronous suspension>
+[custom_lint] 2026-05-16T23:40:21.826981
+[custom_lint] 2026-05-16T23:40:21.848002 ProcessException: No such file or directory
+[custom_lint] 2026-05-16T23:40:21.848002   Command: dart lib/custom_lint_client.dart ::1 49616
+[custom_lint] 2026-05-16T23:40:21.848002 #0      _ProcessImpl._start (dart:io-patch/process_patch.dart:411)
+[custom_lint] 2026-05-16T23:40:21.848002 #1      Process.start (dart:io-patch/process_patch.dart:42)
+[custom_lint] 2026-05-16T23:40:21.848002 #2      SocketCustomLintServerToClientChannel._startProcess.<anonymous closure> (package:custom_lint/src/v2/server_to_client_channel.dart:155)
+[custom_lint] 2026-05-16T23:40:21.848002 #3      _asyncRetry (package:custom_lint/src/v2/server_to_client_channel.dart:24)
+[custom_lint] 2026-05-16T23:40:21.848002 <asynchronous suspension>
+[custom_lint] 2026-05-16T23:40:21.848002 #4      SocketCustomLintServerToClientChannel.init (package:custom_lint/src/v2/server_to_client_channel.dart:111)
+[custom_lint] 2026-05-16T23:40:21.848002 <asynchronous suspension>
+[custom_lint] 2026-05-16T23:40:21.848002 #5      CustomLintServer._maybeSpawnCustomLintPlugin (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:396)
+[custom_lint] 2026-05-16T23:40:21.848002 <asynchronous suspension>
+[custom_lint] 2026-05-16T23:40:21.848002 #6      CustomLintServer._handleAnalysisSetContextRoots.<anonymous closure> (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:343)
+[custom_lint] 2026-05-16T23:40:21.848002 <asynchronous suspension>
+[custom_lint] 2026-05-16T23:40:21.848002 #7      PendingOperation.run (package:custom_lint/src/async_operation.dart:22)
+[custom_lint] 2026-05-16T23:40:21.848002 <asynchronous suspension>
+[custom_lint] 2026-05-16T23:40:21.848002 #8      CustomLintServer._handleRequest (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:175)
+[custom_lint] 2026-05-16T23:40:21.848002 <asynchronous suspension>
+[custom_lint] 2026-05-16T23:40:21.848002
+The request analysis.setContextRoots failed with the following error:
+RequestErrorCode.PLUGIN_ERROR
+ProcessException: No such file or directory
+  Command: dart lib/custom_lint_client.dart ::1 49616
+at:
+#0      _ProcessImpl._start (dart:io-patch/process_patch.dart:411)
+#1      Process.start (dart:io-patch/process_patch.dart:42)
+#2      SocketCustomLintServerToClientChannel._startProcess.<anonymous closure> (package:custom_lint/src/v2/server_to_client_channel.dart:155)
+#3      _asyncRetry (package:custom_lint/src/v2/server_to_client_channel.dart:24)
+<asynchronous suspension>
+#4      SocketCustomLintServerToClientChannel.init (package:custom_lint/src/v2/server_to_client_channel.dart:111)
+<asynchronous suspension>
+#5      CustomLintServer._maybeSpawnCustomLintPlugin (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:396)
+<asynchronous suspension>
+#6      CustomLintServer._handleAnalysisSetContextRoots.<anonymous closure> (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:343)
+<asynchronous suspension>
+#7      PendingOperation.run (package:custom_lint/src/async_operation.dart:22)
+<asynchronous suspension>
+#8      CustomLintServer._handleRequest (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:175)
+<asynchronous suspension>
+

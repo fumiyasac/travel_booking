@@ -1,0 +1,25 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.Spotlight-V100
+.Trashes
+.fseventsd
+
+# エディタ・IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# melos
+.melos_tool/
+.dart_tool/
+pubspec_overrides.yaml
+
+# 環境変数
+.env
+*.local

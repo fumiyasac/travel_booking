@@ -1,0 +1,33 @@
+mutation CreateBooking($input: CreateBookingInput!) {
+  createBooking(input: $input) {
+    success
+    message
+    booking {
+      id
+      planId
+      customerName
+      customerEmail
+      customerPhone
+      numberOfPeople
+      travelDate
+      specialRequests
+      totalPrice
+      status
+      paymentMethod
+      createdAt
+      updatedAt
+    }
+  }
+}
+
+mutation CancelBooking($id: ID!) {
+  cancelBooking(id: $id) {
+    success
+    message
+    booking {
+      id
+      status
+      updatedAt
+    }
+  }
+}
