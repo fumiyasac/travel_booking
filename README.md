@@ -1,7 +1,486 @@
 # Travel Booking App
 
 旅行プランの閲覧・予約サービスのサンプルアプリです。  
-Flutterモバイルアプリ + Node.jsバックエンドで構成されるモノレポ構成です。
+Flutter モバイルアプリ（iOS / Android）と Node.js / GraphQL バックエンドで構成される Melos モノレポです。
+
+---
+
+## 目次
+
+1. [前提条件](#前提条件)
+2. [クイックスタート](#クイックスタート)
+3. [詳細セットアップ](#詳細セットアップ)
+   - [バックエンドのセットアップ](#step-2-バックエンドのセットアップdocker)
+   - [モバイルアプリのセットアップ](#step-3-モバイルアプリのセットアップ)
+   - [接続 URL の設定](#step-4-接続-url-の設定重要)
+4. [実行環境別の起動手順](#実行環境別の起動手順)
+   - [iOS シミュレーター](#ios-シミュレーター)
+   - [Android エミュレーター](#android-エミュレーター)
+   - [iOS 実機](#ios-実機)
+   - [Android 実機](#android-実機)
+5. [開発コマンド（melos）](#開発コマンドmelos)
+6. [Claude Code スキル](#claude-code-スキル)
+7. [プロジェクト構成](#プロジェクト構成)
+8. [アーキテクチャ](#アーキテクチャ)
+9. [GraphQL API リファレンス](#graphql-api-リファレンス)
+10. [テスト](#テスト)
+11. [トラブルシューティング](#トラブルシューティング)
+
+---
+
+## 前提条件
+
+開発を始める前に以下のツールをインストールしてください。
+
+| ツール | 推奨バージョン | 確認コマンド |
+|---|---|---|
+| Flutter | 3.x 以上 | `flutter --version` |
+| Dart | 3.x 以上（Flutter に同梱） | `dart --version` |
+| Node.js | 20 以上 | `node --version` |
+| Docker Desktop | 最新安定版 | `docker --version` |
+| Xcode | 15 以上（iOS 開発時） | `xcode-select -p` |
+| Android Studio | 最新版（Android 開発時） | — |
+
+### Flutter のインストール（未インストールの場合）
+
+```bash
+# Flutter 公式サイト (https://docs.flutter.dev/get-started/install) から
+# インストーラーをダウンロードするか、以下のコマンドで確認
+flutter doctor
+```
+
+`flutter doctor` の出力に `✓` が並んでいれば準備完了です。
+`✗` が表示されている場合はその指示に従ってセットアップを完了させてください。
+
+---
+
+## クイックスタート
+
+> 最短でアプリを起動する手順です。各ステップの詳細は後続セクションを参照してください。
+
+```bash
+# 1. リポジトリをクローン
+git clone https://github.com/fumiyasac/travel_booking.git
+cd travel_booking
+
+# 2. モバイルアプリの依存関係をインストール
+dart pub get && dart run melos bootstrap
+
+# 3. バックエンドを Docker で起動し、DB を初期化
+cd travel_booking_backend
+cp .env.example .env
+docker compose up -d
+docker compose exec backend npm run db:migrate
+docker compose exec backend npm run db:seed
+cd ..
+
+# 4. 接続 URL を設定（⚠️ 必須 — 詳細は後述）
+#    travel_booking_mobile/lib/core/config/graphql_config.dart の baseUrl を変更する
+
+# 5. アプリを起動
+cd travel_booking_mobile
+flutter run
+```
+
+> **Step 4 は必ず行ってください。** デフォルト URL はサンプル用の固定 IP であるため、  
+> そのまま起動してもバックエンドに接続できません。
+
+---
+
+## 詳細セットアップ
+
+### Step 1: リポジトリのクローン
+
+```bash
+git clone https://github.com/fumiyasac/travel_booking.git
+cd travel_booking
+```
+
+---
+
+### Step 2: バックエンドのセットアップ（Docker）
+
+```bash
+cd travel_booking_backend
+
+# 環境変数ファイルを作成
+cp .env.example .env
+```
+
+`.env` の内容（デフォルトで動作します。変更不要）:
+
+```
+DATABASE_URL="mysql://root:password@localhost:3306/travel_booking"
+PORT=4000
+NODE_ENV=development
+```
+
+#### Docker でサービスを起動
+
+```bash
+# MySQL + バックエンドサービスをバックグラウンドで起動
+docker compose up -d
+
+# 起動状態を確認
+docker compose ps
+```
+
+正常に起動すると以下のように表示されます：
+
+```
+NAME                       STATUS          PORTS
+travel_booking_backend     Up              0.0.0.0:4000->4000/tcp
+travel_booking_mysql       Up (healthy)    0.0.0.0:3306->3306/tcp
+```
+
+> **mysql が `healthy` になるまで次のコマンドを実行しないでください。**  
+> `docker compose ps` を繰り返し実行して `(healthy)` になったことを確認してください。  
+> 初回は MySQL イメージのダウンロードが発生するため 1〜2 分かかる場合があります。
+
+#### DB マイグレーションとシードデータ投入
+
+```bash
+# マイグレーション実行（「Enter a name for the new migration:」と聞かれたら任意の名前を入力）
+docker compose exec backend npm run db:migrate
+
+# シードデータ投入（旅行プラン 10 件、予約サンプルデータが入ります）
+docker compose exec backend npm run db:seed
+```
+
+#### 動作確認
+
+ブラウザまたは curl で GraphQL エンドポイントにアクセスして確認します:
+
+```bash
+curl -X POST http://localhost:4000/graphql \
+  -H "Content-Type: application/json" \
+  -d '{"query":"{ travelPlans { totalCount } }"}'
+# 期待される出力: {"data":{"travelPlans":{"totalCount":10}}}
+```
+
+---
+
+### Step 3: モバイルアプリのセットアップ
+
+```bash
+# リポジトリルート（travel_booking/）で実行
+cd travel_booking   # すでにいる場合はスキップ
+
+# melos をローカルインストール
+dart pub get
+
+# 全パッケージの依存関係を解決
+dart run melos bootstrap
+```
+
+> **`dart run melos bootstrap` が失敗する場合**  
+> `dart pub get` が完了していることを確認してください。  
+> それでも失敗する場合は `travel_booking_mobile/` で `flutter pub get` を直接実行してください。
+
+#### コード生成ファイルについて
+
+`@riverpod` アノテーションから生成される `.g.dart` ファイルはリポジトリにコミット済みです。  
+**クローン直後は `build_runner` の実行は不要です。**
+
+ViewModel やモデルを変更した後は以下を実行してください:
+
+```bash
+# リポジトリルートで実行
+dart run melos run build_runner
+```
+
+---
+
+### Step 4: 接続 URL の設定（重要）
+
+> ⚠️ **この手順を飛ばすと、アプリ起動後にバックエンドへの接続が失敗します。**
+
+`travel_booking_mobile/lib/core/config/graphql_config.dart` を開いて `baseUrl` のデフォルト値を変更します。
+
+**変更前（デフォルト）:**
+```dart
+GraphQLHttpClient({
+  String baseUrl = 'http://192.168.0.130:4000/graphql',  // ← サンプル用固定 IP
+```
+
+**実行環境に合わせて変更:**
+
+| 実行環境 | 設定する URL |
+|---|---|
+| iOS シミュレーター | `http://localhost:4000/graphql` |
+| Android エミュレーター | `http://10.0.2.2:4000/graphql` |
+| iOS 実機 | `http://<ホスト PC の IP アドレス>:4000/graphql` |
+| Android 実機 | `http://<ホスト PC の IP アドレス>:4000/graphql` |
+
+**ホスト PC の IP アドレスを確認するコマンド（実機使用時）:**
+```bash
+# Mac の場合
+ipconfig getifaddr en0
+# または
+ifconfig | grep "inet " | grep -v 127.0.0.1
+```
+
+> **Claude Code を使っている場合:** `/fix-endpoint` スキルを使うと  
+> 環境別の選択肢を提示して自動的に変更してくれます。
+
+---
+
+## 実行環境別の起動手順
+
+### iOS シミュレーター
+
+#### 1. Xcode のインストール確認
+
+```bash
+xcode-select -p
+# /Applications/Xcode.app/Contents/Developer と表示されれば OK
+```
+
+表示されない場合は Mac App Store から Xcode をインストールしてください。
+
+#### 2. iOS シミュレーターの起動
+
+```bash
+# シミュレーターアプリを開く
+open -a Simulator
+```
+
+または Xcode メニュー → **Open Developer Tool** → **Simulator** から起動。
+
+#### 3. 利用可能なデバイスの確認
+
+```bash
+flutter devices
+```
+
+出力例:
+```
+iPhone 16 Pro (mobile) • <デバイスID> • ios • com.apple.CoreSimulator...
+```
+
+#### 4. 接続 URL の設定
+
+```dart
+// graphql_config.dart
+String baseUrl = 'http://localhost:4000/graphql'
+```
+
+#### 5. アプリの起動
+
+```bash
+cd travel_booking_mobile
+
+# デバイスを選択して起動（複数デバイスがある場合）
+flutter run
+
+# 特定のデバイスを指定して起動
+flutter run -d <シミュレーターのデバイスID>
+
+# 最新の iPhone シミュレーターを自動選択
+flutter run -d "iPhone"
+```
+
+---
+
+### Android エミュレーター
+
+#### 1. Android Studio と AVD のセットアップ
+
+1. [Android Studio](https://developer.android.com/studio) をインストール
+2. Android Studio → **Virtual Device Manager** → **Create Device**
+3. デバイスを選択（例: Pixel 8）し、システムイメージをダウンロード（API 34 以上推奨）
+
+#### 2. エミュレーターの起動
+
+```bash
+# コマンドラインで起動
+emulator -avd <AVD名>
+# または Android Studio の Virtual Device Manager から再生ボタン
+
+# 起動確認
+flutter devices
+# emulator-5554 と表示されれば OK
+```
+
+#### 3. 接続 URL の設定
+
+Android エミュレーターでは `localhost` の代わりに `10.0.2.2` を使います:
+
+```dart
+// graphql_config.dart
+String baseUrl = 'http://10.0.2.2:4000/graphql'
+```
+
+> **なぜ `10.0.2.2` なのか?**  
+> Android エミュレーターの `localhost` はエミュレーター自身を指します。  
+> ホスト PC（Mac）の `localhost` には `10.0.2.2` でアクセスします。
+
+#### 4. HTTP 通信の許可（cleartext 設定）
+
+本プロジェクトの `AndroidManifest.xml` には `android:usesCleartextTraffic="true"` が設定済みです。  
+API 28 以上の Android で `http://` のローカルサーバーに接続するために必要な設定です。
+
+#### 5. アプリの起動
+
+```bash
+cd travel_booking_mobile
+flutter run -d emulator-5554
+# または
+flutter run
+```
+
+---
+
+### iOS 実機
+
+#### 前提条件
+- Mac に接続した iPhone（USB または Wi-Fi）
+- Apple ID（無料の開発者アカウントで OK）
+
+#### 1. 接続 URL の設定
+
+PC と iPhone が **同じ Wi-Fi ネットワーク** に接続されていることを確認し、PC の IP を設定します:
+
+```bash
+# PC の IP アドレスを確認
+ipconfig getifaddr en0   # 例: 192.168.1.50
+```
+
+```dart
+// graphql_config.dart
+String baseUrl = 'http://192.168.1.50:4000/graphql'  // PC の実際の IP に変更
+```
+
+#### 2. デバイスの接続と信頼設定
+
+1. iPhone を USB ケーブルで Mac に接続
+2. iPhone に「このコンピュータを信頼しますか？」と表示されたら **「信頼」** をタップ
+3. デバイスが認識されているか確認:
+   ```bash
+   flutter devices
+   # iPhone (mobile) • <デバイスID> • ios が表示されれば OK
+   ```
+
+#### 3. Xcode での署名設定
+
+```bash
+open travel_booking_mobile/ios/Runner.xcworkspace
+```
+
+Xcode が開いたら:
+1. ナビゲーターで **Runner** を選択
+2. **Signing & Capabilities** タブを開く
+3. **Team** で自分の Apple ID を選択
+4. **Bundle Identifier** を任意の一意な文字列に変更（例: `com.yourname.travelbooking`）
+
+#### 4. アプリのインストールと起動
+
+```bash
+cd travel_booking_mobile
+flutter run -d <iPhoneのデバイスID>
+```
+
+> **「デベロッパを信頼する」の設定が必要な場合:**  
+> iPhone の **設定** → **一般** → **VPN とデバイス管理** → デベロッパApp → **信頼** をタップ
+
+---
+
+### Android 実機
+
+#### 前提条件
+- USB ケーブルまたは Wi-Fi で接続した Android デバイス
+- **USB デバッグの有効化**（下記手順を参照）
+
+#### 1. USB デバッグの有効化
+
+1. Android の **設定** → **デバイス情報**（または「端末情報」）を開く
+2. **ビルド番号** を 7 回連続でタップ → 「開発者向けオプションが有効になりました」と表示
+3. **設定** → **開発者向けオプション** → **USB デバッグ** をオン
+
+#### 2. デバイスの接続確認
+
+```bash
+# USB ケーブルで接続後
+flutter devices
+# Android デバイス名が表示されれば OK
+
+# 「Allow USB debugging?」が Android 側に表示されたら「許可」をタップ
+```
+
+#### 3. 接続 URL の設定
+
+PC と Android が **同じ Wi-Fi ネットワーク** に接続されていることを確認:
+
+```bash
+ipconfig getifaddr en0   # PC の IP を確認
+```
+
+```dart
+// graphql_config.dart
+String baseUrl = 'http://192.168.1.50:4000/graphql'  // PC の IP に変更
+```
+
+#### 4. HTTP 通信の許可（cleartext 設定）
+
+本プロジェクトの `AndroidManifest.xml` には `android:usesCleartextTraffic="true"` が設定済みです。
+
+#### 5. アプリの起動
+
+```bash
+cd travel_booking_mobile
+flutter run -d <AndroidデバイスID>
+```
+
+---
+
+## 開発コマンド（melos）
+
+> 以下のコマンドはすべて **リポジトリルート**（`travel_booking/`）で実行します。
+
+```bash
+dart run melos run build_runner          # Riverpod .g.dart ファイルを生成
+dart run melos run "build_runner:watch"  # コード生成をウォッチモードで実行
+dart run melos run test                  # ユニットテスト実行
+dart run melos run analyze               # 静的解析
+dart run melos run format                # コードフォーマット
+dart run melos run clean                 # ビルド成果物をクリーン
+dart run melos run get                   # 依存パッケージを取得
+```
+
+### バックエンドコマンド
+
+> `travel_booking_backend/` で実行します。
+
+```bash
+npm run dev              # 開発サーバー起動（ホットリロード）
+npm run db:migrate       # DB マイグレーション実行
+npm run db:seed          # シードデータ投入
+npm run db:studio        # Prisma Studio 起動（GUI で DB 確認）
+npm run db:push          # スキーマ変更を即反映（プロトタイプ時）
+npm run db:reset         # DB 完全リセット（全データ削除 → 再マイグレーション）
+npm run build            # TypeScript ビルド
+npm run start            # 本番サーバー起動
+```
+
+---
+
+## Claude Code スキル
+
+このプロジェクトには Claude Code の開発を効率化するカスタムスキルが定義されています。  
+詳細な活用ガイドは [`skill_guidance.md`](./skill_guidance.md) を参照してください。
+
+| スキル | 呼び出し方 | 用途 |
+|---|---|---|
+| `flutter-gen` | `/flutter-gen` | Riverpod `.g.dart` 再生成 |
+| `backend-up` | `/backend-up` | Docker バックエンド起動 |
+| `db-reset` | `/db-reset` | 開発用 DB 初期化 |
+| `fix-endpoint` | `/fix-endpoint [IP]` | 接続先 URL を変更 |
+| `graphql-check` | `/graphql-check` | GraphQL スキーマ整合性確認 |
+| `add-feature` | `/add-feature <機能名>` | MVVM 雛形ファイル生成 |
+| `schema-update` | `/schema-update <内容>` | 全レイヤースキーマ変更 |
+| `bug-trace` | `/bug-trace <エラー>` | バグ原因特定と修正 |
+| `add-viewmodel-test` | `/add-viewmodel-test <名前>` | ViewModel テスト追加 |
+| `state-audit` | `/state-audit <名前>` | 状態管理の問題チェック |
 
 ---
 
@@ -9,28 +488,15 @@ Flutterモバイルアプリ + Node.jsバックエンドで構成されるモノ
 
 ```
 travel_booking/
-├── pubspec.yaml                  # ルートワークスペース（melos インストール用）
-├── melos.yaml                    # モノレポパッケージ管理
-├── travel_booking_backend/       # バックエンドサービス
-└── travel_booking_mobile/        # Flutterモバイルアプリ
+├── pubspec.yaml                   # ルートワークスペース（melos インストール用）
+├── melos.yaml                     # モノレポパッケージ管理
+├── CLAUDE.md                      # Claude Code 向けプロジェクト仕様
+├── skill_guidance.md              # Claude Code スキル活用ガイド
+├── travel_booking_backend/        # バックエンドサービス
+└── travel_booking_mobile/         # Flutter モバイルアプリ
 ```
 
----
-
-## バックエンド (`travel_booking_backend/`)
-
-### 技術スタック
-
-| 技術 | バージョン | 用途 |
-|------|-----------|------|
-| Node.js | 20+ | ランタイム |
-| TypeScript | 5.x | 言語 |
-| Apollo Server | 4.x | GraphQL サーバー |
-| Prisma | 5.x | ORM |
-| MySQL | 8.0 | データベース |
-| Docker / Docker Compose | - | コンテナ管理 |
-
-### ディレクトリ構成
+### バックエンド (`travel_booking_backend/`)
 
 ```
 travel_booking_backend/
@@ -38,65 +504,146 @@ travel_booking_backend/
 ├── Dockerfile
 ├── .env.example
 ├── package.json
-├── tsconfig.json
 ├── prisma/
-│   ├── schema.prisma           # データベーススキーマ
-│   └── seed.ts                 # サンプルデータ投入スクリプト
+│   ├── schema.prisma              # DB スキーマ
+│   └── seed.ts                    # サンプルデータ
 └── src/
-    ├── index.ts                # サーバーエントリーポイント
+    ├── index.ts                   # Apollo Server エントリーポイント (port 4000)
     └── graphql/
-        ├── typeDefs.ts         # GraphQL スキーマ定義 (SDL)
+        ├── typeDefs.ts            # GraphQL スキーマ定義
         └── resolvers/
-            ├── index.ts
-            ├── planResolver.ts   # プラン取得・検索
-            └── bookingResolver.ts # 予約作成・キャンセル
+            ├── planResolver.ts    # TravelPlan クエリ
+            └── bookingResolver.ts # Booking ミューテーション
 ```
 
-### データベーススキーマ
+### モバイルアプリ (`travel_booking_mobile/`)
 
 ```
-TravelPlan          旅行プラン（メインエンティティ）
-├── TravelPlanImage     プラン写真
-├── TravelPlanHighlight ハイライト（見どころ）
-├── ItineraryDay        日程（何日目か）
-│   └── ItineraryActivity   各日のアクティビティ
-├── IncludedItem        料金に含まれるもの
-├── ExcludedItem        料金に含まれないもの
-├── Review              クチコミ
-└── Booking             予約情報
+lib/
+├── core/
+│   ├── config/graphql_config.dart  # GraphQLHttpClient（接続先 URL）
+│   ├── database/app_database.dart  # SharedPreferences ラッパー
+│   ├── router/app_router.dart      # GoRouter 設定
+│   └── theme/app_theme.dart        # カラー・テーマ定義
+├── data/
+│   ├── models/                     # ドメインモデル（fromJson/toJson/copyWith 手書き）
+│   ├── datasources/
+│   │   ├── remote/                 # GraphQL 通信（http パッケージ）
+│   │   └── local/                  # SharedPreferences + Stream
+│   └── repositories/               # インターフェース + 実装ペア
+└── presentation/
+    ├── viewmodels/                  # @riverpod AsyncNotifier（.g.dart は自動生成）
+    ├── screens/                     # home / plan_detail / booking / favorites
+    └── widgets/                     # 共通ウィジェット
 ```
 
-### GraphQL API
+---
 
-#### クエリ
+## アーキテクチャ
+
+### パターン
+
+**MVVM + Repository パターン**
+
+```
+Screen (ConsumerWidget)
+  └─ watches ──→ ViewModel (@riverpod AsyncNotifier)
+                   └─ reads ───→ Repository (abstract)
+                                   └─ delegates → RepositoryImpl
+                                                    └─ calls → RemoteDataSource / LocalDataSource
+```
+
+### 技術スタック
+
+#### モバイル
+
+| 技術 | バージョン | 用途 |
+|---|---|---|
+| Flutter | 3.x | UI フレームワーク |
+| Riverpod | 3.x | 状態管理 |
+| riverpod_generator | 3.x | `@riverpod` コード生成 |
+| go_router | 14.x | ナビゲーション |
+| SharedPreferences | 2.x | お気に入りのローカル保存 |
+| http | 1.x | GraphQL HTTP クライアント |
+| shimmer | 3.x | ローディングアニメーション |
+| mockito | 5.x | テスト用モック生成 |
+
+> **Freezed 不使用**: モデルクラスは `copyWith` / `fromJson` / `toJson` を手動実装  
+> **graphql_flutter 不使用**: native build hooks によるビルドエラーを回避するため `http` パッケージで実装
+
+#### バックエンド
+
+| 技術 | バージョン | 用途 |
+|---|---|---|
+| Node.js | 20+ | ランタイム |
+| TypeScript | 5.x | 言語 |
+| Apollo Server | 4.x | GraphQL サーバー |
+| Prisma | 5.x | ORM |
+| MySQL | 8.0 | データベース |
+| Docker Compose | — | コンテナ管理 |
+
+### Riverpod Provider 依存関係
+
+```
+graphQLHttpClientProvider
+  └─→ travelPlanRemoteDataSourceProvider
+        └─→ travelPlanRepositoryProvider
+              ├─→ planListViewModelProvider
+              ├─→ planDetailViewModelProvider(id)
+              └─→ bookingViewModelProvider
+
+favoritesStorageProvider
+  └─→ favoriteLocalDataSourceProvider
+        └─→ favoriteRepositoryProvider
+              └─→ favoriteViewModelProvider
+```
+
+### ルーティング（GoRouter）
+
+```
+/                            ホーム（プラン一覧・検索・フィルタ）
+  /plan/:id                  プラン詳細
+    /plan/:id/booking        予約フォーム
+/favorites                   お気に入り一覧
+  /favorites/plan/:id        お気に入りからのプラン詳細
+/booking/confirmation/:id    予約完了
+```
+
+---
+
+## GraphQL API リファレンス
+
+### クエリ
 
 ```graphql
 # プラン一覧取得（フィルタ・ページネーション対応）
 query GetTravelPlans($filter: PlanFilterInput, $page: Int, $pageSize: Int) {
   travelPlans(filter: $filter, page: $page, pageSize: $pageSize) {
-    plans { id title price rating ... }
+    plans { id title destination price effectivePrice rating isAvailable }
     totalCount hasNextPage currentPage totalPages
   }
 }
 
-# プラン詳細取得（全情報含む）
+# プラン詳細取得（全情報）
 query GetTravelPlan($id: ID!) {
   travelPlan(id: $id) {
-    id title description latitude longitude
-    itinerary { dayNumber title activities { name startTime } }
+    id title description latitude longitude meetingPoint cancellationPolicy
+    itinerary { dayNumber title activities { name startTime duration } }
     reviews { reviewerName rating comment }
+    includedItems { item }
+    excludedItems { item }
   }
 }
 ```
 
-#### ミューテーション
+### ミューテーション
 
 ```graphql
 # 予約作成
 mutation CreateBooking($input: CreateBookingInput!) {
   createBooking(input: $input) {
     success message
-    booking { id status totalPrice }
+    booking { id status totalPrice travelDate }
   }
 }
 
@@ -106,10 +653,10 @@ mutation CancelBooking($id: ID!) {
 }
 ```
 
-#### フィルタオプション
+### フィルタオプション
 
 | フィールド | 値 |
-|-----------|-----|
+|---|---|
 | `category` | `city` / `cultural` / `nature` / `adventure` / `leisure` |
 | `region` | `アジア` / `ヨーロッパ` / `アメリカ大陸` / `オセアニア` / `アフリカ` |
 | `difficulty` | `easy` / `moderate` / `hard` |
@@ -117,458 +664,189 @@ mutation CancelBooking($id: ID!) {
 | `minPrice` / `maxPrice` | 価格帯（円） |
 | `maxDuration` | 最大日数 |
 
-### サンプルデータ（シード）
+### シードデータ（旅行プラン 10 件）
 
 | # | プラン名 | 目的地 | カテゴリ | 料金/人 |
-|---|---------|--------|---------|--------|
-| 1 | 東京エクスプローラー5日間 | 東京・日本 | 都市観光 | ¥150,000 |
-| 2 | 京都伝統文化探訪4日間 | 京都・日本 | 文化体験 | ¥120,000 |
-| 3 | 北海道大自然アドベンチャー7日間 | 北海道・日本 | 自然 | ¥200,000 |
-| 4 | パリ・ロマンス＆カルチャー6日間 | パリ・フランス | リゾート | ¥280,000 |
-| 5 | スイスアルプス トレッキング8日間 | インターラーケン・スイス | アドベンチャー | ¥350,000 |
-| 6 | バリ島スピリチュアルリトリート5日間 | ウブド・インドネシア | リゾート | ¥100,000 |
-| 7 | ニューヨーク・シティ・エクスペリエンス4日間 | ニューヨーク・USA | 都市観光 | ¥180,000 |
-| 8 | オーストラリア グレートバリアリーフ6日間 | ケアンズ・オーストラリア | アドベンチャー | ¥320,000 |
-| 9 | モロッコ砂漠とメディナ7日間 | マラケシュ・モロッコ | アドベンチャー | ¥160,000 |
-| 10 | サントリーニ島 エーゲ海5日間 | サントリーニ・ギリシャ | リゾート | ¥250,000 |
-
-各プランには以下が含まれます：
-- プラン写真（複数枚）
-- ハイライト（見どころ）
-- 詳細な日程（各日のアクティビティ・宿泊先・食事）
-- 料金含有・含有外リスト
-- クチコミ（複数件）
-
-### セットアップ・起動手順
-
-```bash
-cd travel_booking_backend
-
-# 1. 環境変数設定
-cp .env.example .env
-
-# 2. Docker でサービス起動（MySQL + バックエンド）
-docker compose up -d
-
-# 3. データベースマイグレーション
-#    （Docker 起動直後は MySQL の準備が整うまで数秒待ってから実行）
-docker compose exec backend npm run db:migrate
-# 「Enter a name for the new migration:」と聞かれたら任意の名前を入力
-# 例: init_schema
-
-# 4. サンプルデータ投入
-docker compose exec backend npm run db:seed
-
-# GraphQL エンドポイント: http://localhost:4000/graphql
-```
-
-#### ローカル開発（Docker なし）
-
-```bash
-cd travel_booking_backend
-npm install
-npm run db:generate    # Prisma クライアント生成
-npm run db:migrate     # マイグレーション実行（ローカル MySQL が必要）
-npm run db:seed        # サンプルデータ投入
-npm run dev            # 開発サーバー起動（ホットリロード）
-```
-
-#### その他のコマンド（Docker 環境では `docker compose exec backend` を先頭に付ける）
-
-```bash
-npm run db:studio      # Prisma Studio（GUI でDB確認）
-npm run db:push        # スキーマ変更を即反映（プロトタイプ時）
-npm run db:reset       # DB リセット（全データ削除 → マイグレーション再適用）
-npm run build          # TypeScript ビルド
-npm run start          # 本番サーバー起動
-```
+|---|---|---|---|---|
+| 1 | 東京エクスプローラー5日間 | 東京・日本 | city | ¥150,000 |
+| 2 | 京都伝統文化探訪4日間 | 京都・日本 | cultural | ¥120,000 |
+| 3 | 北海道大自然アドベンチャー7日間 | 北海道・日本 | nature | ¥200,000 |
+| 4 | パリ・ロマンス＆カルチャー6日間 | パリ・フランス | leisure | ¥280,000 |
+| 5 | スイスアルプストレッキング8日間 | スイス | adventure | ¥350,000 |
+| 6 | バリ島スピリチュアルリトリート5日間 | バリ・インドネシア | leisure | ¥100,000 |
+| 7 | ニューヨーク・シティ・エクスペリエンス4日間 | NY・USA | city | ¥180,000 |
+| 8 | オーストラリアグレートバリアリーフ6日間 | ケアンズ | adventure | ¥320,000 |
+| 9 | モロッコ砂漠とメディナ7日間 | マラケシュ | adventure | ¥160,000 |
+| 10 | サントリーニ島エーゲ海5日間 | サントリーニ・ギリシャ | leisure | ¥250,000 |
 
 ---
 
-## モバイルアプリ (`travel_booking_mobile/`)
+## テスト
 
-### 技術スタック
-
-| 技術 | バージョン | 用途 |
-|------|-----------|------|
-| Flutter | 3.x | UIフレームワーク |
-| Riverpod | 3.x | 状態管理 |
-| riverpod_annotation / riverpod_generator | 3.x | コード生成（@riverpod） |
-| SharedPreferences | 2.x | お気に入りのローカル保存 |
-| http | 1.x | GraphQL HTTP クライアント |
-| go_router | 14.x | ナビゲーション |
-| shimmer | 3.x | ローディングアニメーション |
-| intl | 0.19 | 日付フォーマット |
-| gap | 3.x | スペーシングユーティリティ |
-| flutter_rating_bar | 4.x | 星評価表示 |
-| melos | 6.x | モノレポパッケージ管理 |
-
-> **注意:** `Freezed` は使用しません。全モデルクラスは `copyWith` / `fromJson` / `toJson` を手動実装しています。  
-> GraphQL 通信は `http` パッケージを使った軽量クライアントで実装しており、`graphql_flutter` は使用しません。
-
-### アーキテクチャ
-
-**MVVM + Repository パターン**
-
-```
-lib/
-├── core/                         # アプリ基盤
-│   ├── config/
-│   │   └── graphql_config.dart   # GraphQLHttpClient（http パッケージ使用）
-│   ├── database/
-│   │   └── app_database.dart     # FavoritesStorage（SharedPreferences）
-│   ├── router/
-│   │   └── app_router.dart       # GoRouter 設定
-│   └── theme/
-│       └── app_theme.dart        # カラー・テーマ定義
-│
-├── data/                         # データ層
-│   ├── models/                   # ドメインモデル（Freezed 不使用）
-│   │   ├── travel_plan.dart      # メインモデル（算出プロパティ含む）
-│   │   ├── travel_plan_image.dart
-│   │   ├── itinerary_day.dart
-│   │   ├── itinerary_activity.dart
-│   │   ├── review.dart
-│   │   ├── booking.dart
-│   │   ├── favorite_plan.dart    # お気に入り保存モデル
-│   │   └── plan_filter.dart      # 検索フィルタ
-│   ├── datasources/
-│   │   ├── remote/
-│   │   │   └── travel_plan_remote_datasource.dart  # GraphQL HTTP 通信
-│   │   └── local/
-│   │       └── favorite_local_datasource.dart       # SharedPreferences + Stream
-│   └── repositories/
-│       ├── travel_plan_repository.dart              # abstract
-│       ├── travel_plan_repository_impl.dart
-│       ├── favorite_repository.dart                 # abstract
-│       └── favorite_repository_impl.dart
-│
-└── presentation/                 # プレゼンテーション層
-    ├── viewmodels/               # ViewModel（Riverpod @riverpod）
-    │   ├── plan_list_viewmodel.dart    # プロバイダー定義も含む
-    │   ├── plan_detail_viewmodel.dart
-    │   ├── booking_viewmodel.dart
-    │   └── favorite_viewmodel.dart
-    ├── screens/                  # 画面
-    │   ├── home/                 # プラン一覧・検索・フィルタ
-    │   ├── plan_detail/          # プラン詳細・座標表示
-    │   ├── booking/              # 予約フォーム・確認
-    │   └── favorites/            # お気に入り一覧
-    └── widgets/                  # 共通ウィジェット
-```
-
-### 画面構成
-
-#### 1. ホーム画面（プラン一覧）
-- プランカード一覧（無限スクロール）
-- 検索バー（タイトル・目的地・タグで検索）
-- フィルタ（カテゴリ・地域・難易度・日数・並び替え）
-- プルリフレッシュ
-- シマーローディング
-- お気に入りボタン（ハートアイコン）
-
-#### 2. プラン詳細画面
-- 写真ギャラリー（PageView）
-- プラン概要・料金・空き状況
-- ハイライト（見どころ）
-- 日程（アコーディオン形式）
-- 含有・非含有リスト
-- 集合場所・座標表示（緯度・経度）
-- クチコミ一覧
-- キャンセルポリシー
-- 予約ボタン（スティッキーフッター）
-
-#### 3. 予約画面
-- プランサマリーカード
-- お客様情報フォーム（名前・メール・電話番号）
-- 参加人数セレクター（+/-ボタン）
-- 旅行日選択（日付ピッカー）
-- 特別なご要望（テキストエリア）
-- 料金内訳（リアルタイム計算）
-- バリデーション・エラーメッセージ
-
-#### 4. 予約完了画面
-- 成功アニメーション
-- 予約詳細（予約ID・プラン名・旅行日・参加人数・合計金額）
-- ホームへ戻るボタン
-
-#### 5. お気に入り画面
-- グリッドビュー（2カラム）
-- ハートアイコンでお気に入り解除
-- 全削除機能
-- StreamController でリアルタイム反映
-- 空状態の表示
-
-### ViewModel 詳細
-
-#### PlanListViewModel
-```dart
-class PlanListState {
-  final List<TravelPlan> plans;
-  final bool isLoading;
-  final bool isLoadingMore;
-  final String? error;
-  final PlanFilter filter;
-  final int currentPage;
-  final bool hasNextPage;
-  final int totalCount;
-}
-```
-主要メソッド: `loadPlans()`, `loadMore()`, `updateFilter()`, `updateKeyword()`, `resetFilter()`
-
-#### PlanDetailViewModel
-```dart
-class PlanDetailState {
-  final TravelPlan? plan;
-  final bool isLoading;
-  final String? error;
-  final bool isFavorite;
-  final bool isFavoriteLoading;
-}
-```
-主要メソッド: `loadPlanById(id)`, `toggleFavorite()`
-
-#### BookingViewModel
-```dart
-class BookingFormState {
-  final String customerName, customerEmail, customerPhone;
-  final int numberOfPeople;
-  final DateTime? travelDate;
-  final String specialRequests;
-  final bool isSubmitting;
-  final String? error;
-  final Booking? completedBooking;
-  final Map<String, String> validationErrors;
-}
-```
-主要メソッド: `updateCustomerName()`, `updateTravelDate()`, `submitBooking()`, `reset()`
-
-#### FavoriteViewModel
-```dart
-class FavoriteState {
-  final List<FavoritePlan> favorites;
-  final bool isLoading;
-  final String? error;
-}
-```
-主要メソッド: `removeFavorite(planId)`, `clearAll()` ／ StreamController でリアルタイム更新
-
-### Riverpod プロバイダー構成
-
-```
-graphQLHttpClientProvider       GraphQLHttpClient（http パッケージ）
-    ↓
-travelPlanRemoteDataSourceProvider  リモートデータソース
-    ↓
-travelPlanRepositoryProvider        リポジトリ
-    ↓
-planListViewModelProvider           ViewModel（@riverpod）
-planDetailViewModelProvider(id)
-bookingViewModelProvider
-
-favoritesStorageProvider        FavoritesStorage（SharedPreferences）
-    ↓
-favoriteLocalDataSourceProvider ローカルデータソース（StreamController）
-    ↓
-favoriteRepositoryProvider      リポジトリ
-    ↓
-favoriteViewModelProvider       ViewModel（@riverpod）
-```
-
-### ルーティング構成（GoRouter）
-
-```
-/                           ホーム（プラン一覧）
-  /plan/:id                 プラン詳細
-    /plan/:id/booking       予約フォーム
-/favorites                  お気に入り
-  /favorites/plan/:id       お気に入りからのプラン詳細
-/booking/confirmation/:id   予約完了
-```
-
-ボトムナビゲーションバー（StatefulShellRoute）:
-- `プラン` タブ → ホーム以下
-- `お気に入り` タブ → お気に入り以下
-
-### セットアップ・起動手順
-
-#### 1. 依存パッケージのインストール
+ViewModel の全メソッドに対してユニットテストを実装しています（Mockito + ProviderContainer）。
 
 ```bash
-# リポジトリルート（melos.yaml がある場所）で実行
-cd travel_booking
+# リポジトリルートで実行
+dart run melos run test
 
-# ルートの pubspec.yaml から melos をローカルインストール
-dart pub get
-
-# 全パッケージの依存解決（melos bootstrap）
-dart run melos bootstrap
+# または travel_booking_mobile/ で直接実行
+flutter test
 ```
 
-または直接インストールする場合:
+| テストファイル | テスト内容 |
+|---|---|
+| `plan_list_viewmodel_test.dart` | 初期状態・プラン取得・エラー処理・フィルタ・無限スクロール |
+| `plan_detail_viewmodel_test.dart` | 詳細取得・お気に入りトグル・エラー処理 |
+| `booking_viewmodel_test.dart` | フォームバリデーション・予約成功/失敗・料金計算・リセット |
+| `favorite_viewmodel_test.dart` | 一覧取得・リアルタイム更新・削除・エラー処理 |
+
+### テストでのモック再生成
+
+ViewModel やモデルを変更してテストファイルの `@GenerateMocks` を更新した後は以下を実行:
 
 ```bash
-cd travel_booking_mobile
-flutter pub get
-```
-
-#### 2. コード生成（Riverpod + Mockito）
-
-Riverpod の `@riverpod` アノテーションと Mockito のモッククラスを生成します。
-
-```bash
-# travel_booking_mobile/ で実行
-cd travel_booking_mobile
-dart run build_runner build --delete-conflicting-outputs
-```
-
-または melos 経由（リポジトリルートで実行）:
-
-```bash
-cd travel_booking
 dart run melos run build_runner
 ```
 
-生成されるファイル:
-- `lib/presentation/viewmodels/plan_list_viewmodel.g.dart`
-- `lib/presentation/viewmodels/plan_detail_viewmodel.g.dart`
-- `lib/presentation/viewmodels/booking_viewmodel.g.dart`
-- `lib/presentation/viewmodels/favorite_viewmodel.g.dart`
-- `test/viewmodels/*.mocks.dart`
+`test/viewmodels/*.mocks.dart` が更新されます。
 
-> **ポイント:** `graphql_flutter` や `google_maps_flutter` などの  
-> native build hooks を持つパッケージは使用していないため、  
-> `build_runner` が `dart compile` で正常に動作します。
+---
 
-#### 3. バックエンドURLの設定
+## トラブルシューティング
 
-`lib/core/config/graphql_config.dart` の `baseUrl` を環境に合わせて変更してください:
+### バックエンド関連
 
-```dart
-// ローカル開発（iOS シミュレーター）
-GraphQLHttpClient(baseUrl: 'http://localhost:4000/graphql')
-
-// Android エミュレーター
-GraphQLHttpClient(baseUrl: 'http://10.0.2.2:4000/graphql')
-
-// 実機デバッグ（PC の IP アドレスを使用）
-GraphQLHttpClient(baseUrl: 'http://192.168.x.x:4000/graphql')
-```
-
-`plan_list_viewmodel.dart` の `graphQLHttpClientProvider` でインスタンス生成箇所を変更します:
-
-```dart
-@riverpod
-GraphQLHttpClient graphQLHttpClient(Ref ref) {
-  final client = GraphQLHttpClient(baseUrl: 'http://10.0.2.2:4000/graphql');
-  ref.onDispose(client.dispose);
-  return client;
-}
-```
-
-#### 4. アプリ起動
+#### `mysql: healthy` にならない / バックエンドが起動しない
 
 ```bash
-cd travel_booking_mobile
+# コンテナのログを確認
+docker compose logs mysql --tail=30
+docker compose logs backend --tail=30
 
-# 利用可能なデバイス一覧を確認
-flutter devices
+# コンテナを完全に停止・削除して再起動
+docker compose down -v
+docker compose up -d
+```
 
-# iOS シミュレーターで起動（デバイスIDを指定）
-flutter run -d <シミュレーターのデバイスID>
+ポート競合が原因の場合:
 
-# または、デバイスを選択しながら起動
+```bash
+# 3306 / 4000 ポートを使っているプロセスを確認
+lsof -i :3306
+lsof -i :4000
+```
+
+#### `db:migrate` でマイグレーション名の入力後にエラー
+
+`.env` の `DATABASE_URL` が設定されているか確認:
+
+```bash
+cat travel_booking_backend/.env
+# DATABASE_URL="mysql://root:password@localhost:3306/travel_booking" と表示されれば OK
+```
+
+---
+
+### 接続関連
+
+#### `SocketException: Connection refused` または `Connection refused`
+
+1. バックエンドが起動しているか確認: `docker compose ps`
+2. `graphql_config.dart` の URL が正しいか確認（下表参照）
+3. 実機の場合は PC と同じ Wi-Fi に接続されているか確認
+
+| 環境 | 正しい URL |
+|---|---|
+| iOS シミュレーター | `http://localhost:4000/graphql` |
+| Android エミュレーター | `http://10.0.2.2:4000/graphql` |
+| iOS / Android 実機 | `http://<PC の IP>:4000/graphql` |
+
+> **Claude Code を使っている場合:** `/fix-endpoint` で現在の設定を確認・変更できます。
+
+#### Android で `Cleartext HTTP traffic not permitted`
+
+`AndroidManifest.xml` に `android:usesCleartextTraffic="true"` が設定されているか確認してください。  
+本プロジェクトでは設定済みですが、設定が失われた場合は `<application>` タグに追加してください:
+
+```xml
+<application
+    android:usesCleartextTraffic="true"
+    ... >
+```
+
+---
+
+### Flutter / Dart 関連
+
+#### `The getter 'xxxProvider' isn't defined for the class`
+
+`.g.dart` ファイルの再生成が必要です:
+
+```bash
+dart run melos run build_runner
+```
+
+#### `melos bootstrap` に失敗する
+
+```bash
+# まず dart pub get を実行
+dart pub get
+# その後再試行
+dart run melos bootstrap
+
+# それでも失敗する場合は直接インストール
+cd travel_booking_mobile && flutter pub get
+```
+
+#### iOS ビルドで `CocoaPods not installed` / Pod 関連エラー
+
+```bash
+cd travel_booking_mobile/ios
+pod install --repo-update
+cd ..
 flutter run
 ```
 
-> **初回のみ:** iOS プラットフォームファイルが存在しない場合は先に生成してください。
->
-> ```bash
-> cd travel_booking_mobile
-> flutter create --org com.example --platforms ios,android .
-> flutter pub get
-> ```
->
-> その後、通常通り `flutter run` を実行できます。
-
-### Unit Test
-
-ViewModelの全メソッドに対してUnitTestを実装しています（Mockito使用）。
+CocoaPods 未インストールの場合:
 
 ```bash
-# travel_booking_mobile/ で実行
+sudo gem install cocoapods
+```
+
+#### Android ビルドで `Gradle` 関連エラー
+
+```bash
 cd travel_booking_mobile
-flutter test
-
-# または melos 経由（リポジトリルートで実行）
-cd travel_booking
-dart run melos run test
+flutter clean
+flutter pub get
+flutter run
 ```
 
-テスト対象:
+#### `flutter devices` に何も表示されない
 
-| テストファイル | テスト項目 |
-|--------------|-----------|
-| `plan_list_viewmodel_test.dart` | 初期状態・プラン取得・エラーハンドリング・フィルタ更新・無限スクロール |
-| `plan_detail_viewmodel_test.dart` | プラン詳細取得・お気に入りトグル・エラーハンドリング |
-| `booking_viewmodel_test.dart` | フォームバリデーション・予約成功/失敗・料金計算・リセット |
-| `favorite_viewmodel_test.dart` | お気に入り一覧・リアルタイム更新・削除・エラーハンドリング |
+**iOS シミュレーターの場合:**
+```bash
+open -a Simulator
+# シミュレーターが起動してから再度 flutter devices を実行
+```
 
-> **テストの注意点:** `FavoriteViewModel` のテストでは Riverpod 3.x の autoDispose の  
-> 挙動を考慮し、`container.listen()` でプロバイダーを生存させてからストリームのテストを行います。
+**Android エミュレーターの場合:**
+- Android Studio → Virtual Device Manager でエミュレーターを起動してから再実行
 
-### melos スクリプト一覧
+**実機の場合:**
+- USB ケーブルを抜き差しして再実行
+- `flutter doctor` で Xcode / Android Studio の設定を確認
 
-> **実行場所:** リポジトリルート（`melos.yaml` がある場所、`dart pub get` 済み）で実行してください。
+---
+
+### DB 関連
+
+#### テストデータが壊れた・クリーンな状態に戻したい
 
 ```bash
-dart run melos run build_runner         # コード生成（Riverpod + Mockito）
-dart run melos run "build_runner:watch" # コード生成（ウォッチモード）
-dart run melos run test                 # ユニットテスト実行
-dart run melos run analyze              # 静的解析
-dart run melos run format               # コードフォーマット
-dart run melos run clean                # ビルド成果物クリーン
-dart run melos run get                  # 依存パッケージ取得
+cd travel_booking_backend
+docker compose exec backend npm run db:reset
+docker compose exec backend npm run db:seed
 ```
 
----
-
-## 開発フロー
-
-```
-0. 初回セットアップ（リポジトリルートで実行）
-   cd travel_booking
-   dart pub get
-   dart run melos bootstrap
-
-   ※ ios/ や android/ ディレクトリが存在しない場合は以下を実行:
-   cd travel_booking_mobile
-   flutter create --org com.example --platforms ios,android .
-   flutter pub get
-
-1. バックエンド起動（travel_booking_backend/ で実行）
-   docker compose up -d
-   docker compose exec backend npm run db:migrate   # マイグレーション名を入力
-   docker compose exec backend npm run db:seed
-
-2. コード生成（travel_booking_mobile/ で実行）
-   dart run build_runner build --delete-conflicting-outputs
-
-3. アプリ起動（travel_booking_mobile/ で実行）
-   flutter devices              # デバイス一覧確認
-   flutter run                  # デバイス選択して起動
-   flutter run -d <デバイスID>  # デバイス指定して起動
-
-4. テスト（travel_booking_mobile/ で実行）
-   flutter test
-```
-
----
-
-## 注意事項
-
-- Riverpod 3.x の `@riverpod` アノテーションを使用しているため、`build_runner` によるコード生成が必須です
-- GraphQL 通信は `http` パッケージで実装しており、`graphql_flutter` は不使用です（native build hooks による `build_runner` エラーを回避するため）
-- お気に入り機能は `SharedPreferences` を使用しており、`Drift`（SQLite）は不使用です（同じく native build hooks 回避のため）
-- Android エミュレーターでバックエンドに接続する場合は `localhost` ではなく `10.0.2.2` を使用してください
-- Docker 起動直後は MySQL の準備に数秒かかるため、`db:migrate` は少し待ってから実行してください
+> **Claude Code を使っている場合:** `/db-reset` スキルで確認プロンプト付きで実行できます。

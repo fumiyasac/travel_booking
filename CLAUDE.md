@@ -174,15 +174,17 @@ test/viewmodels/
 
 ## カスタムスキル一覧
 
-| コマンド | 概要 |
-|---|---|
-| `/flutter-gen` | Riverpod コード生成（build_runner 実行） |
-| `/backend-up` | Docker バックエンド環境起動 |
-| `/db-reset` | 開発用 DB 初期化（マイグレーション + シード） |
-| `/add-feature` | MVVM + Repository パターンでの機能スキャフォールド |
-| `/graphql-check` | バックエンド schema とモバイル query の整合性チェック |
-| `/bug-trace` | エラーメッセージからバグ原因を特定・修正方法を提示 |
-| `/add-viewmodel-test` | 既存パターンに沿った ViewModel テスト追加 |
-| `/schema-update` | DB→GraphQL→Dart の全レイヤースキーマ変更ガイド |
-| `/fix-endpoint` | GraphQL エンドポイント確認・変更 |
-| `/state-audit` | ViewModel の状態管理問題チェック |
+スキルは `.claude/skills/` に定義。詳細な活用ガイドは `skill_guidance.md` を参照。
+
+| スキル名 | 起動方法 | 概要 | 自動起動 |
+|---|---|---|:---:|
+| `flutter-gen` | `/flutter-gen` または自然文 | Riverpod `.g.dart` コード生成 | ✓ |
+| `backend-up` | `/backend-up` のみ | Docker バックエンド起動 | — |
+| `db-reset` | `/db-reset` のみ | 開発用 DB 初期化（破壊的操作） | — |
+| `fix-endpoint` | `/fix-endpoint [IP]` のみ | GraphQL 接続先変更 | — |
+| `graphql-check` | `/graphql-check` または自然文 | GraphQL 整合性チェック（独立実行） | ✓ |
+| `add-feature` | `/add-feature <機能名>` | MVVM+Repository 雛形ファイル生成 | — |
+| `schema-update` | `/schema-update <変更内容>` または自然文 | 全レイヤースキーマ変更（8ステップ） | ✓ |
+| `bug-trace` | `/bug-trace <エラー>` または自然文 | バグ原因特定と修正 | ✓ |
+| `add-viewmodel-test` | `/add-viewmodel-test <名前>` または自然文 | ViewModel テスト追加 | ✓ |
+| `state-audit` | `/state-audit <名前>` または自然文 | 状態管理監査（独立実行） | ✓ |
