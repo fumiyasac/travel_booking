@@ -12,8 +12,6 @@ import '../../../presentation/viewmodels/plan_detail_viewmodel.dart';
 import '../../../presentation/widgets/app_error_widget.dart';
 import '../../../presentation/widgets/loading_indicator.dart';
 import '../../../presentation/widgets/rating_stars.dart';
-import 'widgets/plan_map_view.dart';
-
 class PlanDetailScreen extends ConsumerStatefulWidget {
   final String planId;
 
@@ -129,13 +127,10 @@ class _PlanDetailScreenState extends ConsumerState<PlanDetailScreen> {
             const Divider(height: 32),
             _buildIncludedExcluded(plan),
           ],
-          const Divider(height: 32),
-          PlanMapSection(
-            latitude: plan.latitude,
-            longitude: plan.longitude,
-            destination: plan.destination,
-            meetingPoint: plan.meetingPoint,
-          ),
+          if (plan.meetingPoint.isNotEmpty) ...[
+            const Divider(height: 32),
+            _buildMeetingPoint(plan),
+          ],
           if (plan.reviews.isNotEmpty) ...[
             const Divider(height: 32),
             _buildReviews(plan),
@@ -368,6 +363,39 @@ class _PlanDetailScreenState extends ConsumerState<PlanDetailScreen> {
             ),
           )),
         ],
+      ],
+    );
+  }
+
+  Widget _buildMeetingPoint(TravelPlan plan) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          '集合場所',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTheme.textPrimary),
+        ),
+        const Gap(12),
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: AppTheme.primaryColor.withValues(alpha: 0.06),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(Icons.place, color: AppTheme.primaryColor, size: 18),
+              const Gap(8),
+              Expanded(
+                child: Text(
+                  plan.meetingPoint,
+                  style: const TextStyle(fontSize: 13, color: AppTheme.textPrimary),
+                ),
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }
