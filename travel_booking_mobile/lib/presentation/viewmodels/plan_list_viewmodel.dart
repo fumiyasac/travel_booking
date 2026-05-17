@@ -50,6 +50,15 @@ FavoriteRepository favoriteRepository(Ref ref) {
   return FavoriteRepositoryImpl(ref.watch(favoriteLocalDataSourceProvider));
 }
 
+// autoDispose: カード単位で必要な間だけ生存すれば十分
+@riverpod
+Stream<bool> planIsFavorite(Ref ref, String planId) {
+  final dataSource = ref.watch(favoriteLocalDataSourceProvider);
+  return dataSource
+      .watchFavorites()
+      .map((favorites) => favorites.any((f) => f.planId == planId));
+}
+
 // --- State ---
 
 class PlanListState {
