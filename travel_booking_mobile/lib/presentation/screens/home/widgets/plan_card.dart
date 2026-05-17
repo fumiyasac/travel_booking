@@ -263,33 +263,34 @@ class _FavoriteButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return FutureBuilder<bool>(
-      future: ref.watch(favoriteRepositoryProvider).isFavorite(plan.id),
-      builder: (context, snapshot) {
-        final isFav = snapshot.data ?? false;
-        return GestureDetector(
-          onTap: () async {
-            final repo = ref.read(favoriteRepositoryProvider);
-            if (isFav) {
-              await repo.removeFavorite(plan.id);
-            } else {
-              await repo.addFavorite(plan);
-            }
-          },
-          child: Container(
-            padding: const EdgeInsets.all(6),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              isFav ? Icons.favorite : Icons.favorite_border,
-              color: isFav ? Colors.red : AppTheme.textSecondary,
-              size: 20,
-            ),
-          ),
-        );
+    // planIsFavoriteProvider はストリームを監視するため、
+    // お気に入りの追加・削除が起きると自動的に再描画される
+    final isFav = ref.watch(planIsFavoriteProvider(plan.id)).maybeWhen(
+      data: (v) => v,
+      orElse: () => false,
+    );
+
+    return GestureDetector(
+      onTap: () async {
+        final repo = ref.read(favoriteRepositoryProvider);
+        if (isFav) {
+          await repo.removeFavorite(plan.id);
+        } else {
+          await repo.addFavorite(plan);
+        }
       },
+      child: Container(
+        padding: const EdgeInsets.all(6),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          shape: BoxShape.circle,
+        ),
+        child: Icon(
+          isFav ? Icons.favorite : Icons.favorite_border,
+          color: isFav ? Colors.red : AppTheme.textSecondary,
+          size: 20,
+        ),
+      ),
     );
   }
 }

@@ -16,7 +16,7 @@ part 'plan_list_viewmodel.g.dart';
 
 // --- Providers ---
 
-@riverpod
+@Riverpod(keepAlive: true)
 FavoritesStorage favoritesStorage(Ref ref) {
   return FavoritesStorage();
 }
@@ -38,16 +38,25 @@ TravelPlanRepository travelPlanRepository(Ref ref) {
   return TravelPlanRepositoryImpl(ref.watch(travelPlanRemoteDataSourceProvider));
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 FavoriteLocalDataSource favoriteLocalDataSource(Ref ref) {
   final ds = FavoriteLocalDataSource(ref.watch(favoritesStorageProvider));
   ref.onDispose(ds.dispose);
   return ds;
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 FavoriteRepository favoriteRepository(Ref ref) {
   return FavoriteRepositoryImpl(ref.watch(favoriteLocalDataSourceProvider));
+}
+
+// autoDispose: カード単位で必要な間だけ生存すれば十分
+@riverpod
+Stream<bool> planIsFavorite(Ref ref, String planId) {
+  final dataSource = ref.watch(favoriteLocalDataSourceProvider);
+  return dataSource
+      .watchFavorites()
+      .map((favorites) => favorites.any((f) => f.planId == planId));
 }
 
 // --- State ---

@@ -16,7 +16,10 @@ class FavoriteLocalDataSource {
     if (!_controller.isClosed) _controller.add(favorites);
   }
 
-  Stream<List<FavoritePlan>> watchFavorites() => _controller.stream;
+  Stream<List<FavoritePlan>> watchFavorites() {
+    _emitCurrent();
+    return _controller.stream;
+  }
 
   Future<List<FavoritePlan>> getFavorites() => _storage.getAll();
 
