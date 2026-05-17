@@ -7,4 +7,5 @@ abstract class FavoriteRepository {
   Future<bool> isFavorite(String planId);
   Future<void> addFavorite(TravelPlan plan);
   Future<void> removeFavorite(String planId);
+  Future<void> clearFavorites();
 }

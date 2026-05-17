@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../data/models/favorite_plan.dart';
 import 'plan_list_viewmodel.dart';
@@ -37,20 +35,14 @@ class FavoriteState {
 
 @riverpod
 class FavoriteViewModel extends _$FavoriteViewModel {
-  StreamSubscription<List<FavoritePlan>>? _subscription;
-
   @override
   FavoriteState build() {
-    ref.onDispose(() {
-      _subscription?.cancel();
-    });
-    _startWatching();
-    return const FavoriteState(isLoading: true);
-  }
+    // ref.watch keeps favoriteLocalDataSourceProvider alive while this ViewModel
+    // is active, so all callers (plan detail, etc.) share the same StreamController
+    // instance and stream events are correctly propagated here.
+    final dataSource = ref.watch(favoriteLocalDataSourceProvider);
 
-  void _startWatching() {
-    final repo = ref.read(favoriteRepositoryProvider);
-    _subscription = repo.watchFavorites().listen(
+    final subscription = dataSource.watchFavorites().listen(
       (favorites) {
         state = state.copyWith(favorites: favorites, isLoading: false);
       },
@@ -58,6 +50,9 @@ class FavoriteViewModel extends _$FavoriteViewModel {
         state = state.copyWith(isLoading: false, error: e.toString());
       },
     );
+
+    ref.onDispose(subscription.cancel);
+    return const FavoriteState(isLoading: true);
   }
 
   Future<void> removeFavorite(String planId) async {
@@ -71,10 +66,9 @@ class FavoriteViewModel extends _$FavoriteViewModel {
 
   Future<void> clearAll() async {
     try {
+      // Single atomic operation instead of N sequential removeFavorite calls
       final repo = ref.read(favoriteRepositoryProvider);
-      for (final fav in List.of(state.favorites)) {
-        await repo.removeFavorite(fav.planId);
-      }
+      await repo.clearFavorites();
     } catch (e) {
       state = state.copyWith(error: e.toString());
     }

@@ -26,4 +26,7 @@ class FavoriteRepositoryImpl implements FavoriteRepository {
   @override
   Future<void> removeFavorite(String planId) =>
       _localDataSource.removeFavorite(planId);
+
+  @override
+  Future<void> clearFavorites() => _localDataSource.deleteAllFavorites();
 }
