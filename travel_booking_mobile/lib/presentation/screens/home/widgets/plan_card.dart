@@ -265,7 +265,10 @@ class _FavoriteButton extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // planIsFavoriteProvider はストリームを監視するため、
     // お気に入りの追加・削除が起きると自動的に再描画される
-    final isFav = ref.watch(planIsFavoriteProvider(plan.id)).valueOrNull ?? false;
+    final isFav = ref.watch(planIsFavoriteProvider(plan.id)).maybeWhen(
+      data: (v) => v,
+      orElse: () => false,
+    );
 
     return GestureDetector(
       onTap: () async {
