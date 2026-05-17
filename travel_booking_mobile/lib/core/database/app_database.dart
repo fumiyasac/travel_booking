@@ -5,8 +5,16 @@ import '../../data/models/favorite_plan.dart';
 class FavoritesStorage {
   static const _key = 'favorite_plans';
 
+  // Cached instance to avoid awaiting getInstance() on every operation
+  SharedPreferences? _prefs;
+
+  Future<SharedPreferences> _getPrefs() async {
+    _prefs ??= await SharedPreferences.getInstance();
+    return _prefs!;
+  }
+
   Future<List<FavoritePlan>> getAll() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _getPrefs();
     final jsonList = prefs.getStringList(_key) ?? [];
     return jsonList
         .map((s) => FavoritePlan.fromJson(jsonDecode(s) as Map<String, dynamic>))
@@ -14,7 +22,7 @@ class FavoritesStorage {
   }
 
   Future<void> _saveAll(List<FavoritePlan> favorites) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _getPrefs();
     await prefs.setStringList(
       _key,
       favorites.map((f) => jsonEncode(f.toJson())).toList(),
@@ -35,7 +43,7 @@ class FavoritesStorage {
   }
 
   Future<void> clear() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _getPrefs();
     await prefs.remove(_key);
   }
 
