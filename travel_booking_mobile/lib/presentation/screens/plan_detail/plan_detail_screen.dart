@@ -279,9 +279,16 @@ class _PlanDetailScreenState extends ConsumerState<PlanDetailScreen> {
             spacing: 6,
             runSpacing: 6,
             children: plan.tags.map((tag) => Chip(
-              label: Text('#$tag', style: const TextStyle(fontSize: 11)),
-              backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.08),
-              side: BorderSide.none,
+              label: Text(
+                '#$tag',
+                style: const TextStyle(
+                  fontSize: 11,
+                  color: AppTheme.primaryColor,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.12),
+              side: BorderSide(color: AppTheme.primaryColor.withValues(alpha: 0.35)),
               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               padding: const EdgeInsets.symmetric(horizontal: 4),
             )).toList(),
