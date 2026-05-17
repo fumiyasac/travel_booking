@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
+import 'package:travel_booking_mobile/data/datasources/local/favorite_local_datasource.dart';
 import 'package:travel_booking_mobile/data/models/favorite_plan.dart';
 import 'package:travel_booking_mobile/data/repositories/favorite_repository.dart';
 import 'package:travel_booking_mobile/presentation/viewmodels/favorite_viewmodel.dart';
@@ -11,9 +12,10 @@ import 'package:travel_booking_mobile/presentation/viewmodels/plan_list_viewmode
 
 import 'favorite_viewmodel_test.mocks.dart';
 
-@GenerateMocks([FavoriteRepository])
+@GenerateMocks([FavoriteRepository, FavoriteLocalDataSource])
 void main() {
   late MockFavoriteRepository mockRepository;
+  late MockFavoriteLocalDataSource mockDataSource;
   late ProviderContainer container;
   late StreamController<List<FavoritePlan>> favoritesController;
 
@@ -37,12 +39,14 @@ void main() {
 
   setUp(() {
     mockRepository = MockFavoriteRepository();
+    mockDataSource = MockFavoriteLocalDataSource();
     favoritesController = StreamController<List<FavoritePlan>>.broadcast();
 
-    when(mockRepository.watchFavorites()).thenAnswer((_) => favoritesController.stream);
+    when(mockDataSource.watchFavorites()).thenAnswer((_) => favoritesController.stream);
 
     container = ProviderContainer(
       overrides: [
+        favoriteLocalDataSourceProvider.overrideWithValue(mockDataSource),
         favoriteRepositoryProvider.overrideWithValue(mockRepository),
       ],
     );
@@ -61,7 +65,6 @@ void main() {
     });
 
     test('favorites list updates when stream emits', () async {
-      // listen keeps the autoDispose provider alive
       final sub = container.listen(favoriteViewModelProvider, (_, __) {});
 
       final fav1 = createFavoritePlan('plan-1', '東京エクスプローラー');
@@ -123,6 +126,33 @@ void main() {
       await container
           .read(favoriteViewModelProvider.notifier)
           .removeFavorite('plan-1');
+
+      final state = container.read(favoriteViewModelProvider);
+      expect(state.error, isNotNull);
+      sub.close();
+    });
+
+    test('clearAll calls clearFavorites on repository', () async {
+      when(mockRepository.clearFavorites()).thenAnswer((_) async {});
+
+      final sub = container.listen(favoriteViewModelProvider, (_, __) {});
+      favoritesController.add([]);
+      await Future.delayed(Duration.zero);
+
+      await container.read(favoriteViewModelProvider.notifier).clearAll();
+
+      verify(mockRepository.clearFavorites()).called(1);
+      sub.close();
+    });
+
+    test('clearAll sets error on failure', () async {
+      when(mockRepository.clearFavorites()).thenThrow(Exception('DB error'));
+
+      final sub = container.listen(favoriteViewModelProvider, (_, __) {});
+      favoritesController.add([]);
+      await Future.delayed(Duration.zero);
+
+      await container.read(favoriteViewModelProvider.notifier).clearAll();
 
       final state = container.read(favoriteViewModelProvider);
       expect(state.error, isNotNull);
