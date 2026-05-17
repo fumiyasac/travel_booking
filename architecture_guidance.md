@@ -16,23 +16,22 @@
 
 ## 1. システム全体像
 
-```
-┌────────────────────────────────────────────────────────────────┐
-│                 travel_booking  (Melos monorepo)               │
-│                                                                 │
-│   ┌──────────────────────┐   POST /graphql (HTTP)              │
-│   │  travel_booking_     │  ─────────────────────►             │
-│   │  mobile              │                                      │
-│   │  Flutter / Dart 3.x  │  ◄─────────────────────             │
-│   └──────────────────────┘        JSON レスポンス              │
-│                                                                 │
-│                           ┌──────────────────────────────────┐ │
-│                           │  travel_booking_backend          │ │
-│                           │  Apollo Server 4 (port 4000)     │ │
-│                           │  Prisma 5  ──►  MySQL 8.0        │ │
-│                           │  Docker Compose                  │ │
-│                           └──────────────────────────────────┘ │
-└────────────────────────────────────────────────────────────────┘
+```mermaid
+graph LR
+    subgraph monorepo["travel_booking  (Melos monorepo)"]
+        subgraph mobile["travel_booking_mobile"]
+            Flutter["Flutter / Dart 3.x"]
+        end
+        subgraph backend["travel_booking_backend"]
+            Apollo["Apollo Server 4\nport 4000"]
+            Prisma["Prisma 5"]
+            MySQL["MySQL 8.0"]
+            Apollo --> Prisma --> MySQL
+        end
+    end
+
+    Flutter -->|"POST /graphql (HTTP)"| Apollo
+    Apollo -->|"JSON レスポンス"| Flutter
 ```
 
 | | Mobile | Backend |
@@ -53,27 +52,27 @@
 
 採用パターンは **MVVM + Repository** の 3 層構造です。依存方向は常に **上から下** の一方向です。
 
-```
-┌─────────────────────────────────────────┐
-│         Presentation Layer              │
-│                                         │
-│   Screen (Widget)                       │
-│       ↕ ref.watch / ref.read            │
-│   ViewModel (@riverpod Notifier)        │
-├─────────────────────────────────────────┤
-│         Data Layer                      │
-│                                         │
-│   Repository Interface                  │
-│       ↓ 実装                            │
-│   Repository Impl                       │
-│       ↓ 使用                            │
-│   DataSource（Remote / Local）          │
-├─────────────────────────────────────────┤
-│         Core Layer                      │
-│                                         │
-│   GraphQLHttpClient / FavoritesStorage  │
-│   AppRouter / AppTheme                  │
-└─────────────────────────────────────────┘
+```mermaid
+graph TD
+    subgraph Presentation["Presentation Layer"]
+        Screen["Screen (Widget)"]
+        ViewModel["ViewModel (@riverpod Notifier)"]
+        Screen <-->|"ref.watch / ref.read"| ViewModel
+    end
+
+    subgraph Data["Data Layer"]
+        RepoIF["Repository Interface"]
+        RepoImpl["Repository Impl"]
+        DS["DataSource (Remote / Local)"]
+        RepoIF -->|"実装"| RepoImpl -->|"使用"| DS
+    end
+
+    subgraph Core["Core Layer"]
+        CoreItems["GraphQLHttpClient / FavoritesStorage\nAppRouter / AppTheme"]
+    end
+
+    Presentation -->|"依存"| Data
+    Data -->|"依存"| Core
 ```
 
 ### 2-2. ディレクトリ構成
@@ -158,15 +157,14 @@ GraphQL のクエリ・ミューテーション文字列を `static const` と�
 
 `FavoritesStorage`（SharedPreferences）を保持し、`StreamController.broadcast()` で変更をリアルタイム通知します。
 
-```
-FavoritesStorage（SharedPreferences）
-       │  read / write
-       ▼
-FavoriteLocalDataSource
-  _controller: StreamController.broadcast()
-       │  Stream<List<FavoritePlan>>
-       ▼
-FavoriteViewModel（subscribe）
+```mermaid
+flowchart TD
+    Storage["FavoritesStorage\n(SharedPreferences)"]
+    DS["FavoriteLocalDataSource\n_controller: StreamController.broadcast()"]
+    FavVM["FavoriteViewModel\n(subscribe)"]
+
+    Storage -->|"read / write"| DS
+    DS -->|"Stream&lt;List&lt;FavoritePlan&gt;&gt;"| FavVM
 ```
 
 `watchFavorites()` は呼び出し時に `_emitCurrent()` を実行するため、新規サブスクライバーが購読直後に最新状態を受け取れます。
@@ -262,16 +260,56 @@ SharedPreferences のキー `favorite_plans` に `List<String>`（JSON シリア
 
 `favoritesStorage` / `favoriteLocalDataSource` / `favoriteRepository` を `keepAlive: true` にすることで、`StreamController` がアプリ起動中に破棄されず、お気に入りの変更がリアルタイムで全 Widget に伝播します。
 
+#### Provider 依存関係グラフ
+
+```mermaid
+graph TD
+    subgraph keep["keepAlive: true（アプリ生存中は破棄されない）"]
+        FavStorage["favoritesStorageProvider"]
+        FavDS["favoriteLocalDataSourceProvider"]
+        FavRepo["favoriteRepositoryProvider"]
+        FavStorage --> FavDS --> FavRepo
+    end
+
+    subgraph auto["autoDispose（画面離脱時に破棄）"]
+        GQL["graphQLHttpClientProvider"]
+        TPRemoteDS["travelPlanRemoteDataSourceProvider"]
+        TPRepo["travelPlanRepositoryProvider"]
+        GQL --> TPRemoteDS --> TPRepo
+    end
+
+    subgraph notifiers["Notifier / Stream Provider（autoDispose）"]
+        PlanListVM["planListViewModelProvider"]
+        PlanDetailVM["planDetailViewModelProvider(planId)"]
+        BookingVM["bookingViewModelProvider"]
+        FavVM["favoriteViewModelProvider"]
+        PlanIsFav["planIsFavoriteProvider(planId)"]
+    end
+
+    TPRepo --> PlanListVM
+    TPRepo --> PlanDetailVM
+    FavRepo --> PlanDetailVM
+    TPRepo --> BookingVM
+    FavDS --> FavVM
+    FavRepo --> FavVM
+    FavDS --> PlanIsFav
+```
+
 #### お気に入りのリアルタイム更新フロー
 
-```
-addFavorite() / removeFavorite()
-  └─ FavoriteLocalDataSource._emitCurrent()
-       └─ StreamController.broadcast().add(favorites)
-            ├─ FavoriteViewModel（subscribe）
-            │       └─ FavoritesScreen が再描画される
-            └─ planIsFavoriteProvider(planId) × N件（subscribe）
-                    └─ PlanCard._FavoriteButton が再描画される
+```mermaid
+flowchart TD
+    Action["addFavorite() / removeFavorite()"]
+    Emit["FavoriteLocalDataSource._emitCurrent()"]
+    Stream["StreamController.broadcast().add(favorites)"]
+    FavVM["FavoriteViewModel (subscribe)"]
+    FavScreen["FavoritesScreen 再描画"]
+    PlanProv["planIsFavoriteProvider(planId) × N件 (subscribe)"]
+    PlanCard["PlanCard._FavoriteButton 再描画"]
+
+    Action --> Emit --> Stream
+    Stream --> FavVM --> FavScreen
+    Stream --> PlanProv --> PlanCard
 ```
 
 ---
@@ -280,22 +318,33 @@ addFavorite() / removeFavorite()
 
 `StatefulShellRoute.indexedStack` でボトムナビ 2 タブを実装しています。
 
-```
-StatefulShellRoute.indexedStack
-├── Branch 0（プランタブ）
-│   └── /                        HomeScreen
-│       └── /plan/:id            PlanDetailScreen
-│           └── /booking         BookingScreen
-└── Branch 1（お気に入りタブ）
-    └── /favorites               FavoritesScreen
-        └── /favorites/plan/:id  PlanDetailScreen
+```mermaid
+graph TD
+    Shell["StatefulShellRoute.indexedStack"]
+
+    subgraph Branch0["Branch 0（プランタブ）"]
+        Home["/\nHomeScreen"]
+        PlanDetail["/plan/:id\nPlanDetailScreen"]
+        Booking["/plan/:id/booking\nBookingScreen"]
+        Home --> PlanDetail --> Booking
+    end
+
+    subgraph Branch1["Branch 1（お気に入りタブ）"]
+        Favorites["/favorites\nFavoritesScreen"]
+        FavDetail["/favorites/plan/:id\nPlanDetailScreen"]
+        Favorites --> FavDetail
+    end
+
+    Top["/booking/confirmation/:bookingId\nBookingConfirmationScreen\n※ Shell 外のトップレベルルート"]
+
+    Shell --> Branch0
+    Shell --> Branch1
+    Booking -.->|"予約完了後に push"| Top
 ```
 
 > **`indexedStack` の重要な挙動**
 > 一度訪問したブランチのウィジェットツリーはタブ切り替え後も**破棄されません**。
 > そのため `FavoriteViewModel` は初回訪問後、アプリ終了まで生存し続けます。
-
-`/booking/confirmation/:bookingId` のみ Shell 外のトップレベルルートとして定義し、予約完了画面として使います。
 
 ---
 
@@ -303,34 +352,44 @@ StatefulShellRoute.indexedStack
 
 #### プラン一覧取得（ページネーション付き）
 
-```
-HomeScreen（initState）
-  └─ planListViewModel.loadPlans()
-       └─ TravelPlanRepository.getPlans(filter, page=1, pageSize=20)
-            └─ TravelPlanRemoteDataSource.getTravelPlans()
-                 └─ GraphQLHttpClient.query("GetTravelPlans", variables)
-                      └─ POST http://…/graphql
-                           └─ TravelPlan.fromJson() × N 件
-                                └─ PlanListState.copyWith(plans: [...])
-                                     └─ HomeScreen 再描画（ListView.builder）
+```mermaid
+flowchart TD
+    HS["HomeScreen (initState)"]
+    LP["planListViewModel.loadPlans()"]
+    Repo["TravelPlanRepository.getPlans\n(filter, page=1, pageSize=20)"]
+    DS["TravelPlanRemoteDataSource.getTravelPlans()"]
+    Client["GraphQLHttpClient.query\n('GetTravelPlans', variables)"]
+    HTTP["POST http://…/graphql"]
+    Parse["TravelPlan.fromJson() × N 件"]
+    State["PlanListState.copyWith(plans: [...])"]
+    Redraw["HomeScreen 再描画 (ListView.builder)"]
+
+    HS --> LP --> Repo --> DS --> Client --> HTTP --> Parse --> State --> Redraw
 ```
 
 スクロールが末尾から 300px 以内になると `loadMore()` が呼ばれ、次ページのプランをリストに**追記**します。
 
 #### お気に入り追加（プラン詳細から）
 
-```
-PlanDetailScreen（♡ タップ）
-  └─ planDetailViewModel.toggleFavorite()
-       └─ FavoriteRepository.addFavorite(plan)
-            └─ FavoriteLocalDataSource.addFavorite(plan)
-                 ├─ FavoritesStorage.add(FavoritePlan.fromTravelPlan(plan))
-                 └─ _emitCurrent()
-                      └─ StreamController.add(updatedFavorites)
-                           ├─ FavoriteViewModel.state 更新
-                           │       └─ FavoritesScreen 再描画（♡ 一覧に反映）
-                           └─ planIsFavoriteProvider 更新
-                                   └─ PlanCard._FavoriteButton 再描画（♡ ボタンに反映）
+```mermaid
+flowchart TD
+    Tap["PlanDetailScreen (♡ タップ)"]
+    Toggle["planDetailViewModel.toggleFavorite()"]
+    FavRepo["FavoriteRepository.addFavorite(plan)"]
+    FavDS["FavoriteLocalDataSource.addFavorite(plan)"]
+    Storage["FavoritesStorage.add\n(FavoritePlan.fromTravelPlan(plan))"]
+    Emit["_emitCurrent()"]
+    Stream["StreamController.add(updatedFavorites)"]
+    FavVM["FavoriteViewModel.state 更新"]
+    FavScreen["FavoritesScreen 再描画\n(♡ 一覧に反映)"]
+    PlanProv["planIsFavoriteProvider 更新"]
+    PlanCard["PlanCard._FavoriteButton 再描画\n(♡ ボタンに反映)"]
+
+    Tap --> Toggle --> FavRepo --> FavDS
+    FavDS --> Storage
+    FavDS --> Emit --> Stream
+    Stream --> FavVM --> FavScreen
+    Stream --> PlanProv --> PlanCard
 ```
 
 ---
@@ -339,25 +398,25 @@ PlanDetailScreen（♡ タップ）
 
 ### 3-1. レイヤー構成
 
-```
-┌─────────────────────────────────────────┐
-│  Transport Layer                        │
-│  Apollo Server 4（HTTP standalone）     │
-│  エラーは formatError で整形して返す    │
-├─────────────────────────────────────────┤
-│  Schema Layer                           │
-│  typeDefs.ts（SDL 形式の型・Query 定義）│
-├─────────────────────────────────────────┤
-│  Resolver Layer                         │
-│  planResolver / bookingResolver         │
-│  Context 経由で PrismaClient を受け取る │
-├─────────────────────────────────────────┤
-│  Data Access Layer                      │
-│  Prisma Client 5.x（ORM）               │
-├─────────────────────────────────────────┤
-│  Database Layer                         │
-│  MySQL 8.0（Docker コンテナ）           │
-└─────────────────────────────────────────┘
+```mermaid
+graph TD
+    subgraph Transport["Transport Layer"]
+        Apollo["Apollo Server 4 (HTTP standalone)\nformatError でエラー整形して返す"]
+    end
+    subgraph Schema["Schema Layer"]
+        TypeDefs["typeDefs.ts\n(SDL 形式の型・Query 定義)"]
+    end
+    subgraph Resolver["Resolver Layer"]
+        Resolvers["planResolver / bookingResolver\nContext 経由で PrismaClient を受け取る"]
+    end
+    subgraph DAL["Data Access Layer"]
+        Prisma["Prisma Client 5.x (ORM)"]
+    end
+    subgraph DB["Database Layer"]
+        MySQL["MySQL 8.0 (Docker コンテナ)"]
+    end
+
+    Transport --> Schema --> Resolver --> DAL --> DB
 ```
 
 `PrismaClient` インスタンスは `index.ts` でシングルトンとして生成し、Apollo Context 経由で全 Resolver に注入します。
@@ -515,38 +574,51 @@ prisma.$transaction(async (tx) => {
 
 #### ER 図
 
-```
-TravelPlan ─┬─ (1:N) ─ TravelPlanImage
-            ├─ (1:N) ─ TravelPlanHighlight
-            ├─ (1:N) ─ ItineraryDay ─── (1:N) ─ ItineraryActivity
-            ├─ (1:N) ─ IncludedItem
-            ├─ (1:N) ─ ExcludedItem
-            ├─ (1:N) ─ Review
-            └─ (1:N) ─ Booking
+```mermaid
+erDiagram
+    TravelPlan ||--o{ TravelPlanImage : "1:N"
+    TravelPlan ||--o{ TravelPlanHighlight : "1:N"
+    TravelPlan ||--o{ ItineraryDay : "1:N"
+    ItineraryDay ||--o{ ItineraryActivity : "1:N"
+    TravelPlan ||--o{ IncludedItem : "1:N"
+    TravelPlan ||--o{ ExcludedItem : "1:N"
+    TravelPlan ||--o{ Review : "1:N"
+    TravelPlan ||--o{ Booking : "1:N"
+
+    TravelPlan {
+        String id PK "UUID"
+        String title
+        String tags "JSON配列を文字列として保存"
+        Int currentBookings "予約数（トランザクションで増減）"
+        Float discountPrice "null の場合は price が実売価格"
+        Boolean isAvailable "false で一覧・予約から除外"
+    }
+
+    Booking {
+        String id PK "UUID"
+        String status "CONFIRMED or CANCELLED"
+        String customerEmail
+        Int numberOfPeople
+        DateTime createdAt
+    }
 ```
 
 `TravelPlan` を親として、すべての子テーブルに `onDelete: Cascade` を設定（`Booking` を除く）。プラン削除時に関連データがすべて自動削除されます。
 
-#### `TravelPlan` の主要フィールド
-
-| フィールド | 型 | 備考 |
-|---|---|---|
-| `id` | `String` UUID | PK |
-| `tags` | `String` TEXT | JSON 配列を文字列として保存。Resolver で `JSON.parse()` |
-| `currentBookings` | `Int` (default: 0) | 予約作成・キャンセル時にトランザクションで増減 |
-| `discountPrice` | `Float?` | null の場合は `price` が実売価格 |
-| `isAvailable` | `Boolean` (default: true) | false のプランは一覧・予約から除外 |
-
 #### `Booking` のステータス遷移
 
-```
-（createBooking 成功）
-       ↓
-  CONFIRMED  ──────────────►  CANCELLED
-                （cancelBooking）
-```
+```mermaid
+stateDiagram-v2
+    [*] --> CONFIRMED : createBooking 成功
+    CONFIRMED --> CANCELLED : cancelBooking
+    CANCELLED --> [*]
 
-> `PENDING` は `BookingResult` の `status` 定義上存在しますが、実際は `createBooking` 成功時に直接 `CONFIRMED` で作成されます。
+    note right of CONFIRMED
+        PENDING は定義上存在するが
+        createBooking 成功時は
+        直接 CONFIRMED で作成される
+    end note
+```
 
 ---
 
@@ -601,16 +673,27 @@ HTTP POST に GraphQL リクエストを乗せる方式です。Apollo Client �
 
 フィールドを 1 つ追加するだけで、以下のすべてのレイヤーに変更が必要です。
 
+```mermaid
+flowchart TD
+    Step1["① prisma/schema.prisma\nPrisma スキーマにフィールド追加"]
+    Step2["② src/graphql/typeDefs.ts\nGraphQL 型定義にフィールド追加"]
+    Step3["③ Resolver の formatXxx()\nフォーマット関数にフィールド追加"]
+    Step4["④ Dart モデルの fromJson()\nモデルクラスにフィールド追加"]
+    Step5["⑤ DataSource のクエリ文字列\nGraphQL クエリにフィールド追加"]
+    Step6["⑥ assets/graphql/*.graphql\nアセット側のクエリを同期"]
+    Step7["⑦ npm run db:migrate\nDB マイグレーション実行"]
+    Step8["⑧ melos run build_runner\n.g.dart 再生成"]
+
+    Step1 --> Step2 --> Step3 --> Step4 --> Step5 --> Step6 --> Step7 --> Step8
+
+    style Step1 fill:#dbeafe
+    style Step2 fill:#dbeafe
+    style Step3 fill:#dbeafe
+    style Step7 fill:#fef9c3
+    style Step8 fill:#fef9c3
 ```
-1. prisma/schema.prisma         ← Prisma スキーマ追加
-2. src/graphql/typeDefs.ts      ← GraphQL 型定義追加
-3. Resolver の formatXxx()      ← フォーマット関数に追加
-4. Dart モデルの fromJson()     ← モデルに追加
-5. DataSource のクエリ文字列    ← クエリにフィールド追加
-6. assets/graphql/*.graphql     ← アセット側のクエリを同期
-7. npm run db:migrate            ← DB マイグレーション実行
-8. melos run build_runner        ← .g.dart 再生成
-```
+
+> **凡例**: 青 = Backend 変更、黄 = コマンド実行、白 = Mobile 変更
 
 ---
 
