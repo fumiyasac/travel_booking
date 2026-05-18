@@ -74,16 +74,16 @@ docker compose exec backend npm run db:migrate
 docker compose exec backend npm run db:seed
 cd ..
 
-# 4. 接続 URL を設定（⚠️ 必須 — 詳細は後述）
-#    travel_booking_mobile/lib/core/config/graphql_config.dart の baseUrl を変更する
+# 4. 接続 URL を設定（実機使用時のみ必要 — 詳細は後述）
+#    シミュレーター/エミュレーターは自動設定のためスキップ可
 
 # 5. アプリを起動
 cd travel_booking_mobile
 flutter run
 ```
 
-> **Step 4 は必ず行ってください。** デフォルト URL はサンプル用の固定 IP であるため、  
-> そのまま起動してもバックエンドに接続できません。
+> **Step 4 はシミュレーター・エミュレーターでは不要です。** プラットフォームに応じた URL が自動で使われます。  
+> 実機で動作させる場合のみ、PC の IP アドレスを明示指定してください。
 
 ---
 
@@ -191,26 +191,28 @@ dart run melos run build_runner
 
 ---
 
-### Step 4: 接続 URL の設定（重要）
+### Step 4: 接続 URL の設定
 
-> ⚠️ **この手順を飛ばすと、アプリ起動後にバックエンドへの接続が失敗します。**
+`graphql_config.dart` はプラットフォームを自動検出し、適切な URL をデフォルトで使用します。
 
-`travel_booking_mobile/lib/core/config/graphql_config.dart` を開いて `baseUrl` のデフォルト値を変更します。
-
-**変更前（デフォルト）:**
-```dart
-GraphQLHttpClient({
-  String baseUrl = 'http://192.168.0.130:4000/graphql',  // ← サンプル用固定 IP
-```
-
-**実行環境に合わせて変更:**
-
-| 実行環境 | 設定する URL |
+| 実行環境 | 使用される URL（自動） |
 |---|---|
 | iOS シミュレーター | `http://localhost:4000/graphql` |
 | Android エミュレーター | `http://10.0.2.2:4000/graphql` |
-| iOS 実機 | `http://<ホスト PC の IP アドレス>:4000/graphql` |
-| Android 実機 | `http://<ホスト PC の IP アドレス>:4000/graphql` |
+
+**実機の場合のみ手動設定が必要です。**  
+PC と実機が同じ Wi-Fi に接続されていることを確認し、`graphql_config.dart` の `GraphQLHttpClient` に `baseUrl` を明示指定してください:
+
+```dart
+// graphql_config.dart 内の Provider 定義で URL を上書きする場合
+GraphQLHttpClient(baseUrl: 'http://192.168.1.50:4000/graphql')  // PC の実際の IP に変更
+```
+
+または `flutter run` 実行時に `--dart-define` で渡すことも可能です:
+
+```bash
+flutter run --dart-define=GRAPHQL_URL=http://192.168.1.50:4000/graphql
+```
 
 **ホスト PC の IP アドレスを確認するコマンド（実機使用時）:**
 ```bash
@@ -258,12 +260,10 @@ flutter devices
 iPhone 16 Pro (mobile) • <デバイスID> • ios • com.apple.CoreSimulator...
 ```
 
-#### 4. 接続 URL の設定
+#### 4. 接続 URL の設定（自動）
 
-```dart
-// graphql_config.dart
-String baseUrl = 'http://localhost:4000/graphql'
-```
+iOS シミュレーター用の `http://localhost:4000/graphql` は **自動で設定されます**。  
+`graphql_config.dart` を手動で変更する必要はありません。
 
 #### 5. アプリの起動
 
@@ -302,18 +302,15 @@ flutter devices
 # emulator-5554 と表示されれば OK
 ```
 
-#### 3. 接続 URL の設定
+#### 3. 接続 URL の設定（自動）
 
-Android エミュレーターでは `localhost` の代わりに `10.0.2.2` を使います:
-
-```dart
-// graphql_config.dart
-String baseUrl = 'http://10.0.2.2:4000/graphql'
-```
+Android エミュレーター用の `http://10.0.2.2:4000/graphql` は **自動で設定されます**。  
+`graphql_config.dart` を手動で変更する必要はありません。
 
 > **なぜ `10.0.2.2` なのか?**  
 > Android エミュレーターの `localhost` はエミュレーター自身を指します。  
-> ホスト PC（Mac）の `localhost` には `10.0.2.2` でアクセスします。
+> ホスト PC（Mac）の `localhost` には `10.0.2.2` でアクセスします。  
+> `Platform.isAndroid` を使ってビルド時に自動で切り替えています。
 
 #### 4. HTTP 通信の許可（cleartext 設定）
 
