@@ -13,7 +13,7 @@ Flutter モバイルアプリ（`travel_booking_mobile`）と Node.js/GraphQL �
 ```
 lib/
 ├── core/
-│   ├── config/graphql_config.dart     # GraphQLHttpClient 設定 (http://localhost:4000/graphql)
+│   ├── config/graphql_config.dart     # GraphQLHttpClient 設定 (Platform.isAndroid で 10.0.2.2 / localhost 自動切替)
 │   ├── database/app_database.dart     # SharedPreferences ラッパー
 │   ├── router/app_router.dart         # go_router ルート定義
 │   └── theme/app_theme.dart           # アプリテーマ
@@ -148,12 +148,11 @@ test/viewmodels/
 
 ## 既知の注意点
 
-### GraphQL エンドポイントのハードコード
-`core/config/graphql_config.dart` の `_baseUrl` が IP アドレスハードコード。
-開発環境変更時は `--dart-define=GRAPHQL_URL=http://x.x.x.x:4000/graphql` で渡すか直接書き換える。
-- iOS シミュレーター: `http://localhost:4000/graphql`
-- Android エミュレーター: `http://10.0.2.2:4000/graphql`
-- 実機: `http://<ホストPCのIP>:4000/graphql`
+### GraphQL エンドポイントの設定
+`core/config/graphql_config.dart` の `_baseUrl` はプラットフォームに応じて自動で切り替わる。
+- iOS シミュレーター: `http://localhost:4000/graphql`（デフォルト）
+- Android エミュレーター: `http://10.0.2.2:4000/graphql`（`Platform.isAndroid` で自動切替）
+- 実機: `GraphQLHttpClient(baseUrl: 'http://<ホストPCのIP>:4000/graphql')` と明示指定するか、`--dart-define=GRAPHQL_URL=...` を使う
 
 ### .g.dart の再生成忘れ
 `@riverpod` アノテーション付きクラスを変更後に `build_runner` 未実行だと古い生成コードが残る。

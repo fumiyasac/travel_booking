@@ -7,9 +7,12 @@ class GraphQLHttpClient {
   final http.Client? _httpClient;
 
   GraphQLHttpClient({
-    String baseUrl = 'http://192.168.0.130:4000/graphql',
+    String? baseUrl,
     http.Client? client,
-  })  : _baseUrl = baseUrl,
+  })  : _baseUrl = baseUrl ??
+            (Platform.isAndroid
+                ? 'http://10.0.2.2:4000/graphql'
+                : 'http://localhost:4000/graphql'),
         _httpClient = client;
 
   Future<Map<String, dynamic>> query({
