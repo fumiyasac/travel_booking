@@ -467,7 +467,7 @@ async function main() {
       tags: '["パリ","フランス","エッフェル塔","ルーブル","ヴェルサイユ","グルメ","美術"]',
       images: {
         create: [
-          { url: 'https://images.unsplash.com/photo-1431274172761-fcdab704f3f9?w=800', caption: 'エッフェル塔の黄昏', isPrimary: true, displayOrder: 0 },
+          { url: 'https://images.unsplash.com/photo-1511739001486-6bfe10ce785f?w=800', caption: 'エッフェル塔の黄昏', isPrimary: true, displayOrder: 0 },
           { url: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800', caption: 'セーヌ川とノートルダム大聖堂', isPrimary: false, displayOrder: 1 },
           { url: 'https://images.unsplash.com/photo-1522093007474-d86e9bf7ba6f?w=800', caption: 'ヴェルサイユ宮殿の庭園', isPrimary: false, displayOrder: 2 },
           { url: 'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=800', caption: 'モンマルトルの丘', isPrimary: false, displayOrder: 3 },
