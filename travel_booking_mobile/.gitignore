@@ -7,6 +7,9 @@
 .pub/
 build/
 
+# custom_lint ログ（実行時生成、コミット不要）
+custom_lint.log
+
 # コード生成ファイル（build_runner）
 *.g.dart
 *.mocks.dart
