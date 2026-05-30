@@ -56,10 +56,8 @@ class PlanDetailViewModel extends _$PlanDetailViewModel {
       final favRepo = ref.read(favoriteRepositoryProvider);
 
       final results = await Future.wait([
-        repo.getPlan(build.runtimeType.toString() == 'PlanDetailViewModel'
-            ? (ref as dynamic).planId ?? ''
-            : ''),
-        favRepo.isFavorite(state.plan?.id ?? ''),
+        repo.getPlan(planId),
+        favRepo.isFavorite(planId),
       ]);
 
       final plan = results[0] as TravelPlan;
