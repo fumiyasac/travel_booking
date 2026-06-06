@@ -1,7 +1,7 @@
 import { GraphQLError } from 'graphql';
 import { Context } from '../../index';
 
-interface CreateBookingInput {
+export interface CreateBookingInput {
   planId: string;
   customerName: string;
   customerEmail: string;
