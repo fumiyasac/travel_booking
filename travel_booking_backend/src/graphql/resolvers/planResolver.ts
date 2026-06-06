@@ -1,7 +1,7 @@
 import { Prisma } from '@prisma/client';
 import { Context } from '../../index';
 
-interface PlanFilterInput {
+export interface PlanFilterInput {
   keyword?: string;
   category?: string;
   region?: string;
