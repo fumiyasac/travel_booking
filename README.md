@@ -64,7 +64,10 @@ flutter doctor
 git clone https://github.com/fumiyasac/travel_booking.git
 cd travel_booking
 
-# 2. モバイルアプリの依存関係をインストール
+# 2. melos をグローバルインストール（初回のみ）
+dart pub global activate melos
+
+# 3. モバイルアプリの依存関係をインストール
 dart pub get && dart run melos bootstrap
 
 # 3. バックエンドを Docker で起動し、DB を初期化
@@ -167,12 +170,22 @@ curl -X POST http://localhost:4000/graphql \
 # リポジトリルート（travel_booking/）で実行
 cd travel_booking   # すでにいる場合はスキップ
 
-# melos をローカルインストール
+# melos をグローバルインストール（初回のみ）
+dart pub global activate melos
+
+# PATH に pub-cache/bin を追加（未設定の場合）
+# ~/.zshrc または ~/.bashrc に以下を追記して source する
+export PATH="$PATH":"$HOME/.pub-cache/bin"
+
+# ワークスペースの依存関係を解決
 dart pub get
 
 # 全パッケージの依存関係を解決
 dart run melos bootstrap
 ```
+
+> **melos コマンドが `command not found` になる場合**  
+> `dart pub global activate melos` を実行し、`$HOME/.pub-cache/bin` が PATH に含まれているか確認してください。
 
 > **`dart run melos bootstrap` が失敗する場合**  
 > `dart pub get` が完了していることを確認してください。  
@@ -835,6 +848,17 @@ cat travel_booking_backend/.env
 ```bash
 dart run melos run build_runner
 ```
+
+#### `melos: command not found` が出る
+
+`melos` がグローバルインストールされていません。以下を実行してください：
+
+```bash
+dart pub global activate melos
+export PATH="$PATH":"$HOME/.pub-cache/bin"
+```
+
+PATH を永続化するには `~/.zshrc`（または `~/.bashrc`）に上記の `export` 行を追記して `source ~/.zshrc` を実行してください。
 
 #### `melos bootstrap` に失敗する
 

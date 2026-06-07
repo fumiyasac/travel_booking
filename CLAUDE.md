@@ -67,6 +67,10 @@ prisma/
 ### 初回セットアップ
 
 ```bash
+# melos をグローバルインストール（初回のみ・PATH への追加も必要）
+dart pub global activate melos
+export PATH="$PATH":"$HOME/.pub-cache/bin"
+
 # モノレポ依存関係インストール（travel_booking/ ルートで実行）
 dart pub get
 dart run melos bootstrap
