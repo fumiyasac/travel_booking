@@ -35,6 +35,9 @@ dev_dependencies:
   custom_lint: ^0.8.1
   riverpod_lint: '>=3.0.0 <3.1.0'
   mockito: ^5.4.4
+  widgetbook: ^3.23.0
+  widgetbook_annotation: ^3.11.0
+  widgetbook_generator: ^3.23.0
 
 flutter:
   uses-material-design: true

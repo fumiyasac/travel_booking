@@ -24,7 +24,8 @@ Flutter モバイルアプリ（iOS / Android）と Node.js / GraphQL バック�
 8. [アーキテクチャ](#アーキテクチャ)
 9. [GraphQL API リファレンス](#graphql-api-リファレンス)
 10. [テスト](#テスト)
-11. [トラブルシューティング](#トラブルシューティング)
+11. [Widgetbook Preview](#widgetbook-preview)
+12. [トラブルシューティング](#トラブルシューティング)
 
 ---
 
@@ -63,7 +64,10 @@ flutter doctor
 git clone https://github.com/fumiyasac/travel_booking.git
 cd travel_booking
 
-# 2. モバイルアプリの依存関係をインストール
+# 2. melos をグローバルインストール（初回のみ）
+dart pub global activate melos
+
+# 3. モバイルアプリの依存関係をインストール
 dart pub get && dart run melos bootstrap
 
 # 3. バックエンドを Docker で起動し、DB を初期化
@@ -166,12 +170,22 @@ curl -X POST http://localhost:4000/graphql \
 # リポジトリルート（travel_booking/）で実行
 cd travel_booking   # すでにいる場合はスキップ
 
-# melos をローカルインストール
+# melos をグローバルインストール（初回のみ）
+dart pub global activate melos
+
+# PATH に pub-cache/bin を追加（未設定の場合）
+# ~/.zshrc または ~/.bashrc に以下を追記して source する
+export PATH="$PATH":"$HOME/.pub-cache/bin"
+
+# ワークスペースの依存関係を解決
 dart pub get
 
 # 全パッケージの依存関係を解決
 dart run melos bootstrap
 ```
+
+> **melos コマンドが `command not found` になる場合**  
+> `dart pub global activate melos` を実行し、`$HOME/.pub-cache/bin` が PATH に含まれているか確認してください。
 
 > **`dart run melos bootstrap` が失敗する場合**  
 > `dart pub get` が完了していることを確認してください。  
@@ -442,6 +456,8 @@ dart run melos run analyze               # 静的解析
 dart run melos run format                # コードフォーマット
 dart run melos run clean                 # ビルド成果物をクリーン
 dart run melos run get                   # 依存パッケージを取得
+dart run melos run preview               # Widgetbook をデフォルトデバイスで起動
+dart run melos run "preview:web"         # Widgetbook を Chrome で起動
 ```
 
 ### バックエンドコマンド
@@ -528,10 +544,16 @@ lib/
 │   │   ├── remote/                 # GraphQL 通信（http パッケージ）
 │   │   └── local/                  # SharedPreferences + Stream
 │   └── repositories/               # インターフェース + 実装ペア
-└── presentation/
-    ├── viewmodels/                  # @riverpod AsyncNotifier（.g.dart は自動生成）
-    ├── screens/                     # home / plan_detail / booking / favorites
-    └── widgets/                     # 共通ウィジェット
+├── presentation/
+│   ├── viewmodels/                  # @riverpod AsyncNotifier（.g.dart は自動生成）
+│   ├── screens/                     # home / plan_detail / booking / favorites
+│   └── widgets/                     # 共通ウィジェット
+└── preview/                         # Widgetbook Preview 環境（開発用）
+    ├── main.dart                    # Widgetbook エントリポイント
+    ├── mock_data.dart               # プレビュー用モックプラン
+    ├── mock_providers.dart          # FakeInMemoryFavoritesStorage
+    ├── main.directories.g.dart      # build_runner 自動生成
+    └── components/                  # 各ウィジェットの UseCase 定義
 ```
 
 ---
@@ -564,6 +586,7 @@ Screen (ConsumerWidget)
 | http | 1.x | GraphQL HTTP クライアント |
 | shimmer | 3.x | ローディングアニメーション |
 | mockito | 5.x | テスト用モック生成 |
+| widgetbook | 3.23.x | ウィジェット Preview 環境（開発用） |
 
 > **Freezed 不使用**: モデルクラスは `copyWith` / `fromJson` / `toJson` を手動実装  
 > **graphql_flutter 不使用**: native build hooks によるビルドエラーを回避するため `http` パッケージで実装
@@ -709,6 +732,49 @@ dart run melos run build_runner
 
 ---
 
+## Widgetbook Preview
+
+`lib/preview/` に [Widgetbook 3.x](https://docs.widgetbook.io/) を使ったウィジェット Preview 環境を用意しています。  
+デザイン確認・コンポーネントのバリエーション検証をバックエンド・GoRouter 不要で行えます。
+
+### 起動方法
+
+```bash
+# Chrome で確認（ウィンドウサイズ調整しやすくておすすめ）
+dart run melos run "preview:web"
+
+# デフォルトデバイス（iOS Simulator など）で確認
+dart run melos run preview
+```
+
+### 収録コンポーネント
+
+| コンポーネント | UseCase 数 | バリエーション |
+|---|:---:|---|
+| `RatingStars` | 3 | 高評価・中評価（レビュー数なし）・低評価（大サイズ） |
+| `LoadingIndicator` | 2 | メッセージあり・なし |
+| `AppErrorWidget` | 2 | 再試行ボタンあり・なし |
+| `PlanCard` | 3 | 通常プラン・セール（割引バッジあり）・ハード難易度 |
+
+### アドオン構成
+
+| アドオン | 内容 |
+|---|---|
+| MaterialThemeAddon | Light テーマ（`AppTheme.lightTheme`） |
+| ViewportAddon | iPhone 13 / Samsung Galaxy A50 |
+| TextScaleAddon | 0.85〜2.0 倍 |
+| LocalizationAddon | ja_JP |
+
+### 新しいコンポーネントを追加するには
+
+1. `lib/preview/components/xxx_preview.dart` を作成し `@widgetbook.UseCase()` を定義する
+2. `dart run melos run build_runner` で `main.directories.g.dart` を再生成する
+3. `dart run melos run "preview:web"` で動作確認する
+
+`ConsumerWidget`（Riverpod 依存あり）の場合は `ProviderScope(overrides: previewProviderOverrides, child: ...)` でラップする。
+
+---
+
 ## トラブルシューティング
 
 ### バックエンド関連
@@ -782,6 +848,17 @@ cat travel_booking_backend/.env
 ```bash
 dart run melos run build_runner
 ```
+
+#### `melos: command not found` が出る
+
+`melos` がグローバルインストールされていません。以下を実行してください：
+
+```bash
+dart pub global activate melos
+export PATH="$PATH":"$HOME/.pub-cache/bin"
+```
+
+PATH を永続化するには `~/.zshrc`（または `~/.bashrc`）に上記の `export` 行を追記して `source ~/.zshrc` を実行してください。
 
 #### `melos bootstrap` に失敗する
 
