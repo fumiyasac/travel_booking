@@ -756,7 +756,7 @@ dart run melos run preview
 
 1. `lib/preview/components/xxx_preview.dart` を作成し `@widgetbook.UseCase()` を定義する
 2. `dart run melos run build_runner` で `main.directories.g.dart` を再生成する
-3. `melos run preview:web` で動作確認する
+3. `dart run melos run "preview:web"` で動作確認する
 
 `ConsumerWidget`（Riverpod 依存あり）の場合は `ProviderScope(overrides: previewProviderOverrides, child: ...)` でラップする。
 

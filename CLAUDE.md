@@ -67,11 +67,12 @@ prisma/
 ### 初回セットアップ
 
 ```bash
-# モノレポ依存関係インストール
-melos bootstrap
+# モノレポ依存関係インストール（travel_booking/ ルートで実行）
+dart pub get
+dart run melos bootstrap
 
 # バックエンド Docker 起動
-cd travel_booking_backend && docker-compose up -d
+cd travel_booking_backend && docker compose up -d
 
 # DB マイグレーション & シードデータ投入
 cd travel_booking_backend && npm run db:migrate && npm run db:seed
@@ -79,16 +80,18 @@ cd travel_booking_backend && npm run db:migrate && npm run db:seed
 
 ### モバイル開発
 
+> すべて `travel_booking/`（リポジトリルート）で実行
+
 ```bash
-melos run build_runner        # Riverpod .g.dart 生成（モデル変更後は必須）
-melos run build_runner:watch  # ウォッチモード（開発中は常時起動推奨）
-melos run test                # 全ユニットテスト実行
-melos run analyze             # 静的解析
-melos run format              # コードフォーマット
-melos run clean               # ビルドキャッシュ削除
-melos run get                 # 依存関係更新
-melos run preview             # Widgetbook Preview をデフォルトデバイスで起動
-melos run preview:web         # Widgetbook Preview を Chrome で起動
+dart run melos run build_runner          # Riverpod .g.dart 生成（モデル変更後は必須）
+dart run melos run "build_runner:watch"  # ウォッチモード（開発中は常時起動推奨）
+dart run melos run test                  # 全ユニットテスト実行
+dart run melos run analyze               # 静的解析
+dart run melos run format                # コードフォーマット
+dart run melos run clean                 # ビルドキャッシュ削除
+dart run melos run get                   # 依存関係更新
+dart run melos run preview               # Widgetbook Preview をデフォルトデバイスで起動
+dart run melos run "preview:web"         # Widgetbook Preview を Chrome で起動
 ```
 
 ### バックエンド操作
@@ -107,7 +110,7 @@ npm run db:reset      # DB 完全リセット（開発環境のみ）
 ### Riverpod コード生成
 - ViewModel は `@riverpod` アノテーションを使用した `AsyncNotifier` パターン
 - `*.g.dart` ファイルは自動生成 → **手動編集禁止**
-- モデルや ViewModel を変更した後は必ず `melos run build_runner` を実行
+- モデルや ViewModel を変更した後は必ず `dart run melos run build_runner` を実行
 
 ### Repository パターン
 - 必ずインターフェース（抽象クラス）と実装クラスをペアで作成
@@ -143,7 +146,7 @@ test/viewmodels/
 
 **テストの書き方（plan_list_viewmodel_test.dart を参照）:**
 1. `@GenerateMocks([TravelPlanRepository])` アノテーションを付ける
-2. `melos run build_runner` でモッククラス（`.mocks.dart`）を生成
+2. `dart run melos run build_runner` でモッククラス（`.mocks.dart`）を生成
 3. `ProviderContainer(overrides: [repositoryProvider.overrideWithValue(mock)])` で DI
 4. `setUp` / `tearDown` で `container.dispose()` を忘れずに
 5. テストデータは日本語の現実的な値で作成（例: `'東京エクスプローラー5日間'`）
@@ -165,7 +168,7 @@ test/viewmodels/
 ### .g.dart の再生成忘れ
 `@riverpod` アノテーション付きクラスを変更後に `build_runner` 未実行だと古い生成コードが残る。
 **症状**: `The getter 'xxxProvider' isn't defined for the class`  
-**解消**: `melos run build_runner`
+**解消**: `dart run melos run build_runner`
 
 ### iOS での HTTP 通信
 `GraphQLHttpClient` は `dart:io HttpClient` を直接使用（`http` パッケージの `IOClient` は iOS で Keep-Alive 問題があるため回避）。

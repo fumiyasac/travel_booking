@@ -694,7 +694,7 @@ flowchart TD
     Step5["⑤ DataSource のクエリ文字列\nGraphQL クエリにフィールド追加"]
     Step6["⑥ assets/graphql/*.graphql\nアセット側のクエリを同期"]
     Step7["⑦ npm run db:migrate\nDB マイグレーション実行"]
-    Step8["⑧ melos run build_runner\n.g.dart 再生成"]
+    Step8["⑧ dart run melos run build_runner\n.g.dart 再生成"]
 
     Step1 --> Step2 --> Step3 --> Step4 --> Step5 --> Step6 --> Step7 --> Step8
 
@@ -832,4 +832,4 @@ dart run melos run preview         # デフォルトデバイス
 1. `lib/preview/components/xxx_preview.dart` を作成
 2. `@widgetbook.UseCase(name: '...', type: TargetWidget)` アノテーションを付与
 3. `dart run melos run build_runner` で `main.directories.g.dart` を再生成
-4. `melos run preview:web` で動作確認
+4. `dart run melos run "preview:web"` で動作確認
