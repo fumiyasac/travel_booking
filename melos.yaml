@@ -52,3 +52,15 @@ scripts:
     exec: flutter pub get
     packageFilters:
       dirExists: lib
+
+  preview:
+    description: Widgetbook プレビューをデフォルトデバイスで起動
+    exec: flutter run -t lib/preview/main.dart
+    packageFilters:
+      dirExists: lib/preview
+
+  preview:web:
+    description: Widgetbook プレビューを Chrome で起動
+    exec: flutter run -t lib/preview/main.dart -d chrome
+    packageFilters:
+      dirExists: lib/preview
