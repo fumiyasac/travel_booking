@@ -11,6 +11,7 @@
 3. [Backend アーキテクチャ](#3-backend-アーキテクチャ)
 4. [Mobile ↔ Backend 通信設計](#4-mobile--backend-通信設計)
 5. [テスト戦略](#5-テスト戦略)
+6. [Widgetbook Preview 環境](#6-widgetbook-preview-環境)
 
 ---
 
@@ -121,6 +122,17 @@ lib/
         ├── rating_stars.dart
         ├── loading_indicator.dart
         └── app_error_widget.dart
+
+preview/                                   # Widgetbook Preview 環境（開発用）
+├── main.dart                              # Widgetbook エントリポイント（@widgetbook.App）
+├── mock_data.dart                         # プレビュー用モックプラン 3 件
+├── mock_providers.dart                    # FakeInMemoryFavoritesStorage + previewProviderOverrides
+├── main.directories.g.dart               # build_runner 自動生成 ← 手動編集禁止
+└── components/                            # UseCase 定義（@widgetbook.UseCase）
+    ├── rating_stars_preview.dart          # 3 UseCase
+    ├── loading_indicator_preview.dart     # 2 UseCase
+    ├── app_error_widget_preview.dart      # 2 UseCase
+    └── plan_card_preview.dart             # 3 UseCase
 ```
 
 ---
@@ -744,3 +756,80 @@ void main() {
 | 成功時 | API / Stream から返ったデータが `state` に正しく反映されること |
 | 失敗時 | 例外が `state.error` にセットされ `isLoading: false` になること |
 | エッジケース | 空リスト・ページネーション境界値・バリデーションエラーの組み合わせ |
+
+---
+
+## 6. Widgetbook Preview 環境
+
+### 概要
+
+[Widgetbook 3.x](https://docs.widgetbook.io/) を使ったウィジェット Preview 環境です。  
+GraphQL バックエンド・GoRouter・SharedPreferences に依存せず、ウィジェットのバリエーションをブラウザ上で確認できます。
+
+```mermaid
+graph TD
+    subgraph preview["lib/preview/（開発専用 entrypoint）"]
+        Main["main.dart\nWidgetbook.material()"]
+        MockData["mock_data.dart\nモックプランデータ"]
+        MockProv["mock_providers.dart\nFakeInMemoryFavoritesStorage"]
+        Gen["main.directories.g.dart\n自動生成（build_runner）"]
+        Cases["components/*_preview.dart\n@widgetbook.UseCase 定義"]
+
+        Main --> Gen
+        Gen --> Cases
+        Cases --> MockData
+        Cases --> MockProv
+    end
+
+    subgraph app["lib/（本体）"]
+        Widgets["presentation/widgets/\nScreens/widgets"]
+    end
+
+    Cases -->|"表示する Widget"| Widgets
+```
+
+### モック戦略
+
+`PlanCard` は `planIsFavoriteProvider` → `favoriteLocalDataSourceProvider` → `favoritesStorageProvider` のチェーンを持つ `ConsumerWidget` です。  
+SharedPreferences を呼び出さない `FakeInMemoryFavoritesStorage` で `favoritesStorageProvider` をオーバーライドすることで、チェーン全体が自動的にモックに切り替わります。
+
+```dart
+// mock_providers.dart
+final previewProviderOverrides = [
+  favoritesStorageProvider.overrideWith(
+    (ref) => FakeInMemoryFavoritesStorage(),
+  ),
+];
+
+// components/plan_card_preview.dart
+@widgetbook.UseCase(name: '通常プラン（お気に入りなし）', type: PlanCard)
+Widget buildPlanCardDefault(BuildContext context) {
+  return ProviderScope(
+    overrides: previewProviderOverrides,
+    child: PlanCard(plan: mockPlanTokyo),
+  );
+}
+```
+
+### アドオン構成
+
+| アドオン | 機能 |
+|---|---|
+| `MaterialThemeAddon` | `AppTheme.lightTheme`（本番と同じテーマ） |
+| `ViewportAddon` | iPhone 13 / Samsung Galaxy A50 |
+| `TextScaleAddon` | 0.85〜2.0 倍（アクセシビリティ確認） |
+| `LocalizationAddon` | ja_JP |
+
+### 起動コマンド
+
+```bash
+dart run melos run "preview:web"   # Chrome（推奨：サイズ調整しやすい）
+dart run melos run preview         # デフォルトデバイス
+```
+
+### 新しい UseCase の追加手順
+
+1. `lib/preview/components/xxx_preview.dart` を作成
+2. `@widgetbook.UseCase(name: '...', type: TargetWidget)` アノテーションを付与
+3. `dart run melos run build_runner` で `main.directories.g.dart` を再生成
+4. `melos run preview:web` で動作確認

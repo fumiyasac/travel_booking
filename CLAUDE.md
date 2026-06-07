@@ -27,10 +27,16 @@ lib/
 │       ├── travel_plan_repository_impl.dart # 実装
 │       ├── favorite_repository.dart         # インターフェース
 │       └── favorite_repository_impl.dart   # 実装
-└── presentation/
-    ├── viewmodels/   # @riverpod AsyncNotifier — .g.dart は自動生成
-    ├── screens/      # home / plan_detail / booking / favorites
-    └── widgets/      # 共通ウィジェット (rating_stars, loading_indicator, app_error_widget)
+├── presentation/
+│   ├── viewmodels/   # @riverpod AsyncNotifier — .g.dart は自動生成
+│   ├── screens/      # home / plan_detail / booking / favorites
+│   └── widgets/      # 共通ウィジェット (rating_stars, loading_indicator, app_error_widget)
+└── preview/          # Widgetbook Preview 環境（開発用）
+    ├── main.dart                   # Widgetbook エントリポイント (@widgetbook.App)
+    ├── mock_data.dart              # モックプランデータ（3件）
+    ├── mock_providers.dart         # FakeInMemoryFavoritesStorage + previewProviderOverrides
+    ├── main.directories.g.dart    # build_runner 自動生成 ← 手動編集禁止
+    └── components/                 # @widgetbook.UseCase 定義
 ```
 
 **状態管理**: Riverpod 3.x（`riverpod_generator` によるコード生成必須）  
@@ -81,6 +87,8 @@ melos run analyze             # 静的解析
 melos run format              # コードフォーマット
 melos run clean               # ビルドキャッシュ削除
 melos run get                 # 依存関係更新
+melos run preview             # Widgetbook Preview をデフォルトデバイスで起動
+melos run preview:web         # Widgetbook Preview を Chrome で起動
 ```
 
 ### バックエンド操作
