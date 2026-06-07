@@ -68,7 +68,7 @@ final mockPlanTokyo = _makePlan(
   reviewCount: 128,
   price: 150000,
   durationDays: 5,
-  imagePhotoId: '1540959733-77bf-4fd6-1b02-15bc5a2eeb6a',
+  imagePhotoId: '1540959733332-eab4deabeeaf',
 );
 
 final mockPlanParis = _makePlan(
