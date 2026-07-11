@@ -1,6 +1,6 @@
 # Claude Code スキル活用ガイド — travel_booking
 
-このプロジェクトには 15 個のカスタムスキルが定義されています。
+このプロジェクトには 16 個のカスタムスキルが定義されています。
 Claude Code のチャット欄でスキル名を呼びかけるだけで自動起動するものと、
 `/スキル名 [引数]` と明示的に呼び出すものがあります。
 
@@ -25,6 +25,7 @@ Claude Code のチャット欄でスキル名を呼びかけるだけで自動�
 | `state-audit` | `/state-audit <名前>` または自然文 | 状態管理の問題チェック（独立実行） | ✓ |
 | `perf-audit` | `/perf-audit <名前>` または自然文 | パフォーマンス問題の静的監査（独立実行） | ✓ |
 | `widget-gen` | `/widget-gen <名前>` または自然文 | 共通ウィジェット雛形生成 | ✓ |
+| `preview-setup` | `/preview-setup [--init] [<名前>]` または自然文 | Widgetbook Preview 初期化・ケース追加 | ✓ |
 
 > **自動起動 ✓**: 関連する自然な文章でも Claude が自動的にスキルを起動します。  
 > **自動起動 —**: `disable-model-invocation: true` のため `/コマンド` での明示呼び出しが必要です。
@@ -88,10 +89,15 @@ Claude Code のチャット欄でスキル名を呼びかけるだけで自動�
 │   └── references/
 │       ├── perf-checklist.md       # 4観点チェックリスト・Bad/Good コード例
 │       └── report-template.md      # レポート出力フォーマット
-└── widget-gen/
+├── widget-gen/
+│   ├── SKILL.md
+│   └── references/
+│       └── widget-template.md      # StatelessWidget / StatefulWidget テンプレート
+└── preview-setup/
     ├── SKILL.md
     └── references/
-        └── widget-template.md      # StatelessWidget / StatefulWidget テンプレート
+        ├── preview-structure.md    # mock_providers / mock_data / main.dart ボイラープレート
+        └── preview-case-template.md # Screen 4シナリオ・Widget ケーステンプレート
 ```
 
 ---
@@ -646,6 +652,66 @@ DB マイグレーションも Flutter 側も変更しないため、API の追�
 
 ---
 
+### preview-setup — Widgetbook Preview 初期化・ケース追加
+
+#### 概要
+Widgetbook を使った Flutter Preview 環境の初期化と、既存 Screen・Widget への Preview ケース追加を行います。
+`widget-gen` / `add-feature` / `add-route` の後続ステップとして使うことが多いです。
+`--init` フラグで初回セットアップ、引数に Screen/Widget 名を渡すとケース追加モードで動作します。
+
+#### 起動方法
+```
+/preview-setup --init                  # 初回セットアップ（lib/preview/ を生成）
+/preview-setup HomeScreen              # Screen の 4 シナリオ Preview を追加
+/preview-setup PriceBadge              # Widget の prop 網羅 Preview を追加
+```
+または以下の自然文で自動起動：
+- 「Preview を追加して」
+- 「Widgetbook を設定して」
+- 「ウィジェットをプレビューで確認したい」
+- 「モックデータで画面を確認したい」
+- 「widget-gen したあと Preview ケースを作りたい」
+
+#### 動作モード
+
+| モード | 条件 | 内容 |
+|---|---|---|
+| 初回セットアップ | `lib/preview/` 未存在 または `--init` | ディレクトリ・ボイラープレート・melos スクリプトを生成 |
+| ケース追加 | Screen/Widget 名の引数あり | `lib/preview/screens/` または `components/` にファイルを追加 |
+| 構成確認 | 引数なし・初期化済み | 現在の Preview 構成一覧を表示して案内 |
+
+#### 初回セットアップで生成されるファイル
+
+```
+lib/preview/
+├── main.dart               # @widgetbook.App() エントリポイント
+├── mock_providers.dart     # FakeInMemoryFavoritesStorage + FakeTravelPlanRepository
+├── mock_data.dart          # モックプラン 10 件（mockPlanTokyo 等の定数）
+└── components/
+    ├── rating_stars_preview.dart
+    ├── loading_indicator_preview.dart
+    └── app_error_widget_preview.dart
+```
+
+#### Screen ケース追加で生成される4シナリオ
+
+| シナリオ | `FakeTravelPlanRepository` の動作 |
+|---|---|
+| 正常表示 | `mockPlans`（10件）を即時返す |
+| 空リスト | `([], 0, false, 1)` を即時返す |
+| ローディング中 | `Completer` で未解決のまま保持（shimmer 表示） |
+| エラー状態 | `Exception` を投げる（AppErrorWidget 表示） |
+
+（ボイラープレート: `.claude/skills/preview-setup/references/preview-structure.md`）  
+（ケーステンプレート: `.claude/skills/preview-setup/references/preview-case-template.md`）
+
+#### こんな時に使う
+- 新しいウィジェットを作って即 Widgetbook で確認したいとき
+- Screen を実機なしでモックデータで動かしたいとき
+- デザインレビュー前に全シナリオを見せたいとき
+
+---
+
 ## シナリオ別推奨フロー
 
 ### 開発開始時（毎朝）
@@ -657,13 +723,14 @@ DB マイグレーションも Flutter 側も変更しないため、API の追�
 
 ### 新機能を追加するとき
 ```
-1. /add-feature <機能名>         ← MVVM 雛形一括生成
+1. /add-feature <機能名>          ← MVVM 雛形一括生成
 2. （各ファイルの TODO を実装）
-3. /add-route <path> <Screen>   ← ルーティング登録
-4. /schema-update <変更内容>    ← DB〜Dart まで反映
-5. /flutter-gen                  ← .g.dart を確認
-6. /add-viewmodel-test <機能名>  ← テストを追加
-7. /graphql-check                ← 整合性を確認
+3. /add-route <path> <Screen>    ← ルーティング登録
+4. /schema-update <変更内容>     ← DB〜Dart まで反映
+5. /flutter-gen                   ← .g.dart を確認
+6. /preview-setup <Screen名>     ← 4シナリオ Preview を追加
+7. /add-viewmodel-test <機能名>   ← テストを追加
+8. /graphql-check                 ← 整合性を確認
 ```
 
 ---
@@ -672,7 +739,7 @@ DB マイグレーションも Flutter 側も変更しないため、API の追�
 ```
 1. /widget-gen <ウィジェット名> [--stateful] [--test]
 2. （ウィジェットの実装）
-3. （Widgetbook の UseCase を手動追加）
+3. /preview-setup <ウィジェット名>   ← Widgetbook の UseCase を自動追加
 ```
 
 ---
