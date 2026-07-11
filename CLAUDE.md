@@ -199,6 +199,7 @@ test/viewmodels/
 | `graphql-check` | `/graphql-check` または自然文 | GraphQL 整合性チェック（独立実行） | ✓ |
 | `add-feature` | `/add-feature <機能名>` | MVVM+Repository 雛形ファイル生成 | — |
 | `add-route` | `/add-route <path> <Screen> [--tab]` または自然文 | GoRoute 追加・ボトムナビ更新 | ✓ |
+| `backend-resolver` | `/backend-resolver <EntityName>` または自然文 | GraphQL Resolver と typeDefs を同時生成 | ✓ |
 | `schema-update` | `/schema-update <変更内容>` または自然文 | 全レイヤースキーマ変更（8ステップ） | ✓ |
 | `bug-trace` | `/bug-trace <エラー>` または自然文 | バグ原因特定と修正 | ✓ |
 | `add-viewmodel-test` | `/add-viewmodel-test <名前>` または自然文 | ViewModel テスト追加 | ✓ |
