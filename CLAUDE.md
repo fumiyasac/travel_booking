@@ -207,3 +207,4 @@ test/viewmodels/
 | `state-audit` | `/state-audit <名前>` または自然文 | 状態管理監査（独立実行） | ✓ |
 | `perf-audit` | `/perf-audit <名前>` または自然文 | パフォーマンス静的監査（独立実行） | ✓ |
 | `widget-gen` | `/widget-gen <名前>` または自然文 | 共通ウィジェット雛形生成 | ✓ |
+| `preview-setup` | `/preview-setup [--init] [<名前>]` または自然文 | Widgetbook Preview 初期化・ケース追加 | ✓ |
