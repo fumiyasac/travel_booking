@@ -1,6 +1,6 @@
 # Claude Code スキル活用ガイド — travel_booking
 
-このプロジェクトには 14 個のカスタムスキルが定義されています。
+このプロジェクトには 15 個のカスタムスキルが定義されています。
 Claude Code のチャット欄でスキル名を呼びかけるだけで自動起動するものと、
 `/スキル名 [引数]` と明示的に呼び出すものがあります。
 
@@ -17,6 +17,7 @@ Claude Code のチャット欄でスキル名を呼びかけるだけで自動�
 | `graphql-check` | `/graphql-check` または自然文 | バックエンドとモバイルの GraphQL 整合性確認 | ✓ |
 | `add-feature` | `/add-feature <機能名>` または自然文 | MVVM+Repository 雛形ファイル一括生成 | — |
 | `add-route` | `/add-route <path> <Screen>` または自然文 | GoRoute 追加・ボトムナビ更新 | ✓ |
+| `backend-resolver` | `/backend-resolver <EntityName>` または自然文 | GraphQL Resolver と typeDefs を同時生成 | ✓ |
 | `schema-update` | `/schema-update <変更内容>` または自然文 | DB〜Dart 全レイヤースキーマ変更 | ✓ |
 | `bug-trace` | `/bug-trace <エラー>` または自然文 | バグ原因特定と修正 | ✓ |
 | `add-viewmodel-test` | `/add-viewmodel-test <名前>` または自然文 | ViewModel テスト追加 | ✓ |
@@ -58,6 +59,10 @@ Claude Code のチャット欄でスキル名を呼びかけるだけで自動�
 │   ├── SKILL.md
 │   └── references/
 │       └── route-template.md       # GoRoute テンプレートコード
+├── backend-resolver/
+│   ├── SKILL.md
+│   └── references/
+│       └── resolver-template.md    # typeDefs・Resolver テンプレートコード
 ├── schema-update/
 │   ├── SKILL.md
 │   └── references/
@@ -352,6 +357,60 @@ lib/presentation/
 
 ---
 
+### backend-resolver — GraphQL Resolver & typeDefs 生成
+
+#### 概要
+TypeScript の GraphQL Resolver と `typeDefs.ts` エントリを同時生成します。
+`schema-update`（DB〜Dart 全 8 ステップ）の「バックエンド TypeScript だけ」軽量版です。
+DB マイグレーションも Flutter 側も変更しないため、API の追加・拡張に素早く対応できます。
+
+#### 起動方法
+```
+/backend-resolver UserReview --query
+/backend-resolver TravelTag --both
+/backend-resolver Notification --mutation
+```
+または以下の自然文で自動起動：
+- 「Resolver を追加して」
+- 「バックエンドに新しいクエリを追加して」
+- 「GraphQL の Mutation を追加したい」
+- 「typeDefs にエンドポイントを追加して」
+- 「バックエンドだけ変更したい」
+
+#### オプション
+
+| オプション | 説明 |
+|---|---|
+| `--query`（デフォルト） | 一覧 + 単体の Query のみ生成 |
+| `--mutation` | Mutation のみ生成 |
+| `--both` | Query と Mutation を両方生成 |
+
+#### 実行ステップ
+
+| ステップ | 内容 |
+|---|---|
+| Step 1 | `schema.prisma` でエンティティの存在確認 |
+| Step 2 | `typeDefs.ts` に Query / Mutation / Input / Payload を追記 |
+| Step 3 | Resolver ファイルを生成または更新し `resolvers/index.ts` に追記 |
+| Step 4 | `tsc --noEmit` で TypeScript ビルド確認 |
+| Step 5 | curl で追加した Query / Mutation の動作確認 |
+
+#### `schema-update` との使い分け
+
+| やりたいこと | 使うスキル |
+|---|---|
+| バックエンド TS のみ変更（DB・Flutter は触らない） | `/backend-resolver` |
+| DB スキーマ変更〜Flutter まで全レイヤー反映 | `/schema-update` |
+
+（Resolver テンプレートコード: `.claude/skills/backend-resolver/references/resolver-template.md`）
+
+#### こんな時に使う
+- 既存モデルに新しいクエリ条件を追加したいとき
+- 管理操作用の Mutation を追加したいとき
+- Flutter 側の変更は不要で API だけ先に実装するとき
+
+---
+
 ### schema-update — 全レイヤースキーマ変更
 
 #### 概要
@@ -626,7 +685,15 @@ lib/presentation/
 
 ---
 
-### バックエンドのスキーマを変更するとき
+### バックエンドに Resolver を追加するとき（DB・Flutter 変更なし）
+```
+1. /backend-resolver <EntityName> [--query|--mutation|--both]
+2. /graphql-check                ← Flutter 側との整合性を確認
+```
+
+---
+
+### バックエンドのスキーマを変更するとき（DB〜Flutter 全変更）
 ```
 1. /schema-update <変更内容の説明>
 2. /graphql-check                ← 変更後の整合性を確認
