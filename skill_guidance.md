@@ -1,6 +1,6 @@
 # Claude Code スキル活用ガイド — travel_booking
 
-このプロジェクトには 10 個のカスタムスキルが定義されています。
+このプロジェクトには 14 個のカスタムスキルが定義されています。
 Claude Code のチャット欄でスキル名を呼びかけるだけで自動起動するものと、
 `/スキル名 [引数]` と明示的に呼び出すものがあります。
 
@@ -15,11 +15,15 @@ Claude Code のチャット欄でスキル名を呼びかけるだけで自動�
 | `db-reset` | `/db-reset` のみ | 開発用 DB 初期化（要確認） | — |
 | `fix-endpoint` | `/fix-endpoint [IP]` のみ | GraphQL 接続先変更 | — |
 | `graphql-check` | `/graphql-check` または自然文 | バックエンドとモバイルの GraphQL 整合性確認 | ✓ |
-| `add-feature` | `/add-feature <機能名>` | MVVM+Repository 雛形ファイル一括生成 | — |
+| `add-feature` | `/add-feature <機能名>` または自然文 | MVVM+Repository 雛形ファイル一括生成 | — |
+| `add-route` | `/add-route <path> <Screen>` または自然文 | GoRoute 追加・ボトムナビ更新 | ✓ |
 | `schema-update` | `/schema-update <変更内容>` または自然文 | DB〜Dart 全レイヤースキーマ変更 | ✓ |
 | `bug-trace` | `/bug-trace <エラー>` または自然文 | バグ原因特定と修正 | ✓ |
 | `add-viewmodel-test` | `/add-viewmodel-test <名前>` または自然文 | ViewModel テスト追加 | ✓ |
+| `add-mock-data` | `/add-mock-data <条件>` または自然文 | 条件付きテストデータ DB 投入 | ✓ |
 | `state-audit` | `/state-audit <名前>` または自然文 | 状態管理の問題チェック（独立実行） | ✓ |
+| `perf-audit` | `/perf-audit <名前>` または自然文 | パフォーマンス問題の静的監査（独立実行） | ✓ |
+| `widget-gen` | `/widget-gen <名前>` または自然文 | 共通ウィジェット雛形生成 | ✓ |
 
 > **自動起動 ✓**: 関連する自然な文章でも Claude が自動的にスキルを起動します。  
 > **自動起動 —**: `disable-model-invocation: true` のため `/コマンド` での明示呼び出しが必要です。
@@ -33,7 +37,7 @@ Claude Code のチャット欄でスキル名を呼びかけるだけで自動�
 ```
 .claude/skills/
 ├── flutter-gen/
-│   └── SKILL.md                    # 実行手順
+│   └── SKILL.md
 ├── backend-up/
 │   └── SKILL.md
 ├── db-reset/
@@ -50,6 +54,10 @@ Claude Code のチャット欄でスキル名を呼びかけるだけで自動�
 │   ├── SKILL.md
 │   └── references/
 │       └── mvvm-pattern.md         # MVVM パターン・テンプレートコード
+├── add-route/
+│   ├── SKILL.md
+│   └── references/
+│       └── route-template.md       # GoRoute テンプレートコード
 ├── schema-update/
 │   ├── SKILL.md
 │   └── references/
@@ -62,10 +70,23 @@ Claude Code のチャット欄でスキル名を呼びかけるだけで自動�
 │   ├── SKILL.md
 │   └── references/
 │       └── test-pattern.md         # テストコードテンプレート集
-└── state-audit/
+├── add-mock-data/
+│   ├── SKILL.md
+│   └── references/
+│       └── data-patterns.md        # 条件別データパターン（soldOut / discounted 等）
+├── state-audit/
+│   ├── SKILL.md
+│   └── references/
+│       └── checklist.md            # 監査チェックリスト・コード例
+├── perf-audit/
+│   ├── SKILL.md
+│   └── references/
+│       ├── perf-checklist.md       # 4観点チェックリスト・Bad/Good コード例
+│       └── report-template.md      # レポート出力フォーマット
+└── widget-gen/
     ├── SKILL.md
     └── references/
-        └── checklist.md            # 監査チェックリスト・コード例
+        └── widget-template.md      # StatelessWidget / StatefulWidget テンプレート
 ```
 
 ---
@@ -95,7 +116,7 @@ metadata:
 | frontmatter | 使用スキル | 理由 |
 |---|---|---|
 | `disable-model-invocation: true` | `backend-up`・`db-reset`・`fix-endpoint` | 副作用・破壊的操作のため手動専用 |
-| `context: fork` | `graphql-check`・`state-audit` | 読み取り専用の分析タスクで本会話を汚さない |
+| `context: fork` | `graphql-check`・`state-audit`・`perf-audit` | 読み取り専用の分析タスクで本会話を汚さない |
 
 ---
 
@@ -106,7 +127,7 @@ metadata:
 ### flutter-gen — Riverpod コード生成
 
 #### 概要
-`melos run build_runner` を実行して `@riverpod` アノテーション付きクラスの `.g.dart` ファイルを再生成します。
+`dart run melos run build_runner` を実行して `@riverpod` アノテーション付きクラスの `.g.dart` ファイルを再生成します。
 
 #### 起動方法
 ```
@@ -120,7 +141,7 @@ metadata:
 
 #### 実行内容
 1. `@riverpod` 付きファイルを確認
-2. `melos run build_runner` を実行
+2. `dart run melos run build_runner` を実行
 3. 生成・更新された `.g.dart` ファイルを一覧表示
 4. エラーがあれば原因と修正方法を日本語で説明
 
@@ -144,8 +165,8 @@ Docker Compose で MySQL + Apollo GraphQL サーバーをバックグラウン�
 
 #### 実行内容
 1. Docker Desktop の起動確認
-2. `docker-compose up -d` を実行
-3. `docker-compose ps` でコンテナ状態を確認
+2. `docker compose up -d` を実行
+3. `docker compose ps` でコンテナ状態を確認
 4. MySQL の `healthy` ステータスを確認
 5. `http://localhost:4000/graphql` の疎通確認
 
@@ -291,6 +312,46 @@ lib/presentation/
 
 ---
 
+### add-route — GoRoute 追加
+
+#### 概要
+`app_router.dart` に GoRoute を追加し、必要に応じてボトムナビの
+`StatefulShellBranch` も更新します。`add-feature` の直後に使うことが多いです。
+
+#### 起動方法
+```
+/add-route /booking-history BookingHistoryScreen
+/add-route /plan/:id/review ReviewScreen
+/add-route /notifications NotificationsScreen --tab
+```
+または以下の自然文で自動起動：
+- 「ルートを追加して」
+- 「画面をルーティングに登録して」
+- 「GoRouter に追加して」
+- 「ボトムナビに新しいタブを追加して」
+
+#### 動作モード
+
+| モード | 説明 |
+|---|---|
+| 通常ルート（`--tab` なし） | 既存ブランチにネスト or トップレベルに追加 |
+| タブルート（`--tab`） | `StatefulShellBranch` + `BottomNavigationBarItem` を同時追加 |
+
+#### 実行内容
+1. 現在の `app_router.dart` を Read して重複チェック
+2. 対象 Screen ファイルの存在確認（なければ `/add-feature` を案内して中断）
+3. パス構造に応じたネスト位置を判断して GoRoute を追加
+4. `--tab` の場合は Branch と BottomNavigationBarItem も追加
+5. `dart analyze` で構文エラーを確認
+
+（GoRoute テンプレートコード: `.claude/skills/add-route/references/route-template.md`）
+
+#### こんな時に使う
+- `add-feature` で新機能を作った後に画面遷移を登録するとき
+- ボトムナビにタブを増やしたいとき
+
+---
+
 ### schema-update — 全レイヤースキーマ変更
 
 #### 概要
@@ -314,7 +375,7 @@ lib/presentation/
 | Step 4 | `lib/data/models/xxx.dart` | Dart モデル更新 |
 | Step 5 | `remote_datasource.dart` | クエリ文字列更新 |
 | Step 6 | `npm run db:migrate` | DB マイグレーション |
-| Step 7 | `melos run build_runner` | コード再生成 |
+| Step 7 | `dart run melos run build_runner` | コード再生成 |
 | Step 8 | 解析・テスト | 動作確認 |
 
 （レイヤー別変更ルール・コード例: `.claude/skills/schema-update/references/layer-guide.md`）
@@ -376,6 +437,48 @@ lib/presentation/
 
 ---
 
+### add-mock-data — 条件付きテストデータ投入
+
+#### 概要
+`prisma/seed.ts` のパターンに従い、指定した条件のテストデータを DB に追加投入します。
+`db-reset` で全削除せずにピンポイントでデータを足せます。
+
+#### 起動方法
+```
+/add-mock-data travelPlan 3 --condition soldOut
+/add-mock-data travelPlan 5 --condition discounted
+/add-mock-data travelPlan 2 --condition highRating
+```
+または以下の自然文で自動起動：
+- 「満席プランのテストデータが欲しい」
+- 「割引中のプランを何件か追加して」
+- 「特定条件のシードデータを作りたい」
+
+#### 使用可能な条件値
+
+| 条件値 | 内容 |
+|---|---|
+| `soldOut` | 満席（`maxParticipants === currentBookings` かつ `isAvailable: true`） |
+| `discounted` | 割引中（`discountPrice` が `price` の 70% 以下） |
+| `unavailable` | 募集停止（`isAvailable: false`） |
+| `highRating` | 高評価（`rating` が 4.5 以上） |
+| 条件なし | 通常プラン |
+
+#### 実行内容
+1. `schema.prisma` と `seed.ts` を Read してフィールド構成を確認
+2. 条件に応じたデータパターンを選択
+3. Docker 起動確認（未起動なら `/backend-up` を案内）
+4. `docker compose exec` 経由で Prisma Client を使ってデータを投入
+5. GraphQL で `totalCount` を取得して結果レポートを出力
+
+（データパターン詳細: `.claude/skills/add-mock-data/references/data-patterns.md`）
+
+#### こんな時に使う
+- 満席・割引などの特定状態を UI で確認したいとき
+- `db-reset` せずに追加でデータを足したいとき
+
+---
+
 ### state-audit — 状態管理監査
 
 #### 概要
@@ -404,6 +507,86 @@ lib/presentation/
 
 ---
 
+### perf-audit — パフォーマンス静的監査
+
+#### 概要
+指定した ViewModel または画面を 4 つの観点でパフォーマンス静的解析し、問題を重大度付きでレポートします。`state-audit` の姉妹スキルでパフォーマンス領域を担当します。
+独立実行（`context: fork`）で本会話のコンテキストを汚しません。
+
+#### 起動方法
+```
+/perf-audit home
+/perf-audit plan_list
+/perf-audit booking
+```
+または以下の自然文で自動起動：
+- 「パフォーマンスをチェックして」
+- 「不要な rebuild が起きていないか確認して」
+- 「keepAlive の設定が正しいか見て」
+- 「GraphQL の呼び出しが多すぎる気がする」
+
+#### チェック観点
+
+| 観点 | 主な確認内容 |
+|---|---|
+| keepAlive / autoDispose の設計 | StreamController を持つ Provider に `keepAlive: true` が設定されているか |
+| 不要な rebuild の検出 | `ref.watch` のスコープが広すぎないか・`select()` で絞れないか |
+| GraphQL クエリの効率 | リスト画面で detail 専用フィールドを過剰取得していないか |
+| リソースリーク | `ScrollController`・`StreamSubscription` が `dispose()` で解放されているか |
+
+#### state-audit との役割分担
+
+| スキル | 担当領域 |
+|---|---|
+| `state-audit` | 三態管理・二重実行防止・copyWith 一貫性・Provider の ref 使い分け |
+| `perf-audit` | rebuild 最小化・keepAlive 設計・GraphQL 効率・リソースリーク |
+
+（チェックリスト詳細: `.claude/skills/perf-audit/references/perf-checklist.md`）  
+（レポートフォーマット: `.claude/skills/perf-audit/references/report-template.md`）
+
+---
+
+### widget-gen — 共通ウィジェット雛形生成
+
+#### 概要
+`lib/presentation/widgets/` に既存 3 ウィジェット（`rating_stars`・`loading_indicator`・`app_error_widget`）のコーディング規約に準拠した雛形を生成します。
+`--test` フラグで `testWidgets` ベースのテストファイルも同時生成できます。
+
+#### 起動方法
+```
+/widget-gen price_badge
+/widget-gen empty_state --stateful
+/widget-gen favorite_button --stateful --test
+```
+または以下の自然文で自動起動：
+- 「共通ウィジェットを追加したい」
+- 「新しいウィジェットを作って」
+- 「〜のウィジェットコンポーネントを生成して」
+- 「StatefulWidget の雛形が欲しい」
+
+#### オプション
+
+| オプション | 説明 |
+|---|---|
+| `--stateful` | `StatefulWidget` を生成（省略時は `StatelessWidget`） |
+| `--test` | `test/widgets/<name>_test.dart` も同時生成 |
+
+#### 規約（既存ウィジェットから自動参照）
+- 色は `AppTheme.xxxColor` 定数のみ使用（ハードコード禁止）
+- `const` コンストラクタ + `super.key`
+- `@riverpod` / `ConsumerWidget` は生成しない（ViewModel 連携が必要なら `/add-feature` を案内）
+
+#### 実行内容
+1. 既存 3 ウィジェットと `app_theme.dart` を Read して規約を確認
+2. 重複チェック（同名ファイルがあれば警告して中断）
+3. ウィジェットファイルを生成
+4. `--test` 指定時はテストファイルも生成
+5. `dart analyze` で構文エラーを確認
+
+（テンプレートコード: `.claude/skills/widget-gen/references/widget-template.md`）
+
+---
+
 ## シナリオ別推奨フロー
 
 ### 開発開始時（毎朝）
@@ -415,12 +598,22 @@ lib/presentation/
 
 ### 新機能を追加するとき
 ```
-1. /add-feature <機能名>
+1. /add-feature <機能名>         ← MVVM 雛形一括生成
 2. （各ファイルの TODO を実装）
-3. /schema-update <変更内容>    ← DB〜Dart まで反映
-4. /flutter-gen                  ← .g.dart を確認
-5. /add-viewmodel-test <機能名>  ← テストを追加
-6. /graphql-check                ← 整合性を確認
+3. /add-route <path> <Screen>   ← ルーティング登録
+4. /schema-update <変更内容>    ← DB〜Dart まで反映
+5. /flutter-gen                  ← .g.dart を確認
+6. /add-viewmodel-test <機能名>  ← テストを追加
+7. /graphql-check                ← 整合性を確認
+```
+
+---
+
+### UI ウィジェットを追加するとき
+```
+1. /widget-gen <ウィジェット名> [--stateful] [--test]
+2. （ウィジェットの実装）
+3. （Widgetbook の UseCase を手動追加）
 ```
 
 ---
@@ -444,8 +637,19 @@ lib/presentation/
 ### コードレビュー前の品質チェック
 ```
 1. /state-audit <変更した画面名>
-2. /graphql-check
-3. /add-viewmodel-test <変更した ViewModel 名>
+2. /perf-audit <変更した画面名>
+3. /graphql-check
+4. /add-viewmodel-test <変更した ViewModel 名>
+```
+
+---
+
+### 特定条件の UI をテストしたいとき
+```
+1. /add-mock-data travelPlan 3 --condition <条件>
+   （満席: soldOut / 割引: discounted / 募集停止: unavailable / 高評価: highRating）
+2. （動作確認後）
+3. /db-reset     ← 必要であればリセット
 ```
 
 ---
@@ -463,3 +667,15 @@ lib/presentation/
 1. /backend-up
 2. /db-reset
 ```
+
+---
+
+## スキルを新規追加するときのチェックリスト
+
+新しいスキルを `.claude/skills/` に追加した際は、必ず以下を更新してください。
+
+- [ ] `skill_guidance.md` の **スキル一覧早見表** に行を追加
+- [ ] `skill_guidance.md` の **スキルファイルの構成** のツリーに追加
+- [ ] `skill_guidance.md` の **スキル別詳細** にセクションを追加
+- [ ] 関連する **シナリオ別推奨フロー** を更新または新規追加
+- [ ] `CLAUDE.md` の **カスタムスキル一覧** テーブルにも反映

@@ -202,4 +202,7 @@ test/viewmodels/
 | `schema-update` | `/schema-update <変更内容>` または自然文 | 全レイヤースキーマ変更（8ステップ） | ✓ |
 | `bug-trace` | `/bug-trace <エラー>` または自然文 | バグ原因特定と修正 | ✓ |
 | `add-viewmodel-test` | `/add-viewmodel-test <名前>` または自然文 | ViewModel テスト追加 | ✓ |
+| `add-mock-data` | `/add-mock-data <条件>` または自然文 | 条件付きテストデータ DB 投入 | ✓ |
 | `state-audit` | `/state-audit <名前>` または自然文 | 状態管理監査（独立実行） | ✓ |
+| `perf-audit` | `/perf-audit <名前>` または自然文 | パフォーマンス静的監査（独立実行） | ✓ |
+| `widget-gen` | `/widget-gen <名前>` または自然文 | 共通ウィジェット雛形生成 | ✓ |
