@@ -3,7 +3,8 @@ name: bug-trace
 description: |
   エラーメッセージやスタックトレースからバグの原因箇所を特定し修正する。
   Riverpod コード生成・GraphQL 通信・JSON パース・Navigation・State 管理の
-  5 系統のエラーパターンに対応し、修正後に静的解析とテストを確認する。
+  5 系統に加え、preview-setup（Widgetbook）/ backend-resolver（TypeScript/GraphQL）の
+  エラーにも対応。修正後に静的解析とテストを確認する。
   「エラーが出た」「バグを直して」「〜という例外が発生する」
   「クラッシュする」「動かない」などの状況で自動起動する。
 argument-hint: "エラーメッセージまたはスタックトレース"
@@ -44,6 +45,18 @@ metadata:
 
 **State 管理系の判定:**
 - ローディングが終わらない / 状態が更新されない → copyWith または isLoading 制御の問題
+
+**preview-setup（Widgetbook）系の判定:**
+- `No WidgetbookApp found` / `Could not find an annotation of type App` → `@widgetbook.App()` 未設定またはコード生成忘れ
+- `can't be assigned to the parameter type 'Override'` → `overrideWith` 構文不一致
+- `GoException: no routes for location`（Preview 内） → Preview 用 `_previewRouter` が未定義
+- `The named parameter 'xxx' isn't defined`（`mock_data.dart`） → モデル変更後の mock_data.dart 未同期
+
+**backend-resolver（TypeScript/GraphQL）系の判定:**
+- `Type 'XXX' is not assignable to type 'Resolver'` → typeDefs と Resolver の型不一致
+- `Transaction already closed` / `P2002` → `$transaction` 内の `await` 抜けまたは unique 制約違反
+- `Type 'XXX' was defined more than once` → typeDefs.ts 内の重複定義
+- `Cannot connect to the Docker daemon` → Docker 未起動
 
 ### 2. スタックトレースからファイル特定
 
