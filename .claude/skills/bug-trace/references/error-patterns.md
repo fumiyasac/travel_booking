@@ -99,9 +99,9 @@ Read: travel_booking_mobile/lib/core/router/app_router.dart
 **共通対処:**
 ```bash
 # Widgetbook コード再生成
-cd /Users/sakaifumiya/Desktop/FlutterApp/travel_booking && dart run melos run build_runner
+cd /Users/sakaifumiya/Desktop/FlutterApp/travel_booking && melos run build_runner
 # Preview 環境の静的解析
-cd /Users/sakaifumiya/Desktop/FlutterApp/travel_booking && dart analyze travel_booking_mobile/lib/preview/
+cd /Users/sakaifumiya/Desktop/FlutterApp/travel_booking && melos run analyze
 ```
 
 ---
