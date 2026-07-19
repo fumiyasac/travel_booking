@@ -28,8 +28,8 @@ lib/
 │       ├── favorite_repository.dart         # インターフェース
 │       └── favorite_repository_impl.dart   # 実装
 ├── presentation/
-│   ├── viewmodels/   # @riverpod AsyncNotifier — .g.dart は自動生成
-│   ├── screens/      # home / plan_detail / booking / favorites
+│   ├── viewmodels/   # @riverpod Notifier<State> — .g.dart は自動生成
+│   ├── screens/      # home / plan_detail / booking / favorites / booking_history
 │   └── widgets/      # 共通ウィジェット (rating_stars, loading_indicator, app_error_widget)
 └── preview/          # Widgetbook Preview 環境（開発用）
     ├── main.dart                   # Widgetbook エントリポイント (@widgetbook.App)
@@ -39,7 +39,7 @@ lib/
     └── components/                 # @widgetbook.UseCase 定義
 ```
 
-**状態管理**: Riverpod 3.x（`riverpod_generator` によるコード生成必須）  
+**状態管理**: Riverpod 3.x（`riverpod_generator` によるコード生成必須。ViewModel は `Notifier<State>` パターン）  
 **ナビゲーション**: go_router 14.x  
 **GraphQL 通信**: http パッケージで手書きクエリ（クエリは datasource 内に定数として定義）
 
@@ -134,18 +134,20 @@ npm run db:reset      # DB 完全リセット（開発環境のみ）
 ## テスト戦略
 
 ### ViewModel テスト（既存パターン）
-テストは `test/viewmodels/` 以下に配置。4つの ViewModel テストが存在する。
+テストは `test/viewmodels/` 以下に配置。5つの ViewModel テストが存在する。
 
 ```
 test/viewmodels/
-├── plan_list_viewmodel_test.dart         # PlanListViewModel
-├── plan_list_viewmodel_test.mocks.dart   # 自動生成モック
+├── plan_list_viewmodel_test.dart               # PlanListViewModel
+├── plan_list_viewmodel_test.mocks.dart         # 自動生成モック
 ├── plan_detail_viewmodel_test.dart
 ├── plan_detail_viewmodel_test.mocks.dart
 ├── booking_viewmodel_test.dart
 ├── booking_viewmodel_test.mocks.dart
 ├── favorite_viewmodel_test.dart
-└── favorite_viewmodel_test.mocks.dart
+├── favorite_viewmodel_test.mocks.dart
+├── booking_history_viewmodel_test.dart         # BookingHistoryViewModel
+└── booking_history_viewmodel_test.mocks.dart   # 自動生成モック
 ```
 
 **テストの書き方（plan_list_viewmodel_test.dart を参照）:**

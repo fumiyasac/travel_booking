@@ -71,7 +71,7 @@ Claude Code のチャット欄でスキル名を呼びかけるだけで自動�
 ├── bug-trace/
 │   ├── SKILL.md
 │   └── references/
-│       └── error-patterns.md       # エラーパターン辞書（5系統）
+│       └── error-patterns.md       # エラーパターン辞書（7系統）
 ├── add-viewmodel-test/
 │   ├── SKILL.md
 │   └── references/
@@ -450,7 +450,7 @@ DB マイグレーションも Flutter 側も変更しないため、API の追�
 ### bug-trace — バグ原因特定と修正
 
 #### 概要
-エラーメッセージやスタックトレースを受け取り、このプロジェクト固有の 5 系統のエラーパターンと照合して原因を特定・修正します。
+エラーメッセージやスタックトレースを受け取り、このプロジェクト固有の 7 系統のエラーパターンと照合して原因を特定・修正します。
 
 #### 起動方法
 ```
@@ -469,6 +469,8 @@ DB マイグレーションも Flutter 側も変更しないため、API の追�
 | JSON パース | `Null check operator`・`type 'Null' is not a subtype of type` |
 | Navigation | `GoException: No routes for location` |
 | State 管理 | 無限ローディング・状態が更新されない |
+| preview-setup（Widgetbook） | `No WidgetbookApp found`・`GoException: no routes for location`（Preview 内） |
+| backend-resolver（TypeScript / GraphQL） | `Type 'XXX' is not assignable to type 'Resolver'`・`Transaction API error` |
 
 （エラーパターン辞書: `.claude/skills/bug-trace/references/error-patterns.md`）
 
@@ -496,6 +498,7 @@ DB マイグレーションも Flutter 側も変更しないため、API の追�
 | `plan_detail` | あり → 未テストメソッドを追加 |
 | `booking` | あり → 未テストメソッドを追加 |
 | `favorite` | あり → 未テストメソッドを追加 |
+| `booking_history` | あり → 未テストメソッドを追加 |
 | 新規機能名 | なし → テンプレートから新規作成 |
 
 （テストコードテンプレート: `.claude/skills/add-viewmodel-test/references/test-pattern.md`）
@@ -686,7 +689,7 @@ Widgetbook を使った Flutter Preview 環境の初期化と、既存 Screen・
 lib/preview/
 ├── main.dart               # @widgetbook.App() エントリポイント
 ├── mock_providers.dart     # FakeInMemoryFavoritesStorage + FakeTravelPlanRepository
-├── mock_data.dart          # モックプラン 10 件（mockPlanTokyo 等の定数）
+├── mock_data.dart          # モックプラン 3 件（mockPlanTokyo / mockPlanParis / mockPlanHimalayas）
 └── components/
     ├── rating_stars_preview.dart
     ├── loading_indicator_preview.dart
