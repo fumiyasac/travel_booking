@@ -23,4 +23,6 @@ abstract class TravelPlanRepository {
   });
 
   Future<void> cancelBooking(String bookingId);
+
+  Future<List<Booking>> fetchBookings(String customerEmail);
 }

@@ -54,4 +54,9 @@ class TravelPlanRepositoryImpl implements TravelPlanRepository {
   Future<void> cancelBooking(String bookingId) {
     return _remoteDataSource.cancelBooking(bookingId);
   }
+
+  @override
+  Future<List<Booking>> fetchBookings(String customerEmail) {
+    return _remoteDataSource.fetchBookings(customerEmail);
+  }
 }

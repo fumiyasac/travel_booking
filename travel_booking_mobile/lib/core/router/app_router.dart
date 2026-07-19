@@ -5,6 +5,7 @@ import '../../presentation/screens/plan_detail/plan_detail_screen.dart';
 import '../../presentation/screens/booking/booking_screen.dart';
 import '../../presentation/screens/booking/booking_confirmation_screen.dart';
 import '../../presentation/screens/favorites/favorites_screen.dart';
+import '../../presentation/screens/booking_history/booking_history_screen.dart';
 
 class AppRouter {
   static final GoRouter router = GoRouter(
@@ -63,6 +64,15 @@ class AppRouter {
               ),
             ],
           ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/booking-history',
+                name: 'booking-history',
+                builder: (context, state) => const BookingHistoryScreen(),
+              ),
+            ],
+          ),
         ],
       ),
       GoRoute(
@@ -109,6 +119,11 @@ class _ScaffoldWithBottomNav extends StatelessWidget {
             icon: Icon(Icons.favorite_outline),
             activeIcon: Icon(Icons.favorite),
             label: 'お気に入り',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.receipt_long_outlined),
+            activeIcon: Icon(Icons.receipt_long),
+            label: '予約履歴',
           ),
         ],
       ),

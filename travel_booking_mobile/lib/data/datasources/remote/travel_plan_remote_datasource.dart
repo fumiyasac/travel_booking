@@ -69,6 +69,20 @@ class TravelPlanRemoteDataSource {
     }
   ''';
 
+  static const _getBookingsQuery = r'''
+    query GetBookings($customerEmail: String) {
+      bookings(customerEmail: $customerEmail) {
+        id planId customerName customerEmail customerPhone
+        numberOfPeople travelDate specialRequests totalPrice
+        status paymentMethod createdAt updatedAt
+        plan {
+          id title destination
+          images { id url isPrimary displayOrder }
+        }
+      }
+    }
+  ''';
+
   Future<(List<TravelPlan>, int, bool, int)> getTravelPlans({
     PlanFilter? filter,
     int page = 1,
@@ -146,6 +160,20 @@ class TravelPlanRemoteDataSource {
     }
 
     return Booking.fromJson(result['booking'] as Map<String, dynamic>);
+  }
+
+  Future<List<Booking>> fetchBookings(String customerEmail) async {
+    final data = await _client.query(
+      document: _getBookingsQuery,
+      variables: {'customerEmail': customerEmail},
+    );
+
+    final list = data['bookings'] as List<dynamic>?;
+    if (list == null) throw Exception('予約履歴の取得に失敗しました');
+
+    return list
+        .map((b) => Booking.fromJson(b as Map<String, dynamic>))
+        .toList();
   }
 
   Future<void> cancelBooking(String bookingId) async {
