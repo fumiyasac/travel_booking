@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shimmer/shimmer.dart';
@@ -36,8 +38,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   void _onScroll() {
-    if (_scrollController.position.pixels >=
-        _scrollController.position.maxScrollExtent - 300) {
+    final maxExtent = _scrollController.position.maxScrollExtent;
+    final threshold = math.max(maxExtent * 0.2, 100.0);
+    if (maxExtent - _scrollController.position.pixels < threshold) {
       ref.read(planListViewModelProvider.notifier).loadMore();
     }
   }
