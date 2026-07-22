@@ -30,20 +30,23 @@ jobs:
       - name: Install root dependencies (dart pub get)
         run: dart pub get
 
+      - name: Add pub-cache bin to PATH
+        run: echo "$HOME/.pub-cache/bin" >> $GITHUB_PATH
+
       - name: Bootstrap melos
-        run: dart run melos bootstrap
+        run: melos bootstrap
 
       - name: Generate code (build_runner)
-        run: dart run melos run build_runner
+        run: melos run build_runner
 
       - name: Static analysis
-        run: dart run melos run analyze
+        run: melos run analyze
 
       - name: Run unit tests
-        run: dart run melos run test
+        run: melos run test
 
       - name: Format check
-        run: dart run melos run format -- --set-exit-if-changed
+        run: melos run format -- --set-exit-if-changed
 
   # ─────────────────────────────────────────
   # Job 2: Node.js バックエンドの検証
