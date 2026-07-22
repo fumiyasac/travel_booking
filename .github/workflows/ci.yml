@@ -1,0 +1,102 @@
+# CI Status Badge (README.md 冒頭に追加してください):
+# [![CI](https://github.com/fumiyasac/travel_booking/actions/workflows/ci.yml/badge.svg)](https://github.com/fumiyasac/travel_booking/actions/workflows/ci.yml)
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ─────────────────────────────────────────
+  # Job 1: Flutter モバイルアプリの検証
+  # ─────────────────────────────────────────
+  mobile:
+    name: Flutter Mobile
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter (stable)
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install root dependencies (dart pub get)
+        run: dart pub get
+
+      - name: Bootstrap melos
+        run: dart run melos bootstrap
+
+      - name: Generate code (build_runner)
+        run: dart run melos run build_runner
+
+      - name: Static analysis
+        run: dart run melos run analyze
+
+      - name: Run unit tests
+        run: dart run melos run test
+
+      - name: Format check
+        run: dart run melos run format -- --set-exit-if-changed
+
+  # ─────────────────────────────────────────
+  # Job 2: Node.js バックエンドの検証
+  # ─────────────────────────────────────────
+  backend:
+    name: Node.js Backend
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: travel_booking
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd "mysqladmin ping -h localhost"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: travel_booking_backend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: travel_booking_backend
+        run: npm ci
+
+      - name: Run DB migrations
+        working-directory: travel_booking_backend
+        env:
+          DATABASE_URL: mysql://root:password@127.0.0.1:3306/travel_booking
+        run: npx prisma migrate deploy
+
+      - name: Seed database
+        working-directory: travel_booking_backend
+        env:
+          DATABASE_URL: mysql://root:password@127.0.0.1:3306/travel_booking
+        run: npm run db:seed
+
+      - name: TypeScript type check
+        working-directory: travel_booking_backend
+        run: npx tsc --noEmit
+
+      - name: Run tests
+        working-directory: travel_booking_backend
+        run: npm test
