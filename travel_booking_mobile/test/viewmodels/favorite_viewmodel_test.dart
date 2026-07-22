@@ -42,7 +42,8 @@ void main() {
     mockDataSource = MockFavoriteLocalDataSource();
     favoritesController = StreamController<List<FavoritePlan>>.broadcast();
 
-    when(mockDataSource.watchFavorites()).thenAnswer((_) => favoritesController.stream);
+    when(mockDataSource.watchFavorites())
+        .thenAnswer((_) => favoritesController.stream);
 
     container = ProviderContainer(
       overrides: [

@@ -31,7 +31,8 @@ class ItineraryDay {
       accommodation: json['accommodation'] as String?,
       meals: json['meals'] as String? ?? '',
       activities: (json['activities'] as List<dynamic>?)
-              ?.map((a) => ItineraryActivity.fromJson(a as Map<String, dynamic>))
+              ?.map(
+                  (a) => ItineraryActivity.fromJson(a as Map<String, dynamic>))
               .toList() ??
           [],
     );
@@ -70,7 +71,9 @@ class ItineraryDay {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is ItineraryDay && runtimeType == other.runtimeType && id == other.id;
+      other is ItineraryDay &&
+          runtimeType == other.runtimeType &&
+          id == other.id;
 
   @override
   int get hashCode => id.hashCode;
