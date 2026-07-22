@@ -11,7 +11,7 @@ build/
 !.env.example
 
 # Prisma
-prisma/migrations/
+# migrations/ はバージョン管理対象（prisma migrate deploy が CI で使用する）
 prisma/*.db
 
 # ログ
