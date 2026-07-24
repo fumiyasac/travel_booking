@@ -79,10 +79,12 @@ class TravelPlan {
 
   String get primaryImageUrl {
     if (images.isEmpty) return '';
-    return images.firstWhere(
-      (img) => img.isPrimary,
-      orElse: () => images.first,
-    ).url;
+    return images
+        .firstWhere(
+          (img) => img.isPrimary,
+          orElse: () => images.first,
+        )
+        .url;
   }
 
   factory TravelPlan.fromJson(Map<String, dynamic> json) {
@@ -106,7 +108,8 @@ class TravelPlan {
       maxParticipants: json['maxParticipants'] as int,
       currentBookings: json['currentBookings'] as int? ?? 0,
       availableSpots: json['availableSpots'] as int? ??
-          ((json['maxParticipants'] as int) - (json['currentBookings'] as int? ?? 0)),
+          ((json['maxParticipants'] as int) -
+              (json['currentBookings'] as int? ?? 0)),
       category: json['category'] as String,
       difficulty: json['difficulty'] as String,
       rating: (json['rating'] as num).toDouble(),
@@ -122,9 +125,12 @@ class TravelPlan {
       meetingPoint: json['meetingPoint'] as String? ?? '',
       cancellationPolicy: json['cancellationPolicy'] as String? ?? '',
       minimumAge: json['minimumAge'] as int?,
-      tags: (json['tags'] as List<dynamic>?)?.map((t) => t as String).toList() ?? [],
+      tags:
+          (json['tags'] as List<dynamic>?)?.map((t) => t as String).toList() ??
+              [],
       images: (json['images'] as List<dynamic>?)
-              ?.map((img) => TravelPlanImage.fromJson(img as Map<String, dynamic>))
+              ?.map((img) =>
+                  TravelPlanImage.fromJson(img as Map<String, dynamic>))
               .toList() ??
           [],
       highlights: (json['highlights'] as List<dynamic>?)
@@ -147,7 +153,8 @@ class TravelPlan {
               ?.map((r) => Review.fromJson(r as Map<String, dynamic>))
               .toList() ??
           [],
-      createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now(),
+      createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ??
+          DateTime.now(),
     );
   }
 

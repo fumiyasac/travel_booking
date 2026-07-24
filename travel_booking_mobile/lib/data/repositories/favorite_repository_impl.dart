@@ -16,8 +16,7 @@ class FavoriteRepositoryImpl implements FavoriteRepository {
   Future<List<FavoritePlan>> getFavorites() => _localDataSource.getFavorites();
 
   @override
-  Future<bool> isFavorite(String planId) =>
-      _localDataSource.isFavorite(planId);
+  Future<bool> isFavorite(String planId) => _localDataSource.isFavorite(planId);
 
   @override
   Future<void> addFavorite(TravelPlan plan) =>

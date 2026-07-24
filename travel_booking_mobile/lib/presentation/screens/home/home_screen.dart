@@ -66,7 +66,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   fillColor: Colors.transparent,
                 ),
                 onSubmitted: (value) {
-                  ref.read(planListViewModelProvider.notifier).updateKeyword(value);
+                  ref
+                      .read(planListViewModelProvider.notifier)
+                      .updateKeyword(value);
                 },
               )
             : const Text('旅行プラン'),
@@ -78,7 +80,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 _showSearch = !_showSearch;
                 if (!_showSearch) {
                   _searchController.clear();
-                  ref.read(planListViewModelProvider.notifier).updateKeyword('');
+                  ref
+                      .read(planListViewModelProvider.notifier)
+                      .updateKeyword('');
                 }
               });
             },
@@ -107,7 +111,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 context,
                 state.filter,
                 (newFilter) {
-                  ref.read(planListViewModelProvider.notifier).updateFilter(newFilter);
+                  ref
+                      .read(planListViewModelProvider.notifier)
+                      .updateFilter(newFilter);
                 },
               );
             },
@@ -116,7 +122,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ),
       body: RefreshIndicator(
         color: AppTheme.primaryColor,
-        onRefresh: () => ref.read(planListViewModelProvider.notifier).loadPlans(refresh: true),
+        onRefresh: () => ref
+            .read(planListViewModelProvider.notifier)
+            .loadPlans(refresh: true),
         child: _buildBody(state),
       ),
     );
@@ -151,7 +159,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 return const Padding(
                   padding: EdgeInsets.all(16),
                   child: Center(
-                    child: CircularProgressIndicator(color: AppTheme.primaryColor),
+                    child:
+                        CircularProgressIndicator(color: AppTheme.primaryColor),
                   ),
                 );
               }
@@ -175,7 +184,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
           const Spacer(),
           GestureDetector(
-            onTap: () => ref.read(planListViewModelProvider.notifier).resetFilter(),
+            onTap: () =>
+                ref.read(planListViewModelProvider.notifier).resetFilter(),
             child: const Text(
               'フィルターをクリア',
               style: TextStyle(
@@ -217,7 +227,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           const SizedBox(height: 16),
           const Text(
             'プランが見つかりませんでした',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppTheme.textPrimary),
+            style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.textPrimary),
           ),
           const SizedBox(height: 8),
           const Text(
@@ -226,7 +239,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
           const SizedBox(height: 24),
           OutlinedButton(
-            onPressed: () => ref.read(planListViewModelProvider.notifier).resetFilter(),
+            onPressed: () =>
+                ref.read(planListViewModelProvider.notifier).resetFilter(),
             child: const Text('フィルターをリセット'),
           ),
         ],

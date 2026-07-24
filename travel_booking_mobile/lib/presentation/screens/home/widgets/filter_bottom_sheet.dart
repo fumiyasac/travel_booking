@@ -120,7 +120,8 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                             clearDifficulty: v.isEmpty,
                           )),
                     ),
-                    _buildSectionTitle('最大日数: ${_filter.maxDuration ?? "制限なし"}日'),
+                    _buildSectionTitle(
+                        '最大日数: ${_filter.maxDuration ?? "制限なし"}日'),
                     Slider(
                       value: (_filter.maxDuration ?? 30).toDouble(),
                       min: 1,
@@ -128,14 +129,16 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                       divisions: 29,
                       activeColor: AppTheme.primaryColor,
                       onChanged: (v) => setState(
-                        () => _filter = _filter.copyWith(maxDuration: v.toInt()),
+                        () =>
+                            _filter = _filter.copyWith(maxDuration: v.toInt()),
                       ),
                     ),
                     _buildSectionTitle('並び替え'),
                     _buildChips(
                       _sortOptions,
                       _filter.sortBy,
-                      (v) => setState(() => _filter = _filter.copyWith(sortBy: v)),
+                      (v) =>
+                          setState(() => _filter = _filter.copyWith(sortBy: v)),
                       multiSelect: false,
                     ),
                     const SizedBox(height: 16),

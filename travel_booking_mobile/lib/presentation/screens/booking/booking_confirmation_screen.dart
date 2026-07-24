@@ -71,10 +71,13 @@ class BookingConfirmationScreen extends StatelessWidget {
                     children: [
                       const Text(
                         '予約詳細',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w700),
                       ),
                       const Gap(12),
-                      _DetailRow(label: '予約ID', value: bookingId.substring(0, 8).toUpperCase()),
+                      _DetailRow(
+                          label: '予約ID',
+                          value: bookingId.substring(0, 8).toUpperCase()),
                       _DetailRow(label: 'プラン名', value: planTitle),
                       if (travelDate != null)
                         _DetailRow(
@@ -120,9 +123,9 @@ class BookingConfirmationScreen extends StatelessWidget {
 
   String _formatPrice(int price) {
     return price.toString().replaceAllMapped(
-      RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
-      (m) => '${m[1]},',
-    );
+          RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
+          (m) => '${m[1]},',
+        );
   }
 }
 
@@ -142,12 +145,18 @@ class _DetailRow extends StatelessWidget {
         children: [
           SizedBox(
             width: 80,
-            child: Text(label, style: const TextStyle(fontSize: 13, color: AppTheme.textSecondary)),
+            child: Text(label,
+                style: const TextStyle(
+                    fontSize: 13, color: AppTheme.textSecondary)),
           ),
           Expanded(
             child: Text(
               value,
-              style: valueStyle ?? const TextStyle(fontSize: 13, color: AppTheme.textPrimary, fontWeight: FontWeight.w500),
+              style: valueStyle ??
+                  const TextStyle(
+                      fontSize: 13,
+                      color: AppTheme.textPrimary,
+                      fontWeight: FontWeight.w500),
             ),
           ),
         ],

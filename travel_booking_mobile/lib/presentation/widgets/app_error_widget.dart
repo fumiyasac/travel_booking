@@ -19,7 +19,8 @@ class AppErrorWidget extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.cloud_off_rounded, size: 64, color: AppTheme.textHint),
+            const Icon(Icons.cloud_off_rounded,
+                size: 64, color: AppTheme.textHint),
             const SizedBox(height: 16),
             Text(
               'エラーが発生しました',
@@ -32,7 +33,8 @@ class AppErrorWidget extends StatelessWidget {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13),
+              style:
+                  const TextStyle(color: AppTheme.textSecondary, fontSize: 13),
             ),
             if (onRetry != null) ...[
               const SizedBox(height: 24),

@@ -35,7 +35,8 @@ TravelPlanRemoteDataSource travelPlanRemoteDataSource(Ref ref) {
 
 @riverpod
 TravelPlanRepository travelPlanRepository(Ref ref) {
-  return TravelPlanRepositoryImpl(ref.watch(travelPlanRemoteDataSourceProvider));
+  return TravelPlanRepositoryImpl(
+      ref.watch(travelPlanRemoteDataSourceProvider));
 }
 
 @Riverpod(keepAlive: true)
@@ -165,7 +166,8 @@ class PlanListViewModel extends _$PlanListViewModel {
     try {
       final repo = ref.read(travelPlanRepositoryProvider);
       final nextPage = state.currentPage + 1;
-      final (newPlans, totalCount, hasNextPage, totalPages) = await repo.getPlans(
+      final (newPlans, totalCount, hasNextPage, totalPages) =
+          await repo.getPlans(
         filter: state.filter,
         page: nextPage,
         pageSize: _pageSize,

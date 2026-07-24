@@ -52,12 +52,10 @@ class GraphQLHttpClient {
       ioRequest.add(bodyBytes);
 
       final ioResponse = await ioRequest.close();
-      final responseBody =
-          await ioResponse.transform(utf8.decoder).join();
+      final responseBody = await ioResponse.transform(utf8.decoder).join();
 
       if (ioResponse.statusCode != 200) {
-        throw Exception(
-            'GraphQL request failed: ${ioResponse.statusCode}');
+        throw Exception('GraphQL request failed: ${ioResponse.statusCode}');
       }
 
       final body = jsonDecode(responseBody) as Map<String, dynamic>;

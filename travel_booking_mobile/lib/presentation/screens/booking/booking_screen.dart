@@ -60,7 +60,9 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
               label: 'お名前（代表者）',
               hint: '山田 太郎',
               icon: Icons.person_outline,
-              onChanged: ref.read(bookingViewModelProvider.notifier).updateCustomerName,
+              onChanged: ref
+                  .read(bookingViewModelProvider.notifier)
+                  .updateCustomerName,
               errorText: bookingState.validationErrors['customerName'],
             ),
             const Gap(12),
@@ -69,7 +71,9 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
               hint: 'example@email.com',
               icon: Icons.email_outlined,
               keyboardType: TextInputType.emailAddress,
-              onChanged: ref.read(bookingViewModelProvider.notifier).updateCustomerEmail,
+              onChanged: ref
+                  .read(bookingViewModelProvider.notifier)
+                  .updateCustomerEmail,
               errorText: bookingState.validationErrors['customerEmail'],
             ),
             const Gap(12),
@@ -78,7 +82,9 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
               hint: '090-1234-5678',
               icon: Icons.phone_outlined,
               keyboardType: TextInputType.phone,
-              onChanged: ref.read(bookingViewModelProvider.notifier).updateCustomerPhone,
+              onChanged: ref
+                  .read(bookingViewModelProvider.notifier)
+                  .updateCustomerPhone,
               errorText: bookingState.validationErrors['customerPhone'],
             ),
             const Gap(24),
@@ -93,7 +99,9 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
               hint: 'アレルギー、車椅子対応など',
               icon: Icons.notes_outlined,
               maxLines: 3,
-              onChanged: ref.read(bookingViewModelProvider.notifier).updateSpecialRequests,
+              onChanged: ref
+                  .read(bookingViewModelProvider.notifier)
+                  .updateSpecialRequests,
             ),
             const Gap(24),
             _buildPriceBreakdown(plan, bookingState),
@@ -108,7 +116,8 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                 ),
                 child: Text(
                   bookingState.error!,
-                  style: const TextStyle(color: AppTheme.errorColor, fontSize: 13),
+                  style:
+                      const TextStyle(color: AppTheme.errorColor, fontSize: 13),
                 ),
               ),
             SizedBox(
@@ -116,12 +125,14 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
               child: ElevatedButton(
                 onPressed: bookingState.isSubmitting
                     ? null
-                    : () => _submitBooking(plan.id, plan.availableSpots, plan.title, plan.effectivePrice),
+                    : () => _submitBooking(plan.id, plan.availableSpots,
+                        plan.title, plan.effectivePrice),
                 child: bookingState.isSubmitting
                     ? const SizedBox(
                         width: 24,
                         height: 24,
-                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                        child: CircularProgressIndicator(
+                            color: Colors.white, strokeWidth: 2),
                       )
                     : const Text('予約を確定する', style: TextStyle(fontSize: 16)),
               ),
@@ -144,7 +155,8 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
         .submitBooking(planId, availableSpots);
 
     if (success && mounted) {
-      final completedBooking = ref.read(bookingViewModelProvider).completedBooking;
+      final completedBooking =
+          ref.read(bookingViewModelProvider).completedBooking;
       if (completedBooking != null) {
         context.go(
           '/booking/confirmation/${completedBooking.id}',
@@ -168,7 +180,8 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
       ),
       child: Row(
         children: [
-          const Icon(Icons.travel_explore, color: AppTheme.primaryColor, size: 28),
+          const Icon(Icons.travel_explore,
+              color: AppTheme.primaryColor, size: 28),
           const Gap(12),
           Expanded(
             child: Column(
@@ -176,13 +189,15 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
               children: [
                 Text(
                   plan.title,
-                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+                  style: const TextStyle(
+                      fontWeight: FontWeight.w700, fontSize: 14),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
                   '${plan.destination}・${plan.durationDays}日間',
-                  style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary),
+                  style: const TextStyle(
+                      fontSize: 12, color: AppTheme.textSecondary),
                 ),
               ],
             ),
@@ -236,13 +251,15 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
         children: [
           const Icon(Icons.people_outline, color: AppTheme.primaryColor),
           const Gap(12),
-          const Text('参加人数', style: TextStyle(fontSize: 14, color: AppTheme.textPrimary)),
+          const Text('参加人数',
+              style: TextStyle(fontSize: 14, color: AppTheme.textPrimary)),
           if (state.validationErrors['numberOfPeople'] != null)
             Padding(
               padding: const EdgeInsets.only(left: 8),
               child: Text(
                 state.validationErrors['numberOfPeople']!,
-                style: const TextStyle(color: AppTheme.errorColor, fontSize: 12),
+                style:
+                    const TextStyle(color: AppTheme.errorColor, fontSize: 12),
               ),
             ),
           const Spacer(),
@@ -299,20 +316,25 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
         ),
         child: Row(
           children: [
-            const Icon(Icons.calendar_month_outlined, color: AppTheme.primaryColor),
+            const Icon(Icons.calendar_month_outlined,
+                color: AppTheme.primaryColor),
             const Gap(12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('旅行日', style: TextStyle(fontSize: 12, color: AppTheme.textSecondary)),
+                  const Text('旅行日',
+                      style: TextStyle(
+                          fontSize: 12, color: AppTheme.textSecondary)),
                   Text(
                     state.travelDate != null
                         ? DateFormat('yyyy年M月d日').format(state.travelDate!)
                         : '旅行日を選択してください',
                     style: TextStyle(
                       fontSize: 14,
-                      color: state.travelDate != null ? AppTheme.textPrimary : AppTheme.textHint,
+                      color: state.travelDate != null
+                          ? AppTheme.textPrimary
+                          : AppTheme.textHint,
                     ),
                   ),
                 ],
@@ -337,11 +359,13 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('料金内訳', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
+          const Text('料金内訳',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
           const Gap(12),
           Row(
             children: [
-              Text('¥${_formatPrice(plan.effectivePrice.toInt())} × ${state.numberOfPeople}名'),
+              Text(
+                  '¥${_formatPrice(plan.effectivePrice.toInt())} × ${state.numberOfPeople}名'),
               const Spacer(),
               Text('¥${_formatPrice(total.toInt())}'),
             ],
@@ -362,7 +386,8 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
           const Divider(height: 16),
           Row(
             children: [
-              const Text('合計金額', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
+              const Text('合計金額',
+                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
               const Spacer(),
               Text(
                 '¥${_formatPrice(total.toInt())}',
@@ -381,8 +406,8 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
 
   String _formatPrice(int price) {
     return price.toString().replaceAllMapped(
-      RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
-      (m) => '${m[1]},',
-    );
+          RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
+          (m) => '${m[1]},',
+        );
   }
 }

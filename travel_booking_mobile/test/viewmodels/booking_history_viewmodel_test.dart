@@ -70,8 +70,7 @@ void main() {
       when(mockRepository.fetchBookings('test@example.com'))
           .thenAnswer((_) async => [mockBooking1, mockBooking2]);
 
-      final notifier =
-          container.read(bookingHistoryViewModelProvider.notifier);
+      final notifier = container.read(bookingHistoryViewModelProvider.notifier);
       final future = notifier.loadBookings('test@example.com');
 
       await future;
@@ -173,8 +172,7 @@ void main() {
         return [mockBooking1];
       });
 
-      final notifier =
-          container.read(bookingHistoryViewModelProvider.notifier);
+      final notifier = container.read(bookingHistoryViewModelProvider.notifier);
 
       // Start first call without awaiting — state becomes isLoading:true synchronously
       final f1 = notifier.loadBookings('test@example.com');
@@ -190,7 +188,8 @@ void main() {
 
       // Repository must have been called exactly once
       expect(callCount, 1);
-      expect(container.read(bookingHistoryViewModelProvider).isLoading, isFalse);
+      expect(
+          container.read(bookingHistoryViewModelProvider).isLoading, isFalse);
     });
   });
 }

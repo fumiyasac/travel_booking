@@ -1,5 +1,7 @@
 # Travel Booking App
 
+[![CI](https://github.com/fumiyasac/travel_booking/actions/workflows/ci.yml/badge.svg)](https://github.com/fumiyasac/travel_booking/actions/workflows/ci.yml)
+
 旅行プランの閲覧・予約サービスのサンプルアプリです。  
 Flutter モバイルアプリ（iOS / Android）と Node.js / GraphQL バックエンドで構成される Melos モノレポです。
 

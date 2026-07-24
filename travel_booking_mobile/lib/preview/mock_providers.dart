@@ -6,8 +6,7 @@ class FakeInMemoryFavoritesStorage extends FavoritesStorage {
   final List<FavoritePlan> _favorites;
 
   FakeInMemoryFavoritesStorage({List<FavoritePlan>? initialFavorites})
-      : _favorites =
-            initialFavorites != null ? List.of(initialFavorites) : [];
+      : _favorites = initialFavorites != null ? List.of(initialFavorites) : [];
 
   @override
   Future<List<FavoritePlan>> getAll() async => List.of(_favorites);

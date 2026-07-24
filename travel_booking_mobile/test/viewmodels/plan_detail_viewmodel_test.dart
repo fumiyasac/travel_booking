@@ -74,8 +74,10 @@ void main() {
     });
 
     test('loadPlanById loads plan and checks favorite status', () async {
-      when(mockPlanRepository.getPlan(planId)).thenAnswer((_) async => mockPlan);
-      when(mockFavoriteRepository.isFavorite(planId)).thenAnswer((_) async => false);
+      when(mockPlanRepository.getPlan(planId))
+          .thenAnswer((_) async => mockPlan);
+      when(mockFavoriteRepository.isFavorite(planId))
+          .thenAnswer((_) async => false);
 
       await container
           .read(planDetailViewModelProvider(planId).notifier)
@@ -90,8 +92,10 @@ void main() {
     });
 
     test('loadPlanById marks plan as favorite when it is saved', () async {
-      when(mockPlanRepository.getPlan(planId)).thenAnswer((_) async => mockPlan);
-      when(mockFavoriteRepository.isFavorite(planId)).thenAnswer((_) async => true);
+      when(mockPlanRepository.getPlan(planId))
+          .thenAnswer((_) async => mockPlan);
+      when(mockFavoriteRepository.isFavorite(planId))
+          .thenAnswer((_) async => true);
 
       await container
           .read(planDetailViewModelProvider(planId).notifier)
@@ -117,8 +121,10 @@ void main() {
     });
 
     test('toggleFavorite adds to favorites when not favorited', () async {
-      when(mockPlanRepository.getPlan(planId)).thenAnswer((_) async => mockPlan);
-      when(mockFavoriteRepository.isFavorite(planId)).thenAnswer((_) async => false);
+      when(mockPlanRepository.getPlan(planId))
+          .thenAnswer((_) async => mockPlan);
+      when(mockFavoriteRepository.isFavorite(planId))
+          .thenAnswer((_) async => false);
       when(mockFavoriteRepository.addFavorite(any)).thenAnswer((_) async {});
 
       await container
@@ -135,10 +141,14 @@ void main() {
       expect(state.isFavoriteLoading, isFalse);
     });
 
-    test('toggleFavorite removes from favorites when already favorited', () async {
-      when(mockPlanRepository.getPlan(planId)).thenAnswer((_) async => mockPlan);
-      when(mockFavoriteRepository.isFavorite(planId)).thenAnswer((_) async => true);
-      when(mockFavoriteRepository.removeFavorite(planId)).thenAnswer((_) async {});
+    test('toggleFavorite removes from favorites when already favorited',
+        () async {
+      when(mockPlanRepository.getPlan(planId))
+          .thenAnswer((_) async => mockPlan);
+      when(mockFavoriteRepository.isFavorite(planId))
+          .thenAnswer((_) async => true);
+      when(mockFavoriteRepository.removeFavorite(planId))
+          .thenAnswer((_) async {});
 
       await container
           .read(planDetailViewModelProvider(planId).notifier)
@@ -154,9 +164,12 @@ void main() {
     });
 
     test('toggleFavorite sets error when repository fails', () async {
-      when(mockPlanRepository.getPlan(planId)).thenAnswer((_) async => mockPlan);
-      when(mockFavoriteRepository.isFavorite(planId)).thenAnswer((_) async => false);
-      when(mockFavoriteRepository.addFavorite(any)).thenThrow(Exception('DB error'));
+      when(mockPlanRepository.getPlan(planId))
+          .thenAnswer((_) async => mockPlan);
+      when(mockFavoriteRepository.isFavorite(planId))
+          .thenAnswer((_) async => false);
+      when(mockFavoriteRepository.addFavorite(any))
+          .thenThrow(Exception('DB error'));
 
       await container
           .read(planDetailViewModelProvider(planId).notifier)

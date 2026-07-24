@@ -89,18 +89,26 @@ void main() {
     });
 
     test('updateCustomerName updates state', () {
-      container.read(bookingViewModelProvider.notifier).updateCustomerName('山田 太郎');
+      container
+          .read(bookingViewModelProvider.notifier)
+          .updateCustomerName('山田 太郎');
       expect(container.read(bookingViewModelProvider).customerName, '山田 太郎');
     });
 
     test('updateCustomerEmail updates state', () {
-      container.read(bookingViewModelProvider.notifier).updateCustomerEmail('test@example.com');
-      expect(container.read(bookingViewModelProvider).customerEmail, 'test@example.com');
+      container
+          .read(bookingViewModelProvider.notifier)
+          .updateCustomerEmail('test@example.com');
+      expect(container.read(bookingViewModelProvider).customerEmail,
+          'test@example.com');
     });
 
     test('updateCustomerPhone updates state', () {
-      container.read(bookingViewModelProvider.notifier).updateCustomerPhone('090-1234-5678');
-      expect(container.read(bookingViewModelProvider).customerPhone, '090-1234-5678');
+      container
+          .read(bookingViewModelProvider.notifier)
+          .updateCustomerPhone('090-1234-5678');
+      expect(container.read(bookingViewModelProvider).customerPhone,
+          '090-1234-5678');
     });
 
     test('updateNumberOfPeople updates state and rejects invalid values', () {
@@ -131,9 +139,15 @@ void main() {
     });
 
     test('submitBooking validates invalid email format', () async {
-      container.read(bookingViewModelProvider.notifier).updateCustomerName('山田 太郎');
-      container.read(bookingViewModelProvider.notifier).updateCustomerEmail('invalid-email');
-      container.read(bookingViewModelProvider.notifier).updateCustomerPhone('090-1234-5678');
+      container
+          .read(bookingViewModelProvider.notifier)
+          .updateCustomerName('山田 太郎');
+      container
+          .read(bookingViewModelProvider.notifier)
+          .updateCustomerEmail('invalid-email');
+      container
+          .read(bookingViewModelProvider.notifier)
+          .updateCustomerPhone('090-1234-5678');
       container
           .read(bookingViewModelProvider.notifier)
           .updateTravelDate(DateTime.now().add(const Duration(days: 30)));
@@ -143,14 +157,28 @@ void main() {
           .submitBooking('plan-1', 8);
 
       expect(result, isFalse);
-      expect(container.read(bookingViewModelProvider).validationErrors['customerEmail'], isNotNull);
+      expect(
+          container
+              .read(bookingViewModelProvider)
+              .validationErrors['customerEmail'],
+          isNotNull);
     });
 
-    test('submitBooking returns false when numberOfPeople exceeds availableSpots', () async {
-      container.read(bookingViewModelProvider.notifier).updateCustomerName('山田 太郎');
-      container.read(bookingViewModelProvider.notifier).updateCustomerEmail('test@example.com');
-      container.read(bookingViewModelProvider.notifier).updateCustomerPhone('090-1234-5678');
-      container.read(bookingViewModelProvider.notifier).updateNumberOfPeople(10);
+    test(
+        'submitBooking returns false when numberOfPeople exceeds availableSpots',
+        () async {
+      container
+          .read(bookingViewModelProvider.notifier)
+          .updateCustomerName('山田 太郎');
+      container
+          .read(bookingViewModelProvider.notifier)
+          .updateCustomerEmail('test@example.com');
+      container
+          .read(bookingViewModelProvider.notifier)
+          .updateCustomerPhone('090-1234-5678');
+      container
+          .read(bookingViewModelProvider.notifier)
+          .updateNumberOfPeople(10);
       container
           .read(bookingViewModelProvider.notifier)
           .updateTravelDate(DateTime.now().add(const Duration(days: 30)));
@@ -175,9 +203,15 @@ void main() {
         paymentMethod: anyNamed('paymentMethod'),
       )).thenAnswer((_) async => mockBooking);
 
-      container.read(bookingViewModelProvider.notifier).updateCustomerName('山田 太郎');
-      container.read(bookingViewModelProvider.notifier).updateCustomerEmail('test@example.com');
-      container.read(bookingViewModelProvider.notifier).updateCustomerPhone('090-1234-5678');
+      container
+          .read(bookingViewModelProvider.notifier)
+          .updateCustomerName('山田 太郎');
+      container
+          .read(bookingViewModelProvider.notifier)
+          .updateCustomerEmail('test@example.com');
+      container
+          .read(bookingViewModelProvider.notifier)
+          .updateCustomerPhone('090-1234-5678');
       container.read(bookingViewModelProvider.notifier).updateNumberOfPeople(2);
       container
           .read(bookingViewModelProvider.notifier)
@@ -207,9 +241,15 @@ void main() {
         paymentMethod: anyNamed('paymentMethod'),
       )).thenThrow(Exception('予約に失敗しました'));
 
-      container.read(bookingViewModelProvider.notifier).updateCustomerName('山田 太郎');
-      container.read(bookingViewModelProvider.notifier).updateCustomerEmail('test@example.com');
-      container.read(bookingViewModelProvider.notifier).updateCustomerPhone('090-1234-5678');
+      container
+          .read(bookingViewModelProvider.notifier)
+          .updateCustomerName('山田 太郎');
+      container
+          .read(bookingViewModelProvider.notifier)
+          .updateCustomerEmail('test@example.com');
+      container
+          .read(bookingViewModelProvider.notifier)
+          .updateCustomerPhone('090-1234-5678');
       container
           .read(bookingViewModelProvider.notifier)
           .updateTravelDate(DateTime.now().add(const Duration(days: 30)));
@@ -233,7 +273,9 @@ void main() {
     });
 
     test('reset clears all form state', () {
-      container.read(bookingViewModelProvider.notifier).updateCustomerName('山田 太郎');
+      container
+          .read(bookingViewModelProvider.notifier)
+          .updateCustomerName('山田 太郎');
       container.read(bookingViewModelProvider.notifier).updateNumberOfPeople(3);
       container.read(bookingViewModelProvider.notifier).reset();
 

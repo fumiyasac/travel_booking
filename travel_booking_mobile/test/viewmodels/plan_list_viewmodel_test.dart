@@ -163,7 +163,9 @@ void main() {
       )).thenAnswer((_) async => ([mockPlan1], 1, false, 1));
 
       const newFilter = PlanFilter(category: 'city', region: 'アジア');
-      await container.read(planListViewModelProvider.notifier).updateFilter(newFilter);
+      await container
+          .read(planListViewModelProvider.notifier)
+          .updateFilter(newFilter);
 
       final state = container.read(planListViewModelProvider);
       expect(state.filter.category, 'city');
@@ -179,7 +181,9 @@ void main() {
       )).thenAnswer((_) async => ([mockPlan1, mockPlan2], 2, false, 1));
 
       const customFilter = PlanFilter(category: 'city');
-      await container.read(planListViewModelProvider.notifier).updateFilter(customFilter);
+      await container
+          .read(planListViewModelProvider.notifier)
+          .updateFilter(customFilter);
 
       await container.read(planListViewModelProvider.notifier).resetFilter();
 
@@ -238,7 +242,9 @@ void main() {
         pageSize: anyNamed('pageSize'),
       )).thenAnswer((_) async => ([mockPlan1], 1, false, 1));
 
-      await container.read(planListViewModelProvider.notifier).updateKeyword('東京');
+      await container
+          .read(planListViewModelProvider.notifier)
+          .updateKeyword('東京');
 
       final state = container.read(planListViewModelProvider);
       expect(state.filter.keyword, '東京');

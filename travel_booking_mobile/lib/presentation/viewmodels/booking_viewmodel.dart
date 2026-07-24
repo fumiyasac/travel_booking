@@ -67,7 +67,8 @@ class BookingFormState {
       specialRequests: specialRequests ?? this.specialRequests,
       isSubmitting: isSubmitting ?? this.isSubmitting,
       error: clearError ? null : (error ?? this.error),
-      completedBooking: clearBooking ? null : (completedBooking ?? this.completedBooking),
+      completedBooking:
+          clearBooking ? null : (completedBooking ?? this.completedBooking),
       validationErrors: validationErrors ?? this.validationErrors,
     );
   }

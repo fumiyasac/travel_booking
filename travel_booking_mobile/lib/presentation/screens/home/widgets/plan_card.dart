@@ -41,7 +41,8 @@ class PlanCard extends ConsumerWidget {
                   width: double.infinity,
                   errorBuilder: (context, error, stack) => Container(
                     color: AppTheme.dividerColor,
-                    child: const Icon(Icons.image_not_supported, color: AppTheme.textHint, size: 48),
+                    child: const Icon(Icons.image_not_supported,
+                        color: AppTheme.textHint, size: 48),
                   ),
                   loadingBuilder: (context, child, progress) {
                     if (progress == null) return child;
@@ -50,7 +51,8 @@ class PlanCard extends ConsumerWidget {
                 )
               : Container(
                   color: AppTheme.dividerColor,
-                  child: const Icon(Icons.travel_explore, color: AppTheme.textHint, size: 48),
+                  child: const Icon(Icons.travel_explore,
+                      color: AppTheme.textHint, size: 48),
                 ),
         ),
         Positioned(
@@ -106,12 +108,14 @@ class PlanCard extends ConsumerWidget {
           const SizedBox(height: 4),
           Row(
             children: [
-              const Icon(Icons.location_on_outlined, size: 14, color: AppTheme.textSecondary),
+              const Icon(Icons.location_on_outlined,
+                  size: 14, color: AppTheme.textSecondary),
               const SizedBox(width: 2),
               Expanded(
                 child: Text(
                   '${plan.destination}・${plan.country}',
-                  style: const TextStyle(fontSize: 13, color: AppTheme.textSecondary),
+                  style: const TextStyle(
+                      fontSize: 13, color: AppTheme.textSecondary),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -155,7 +159,8 @@ class PlanCard extends ConsumerWidget {
                   ),
                   const Text(
                     '/人',
-                    style: TextStyle(fontSize: 11, color: AppTheme.textSecondary),
+                    style:
+                        TextStyle(fontSize: 11, color: AppTheme.textSecondary),
                   ),
                 ],
               ),
@@ -215,7 +220,8 @@ class _CategoryChip extends StatelessWidget {
       ),
       child: Text(
         _categoryLabel(category),
-        style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600),
+        style: const TextStyle(
+            color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600),
       ),
     );
   }
@@ -266,9 +272,9 @@ class _FavoriteButton extends ConsumerWidget {
     // planIsFavoriteProvider はストリームを監視するため、
     // お気に入りの追加・削除が起きると自動的に再描画される
     final isFav = ref.watch(planIsFavoriteProvider(plan.id)).maybeWhen(
-      data: (v) => v,
-      orElse: () => false,
-    );
+          data: (v) => v,
+          orElse: () => false,
+        );
 
     return GestureDetector(
       onTap: () async {

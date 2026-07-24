@@ -17,7 +17,8 @@ class FavoritesStorage {
     final prefs = await _getPrefs();
     final jsonList = prefs.getStringList(_key) ?? [];
     return jsonList
-        .map((s) => FavoritePlan.fromJson(jsonDecode(s) as Map<String, dynamic>))
+        .map(
+            (s) => FavoritePlan.fromJson(jsonDecode(s) as Map<String, dynamic>))
         .toList();
   }
 

@@ -199,8 +199,7 @@ class _InfoRow extends StatelessWidget {
         const SizedBox(width: 6),
         Text(
           '$label：',
-          style:
-              const TextStyle(color: AppTheme.textSecondary, fontSize: 13),
+          style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13),
         ),
         Text(
           value,
