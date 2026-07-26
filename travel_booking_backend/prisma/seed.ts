@@ -1031,8 +1031,460 @@ async function main() {
     },
   });
 
+  // ──────────────────────────────────────────────────────────────
+  // ヘルパー関数（追加プラン共通）
+  // ──────────────────────────────────────────────────────────────
+  function generateItinerary(durationDays: number, destination: string) {
+    return Array.from({ length: Math.min(durationDays, 2) }, (_, i) => ({
+      dayNumber: i + 1,
+      title: i === 0 ? `${destination}到着・初日観光` : `${destination}メイン観光`,
+      description:
+        i === 0
+          ? `${destination}に到着後、専任ガイドとともに主要エリアを散策します。`
+          : `${destination}のハイライトスポットを1日かけて巡ります。`,
+      accommodation: i + 1 < durationDays ? `${destination} 市内ホテル` : null,
+      meals: i === 0 ? 'dinner' : 'breakfast,lunch',
+      activities: {
+        create: [
+          {
+            name: i === 0 ? '到着・街歩きウォークツアー' : '主要観光スポット見学',
+            startTime: '14:00',
+            duration: '3時間',
+            description: `${destination}の代表的なスポットを専任ガイドとともに巡ります。`,
+            location: destination,
+          },
+          {
+            name: i === 0 ? 'ウェルカムディナー（地元料理）' : '地元グルメ&自由散策',
+            startTime: '18:00',
+            duration: '2時間',
+            description: `${destination}の名物料理と夜の雰囲気を楽しみます。`,
+            location: destination,
+          },
+        ],
+      },
+    }));
+  }
+
+  function generateIncluded(category: string) {
+    if (category === 'adventure')
+      return [{ item: '専任ガイド・安全装備一式' }, { item: '専用車両・移動費' }, { item: '基本装備レンタル' }];
+    if (category === 'leisure')
+      return [{ item: '専任コンシェルジュ' }, { item: 'ウェルカムアメニティセット' }, { item: '空港・ホテル送迎' }];
+    return [{ item: '専任日本語ガイド' }, { item: '主要施設入場料' }, { item: '空港送迎' }];
+  }
+
+  function generateExcluded() {
+    return [{ item: '往復航空券' }, { item: '宿泊費（別途手配可）' }, { item: '旅行保険' }];
+  }
+
+  // ──────────────────────────────────────────────────────────────
+  // 追加プランデータ（10件）
+  // カテゴリ: city×2 / cultural×2 / nature×2 / adventure×2 / leisure×2
+  // 地域: アジア2 / ヨーロッパ2 / アメリカ大陸2 / オセアニア2 / アフリカ2
+  // ──────────────────────────────────────────────────────────────
+  const newPlansData = [
+    // ── city / アジア ──
+    {
+      title: '上海アート&グルメ探訪3日間',
+      description: 'アートとグルメが融合する国際都市・上海を少人数で凝縮体験。外灘の西洋建築から豫園の明代庭園、田子坊のアート路地、本場の小籠包まで新旧が交差する魅力を堪能します。',
+      destination: '上海', country: '中国', region: 'アジア',
+      latitude: 31.2304, longitude: 121.4737,
+      price: 65000, discountPrice: null as number | null,
+      durationDays: 3, maxParticipants: 5, currentBookings: 0,
+      category: 'city', difficulty: 'easy', rating: 4.3, reviewCount: 38, isAvailable: true,
+      language: '日本語', meetingPoint: '上海浦東国際空港 第2ターミナル到着ロビー',
+      cancellationPolicy: '出発7日前まで：全額返金\n出発3〜6日前：50%返金\n出発2日前以降：返金不可',
+      minimumAge: null as number | null, tags: '["上海","都市観光","グルメ","外灘","少人数"]',
+      imageUrl: 'https://images.unsplash.com/photo-1474181487882-5abf3f0ba6c2?w=800',
+      imageCaption: '外灘と浦東新区の夜景',
+      highlights: ['外灘・歴史建築群の夜景散策', '豫園・城隍廟の明代文化体験', '本場小籠包と上海蟹グルメ'],
+    },
+    // ── city / アメリカ大陸 ──
+    {
+      title: 'メキシコシティ 歴史&グルメ探訪4日間',
+      description: 'アステカ帝国の都が眠るメキシコシティで歴史とグルメを堪能。ソカロ広場、テオティワカン遺跡、国立人類学博物館を巡り、タコスやメスカルで現地食文化も体験します。',
+      destination: 'メキシコシティ', country: 'メキシコ', region: 'アメリカ大陸',
+      latitude: 19.4326, longitude: -99.1332,
+      price: 78000, discountPrice: null as number | null,
+      durationDays: 4, maxParticipants: 12, currentBookings: 0,
+      category: 'city', difficulty: 'easy', rating: 4.2, reviewCount: 29, isAvailable: true,
+      language: '日本語', meetingPoint: 'メキシコシティ国際空港 第1ターミナル到着ロビー',
+      cancellationPolicy: '出発14日前まで：全額返金\n出発7〜13日前：50%返金\n出発6日前以降：返金不可',
+      minimumAge: null as number | null, tags: '["メキシコシティ","アステカ","テオティワカン","タコス","世界遺産"]',
+      imageUrl: 'https://images.unsplash.com/photo-1518638150340-f706e86654de?w=800',
+      imageCaption: 'テオティワカン遺跡の太陽のピラミッド',
+      highlights: ['テオティワカン「太陽のピラミッド」登頂', 'ソカロ広場・メトロポリタン大聖堂見学', '国立人類学博物館でアステカ文明を探索'],
+    },
+    // ── cultural / ヨーロッパ　（discountPrice あり）──
+    {
+      title: 'プラハ・ウィーン 中欧芸術の旅6日間',
+      description: '「百塔の都」プラハと「音楽の都」ウィーンを訪れる優雅な6日間。カレル橋や旧市街広場、ウィーン国立オペラ座、シェーンブルン宮殿など中欧が誇る世界遺産を巡ります。',
+      destination: 'プラハ・ウィーン', country: 'チェコ・オーストリア', region: 'ヨーロッパ',
+      latitude: 50.0755, longitude: 14.4378,
+      price: 245000, discountPrice: 220000 as number | null,
+      durationDays: 6, maxParticipants: 12, currentBookings: 3,
+      category: 'cultural', difficulty: 'easy', rating: 4.7, reviewCount: 91, isAvailable: true,
+      language: '日本語', meetingPoint: 'プラハ・ヴァーツラフ・ハヴェル空港 到着ロビー',
+      cancellationPolicy: '出発21日前まで：全額返金\n出発7〜20日前：50%返金\n出発6日前以降：返金不可',
+      minimumAge: null as number | null, tags: '["プラハ","ウィーン","中欧","世界遺産","クラシック音楽","ビール"]',
+      imageUrl: 'https://images.unsplash.com/photo-1541849546-216549ae216d?w=800',
+      imageCaption: 'プラハ旧市街の赤屋根と天文時計',
+      highlights: ['プラハ城・カレル橋の早朝散策', 'ウィーン国立オペラ座でクラシックの夜', 'シェーンブルン宮殿庭園ガイドツアー'],
+    },
+    // ── cultural / アフリカ　（isAvailable: false, rating 低）──
+    {
+      title: 'エジプト 古代遺跡&ナイル川クルーズ5日間',
+      description: 'ピラミッド・スフィンクス・ルクソール神殿…5000年の歴史が残るエジプトを凝縮体験。ナイル川フェリーでルクソールへ移動し「王家の谷」も訪問。現在一時受付停止中です。',
+      destination: 'カイロ・ルクソール', country: 'エジプト', region: 'アフリカ',
+      latitude: 30.0444, longitude: 31.2357,
+      price: 155000, discountPrice: null as number | null,
+      durationDays: 5, maxParticipants: 10, currentBookings: 0,
+      category: 'cultural', difficulty: 'moderate', rating: 2.5, reviewCount: 14, isAvailable: false,
+      language: '日本語', meetingPoint: 'カイロ国際空港 第3ターミナル到着ロビー',
+      cancellationPolicy: '出発21日前まで：全額返金\n出発7〜20日前：50%返金\n出発6日前以降：返金不可',
+      minimumAge: 10 as number | null, tags: '["エジプト","ピラミッド","ナイル川","世界遺産","古代遺跡","ルクソール"]',
+      imageUrl: 'https://images.unsplash.com/photo-1568322445389-f64ac2515020?w=800',
+      imageCaption: 'ギザの大ピラミッドとスフィンクス',
+      highlights: ['ギザの大ピラミッド&スフィンクス見学', 'ナイル川フェリーでルクソールへ移動', '「王家の谷」でのツタンカーメン墓訪問'],
+    },
+    // ── nature / オセアニア　（discountPrice あり）──
+    {
+      title: 'ニュージーランド フィヨルドランド6日間',
+      description: '手つかずの大自然が広がるNZ南島を6日間で体験。ミルフォードサウンドの壮大なフィヨルド、クイーンズタウンのアドベンチャー、テ・アナウの蛍の洞窟など息をのむ絶景の連続です。',
+      destination: 'クイーンズタウン・ミルフォードサウンド', country: 'ニュージーランド', region: 'オセアニア',
+      latitude: -45.0312, longitude: 168.6626,
+      price: 280000, discountPrice: 252000 as number | null,
+      durationDays: 6, maxParticipants: 10, currentBookings: 4,
+      category: 'nature', difficulty: 'moderate', rating: 4.7, reviewCount: 63, isAvailable: true,
+      language: '日本語', meetingPoint: 'クイーンズタウン国際空港 到着ロビー',
+      cancellationPolicy: '出発21日前まで：全額返金\n出発7〜20日前：50%返金\n出発6日前以降：返金不可',
+      minimumAge: null as number | null, tags: '["ニュージーランド","フィヨルドランド","ミルフォードサウンド","蛍の洞窟","絶景"]',
+      imageUrl: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800',
+      imageCaption: 'ミルフォードサウンドの壮大なフィヨルド',
+      highlights: ['ミルフォードサウンド・クルーズ体験', 'テ・アナウ蛍の洞窟ナイトツアー', 'クイーンズタウンでバンジージャンプ（任意）'],
+    },
+    // ── nature / アメリカ大陸 ──
+    {
+      title: 'カナダ バンフ国立公園 ロッキー絶景5日間',
+      description: '世界遺産・バンフ国立公園を舞台に、ルイーズ湖の神秘的なターコイズブルー、アイスフィールド・パークウェイの氷河、バンフ温泉でのリラックスを楽しみます。',
+      destination: 'バンフ・ルイーズ湖', country: 'カナダ', region: 'アメリカ大陸',
+      latitude: 51.1784, longitude: -115.5708,
+      price: 190000, discountPrice: null as number | null,
+      durationDays: 5, maxParticipants: 10, currentBookings: 2,
+      category: 'nature', difficulty: 'moderate', rating: 4.6, reviewCount: 47, isAvailable: true,
+      language: '日本語', meetingPoint: 'カルガリー国際空港 到着ロビー',
+      cancellationPolicy: '出発14日前まで：全額返金\n出発7〜13日前：50%返金\n出発6日前以降：返金不可',
+      minimumAge: null as number | null, tags: '["カナダ","バンフ","ルイーズ湖","ロッキー山脈","氷河","世界遺産"]',
+      imageUrl: 'https://images.unsplash.com/photo-1503614472-8c93d56e92ce?w=800',
+      imageCaption: 'ルイーズ湖のターコイズブルーと万年雪の山々',
+      highlights: ['ルイーズ湖カヌー体験', 'アイスフィールド・パークウェイ氷河見学', 'バンフ温泉（アッパー・ホット・スプリングス）'],
+    },
+    // ── adventure / アフリカ（少人数・高額）──
+    {
+      title: 'キリマンジャロ登山チャレンジ7日間',
+      description: 'アフリカ最高峰・キリマンジャロ（標高5,895m）をマラングルートで登頂に挑む7日間。赤道直下でありながら頂上は氷雪に覆われた「アフリカの屋根」を目指す本格プランです。',
+      destination: 'キリマンジャロ', country: 'タンザニア', region: 'アフリカ',
+      latitude: -3.0674, longitude: 37.3556,
+      price: 460000, discountPrice: null as number | null,
+      durationDays: 7, maxParticipants: 4, currentBookings: 1,
+      category: 'adventure', difficulty: 'hard', rating: 4.8, reviewCount: 22, isAvailable: true,
+      language: '日本語・英語', meetingPoint: 'キリマンジャロ国際空港 到着ロビー',
+      cancellationPolicy: '出発30日前まで：全額返金\n出発14〜29日前：50%返金\n出発13日前以降：返金不可',
+      minimumAge: 18 as number | null, tags: '["キリマンジャロ","アフリカ","登山","タンザニア","5895m","マラングルート"]',
+      imageUrl: 'https://images.unsplash.com/photo-1519098901909-b1553a1190af?w=800',
+      imageCaption: 'キリマンジャロ山頂ウフル・ピーク',
+      highlights: ['標高5,895m・ウフル・ピーク登頂チャレンジ', '山麓サバンナでの野生動物観察', '高山植物帯・ムーアランドハイキング'],
+    },
+    // ── adventure / ヨーロッパ　（discountPrice あり）──
+    {
+      title: 'アイスランド オーロラ&氷河5日間',
+      description: '地球の鼓動が感じられる神秘の国・アイスランド。ゴールデンサークルの間欠泉、ヴィーク黒砂海岸、ヴァトナヨークトル氷河ハイキング、そして夜空を彩るオーロラを体験します。',
+      destination: 'レイキャビク・ゴールデンサークル', country: 'アイスランド', region: 'ヨーロッパ',
+      latitude: 64.1265, longitude: -21.8174,
+      price: 390000, discountPrice: 355000 as number | null,
+      durationDays: 5, maxParticipants: 10, currentBookings: 5,
+      category: 'adventure', difficulty: 'hard', rating: 4.8, reviewCount: 74, isAvailable: true,
+      language: '日本語', meetingPoint: 'ケフラヴィーク国際空港 到着ロビー',
+      cancellationPolicy: '出発21日前まで：全額返金\n出発7〜20日前：50%返金\n出発6日前以降：返金不可',
+      minimumAge: 16 as number | null, tags: '["アイスランド","オーロラ","氷河","ゴールデンサークル","地熱温泉","絶景"]',
+      imageUrl: 'https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=800',
+      imageCaption: 'アイスランドの夜空を舞うオーロラ',
+      highlights: ['ヴァトナヨークトル氷河ハイキング', 'ゲイシール間欠泉&グトルフォス大瀑布', 'ブルーラグーン地熱温泉入浴'],
+    },
+    // ── leisure / アジア　（isAvailable: false, rating 低）──
+    {
+      title: 'バンコク 寺院巡り&スパ3日間',
+      description: 'タイの首都バンコクで三大寺院と極上スパを体験。ワット・プラケオ・ワット・アルン・ワット・ポーを巡り、夜はタイ古式マッサージで究極のリラックスを。現在一時受付停止中です。',
+      destination: 'バンコク', country: 'タイ', region: 'アジア',
+      latitude: 13.7563, longitude: 100.5018,
+      price: 58000, discountPrice: null as number | null,
+      durationDays: 3, maxParticipants: 12, currentBookings: 0,
+      category: 'leisure', difficulty: 'easy', rating: 2.8, reviewCount: 31, isAvailable: false,
+      language: '日本語', meetingPoint: 'バンコク スワンナプーム国際空港 到着ロビーB',
+      cancellationPolicy: '出発7日前まで：全額返金\n出発3〜6日前：50%返金\n出発2日前以降：返金不可',
+      minimumAge: null as number | null, tags: '["バンコク","タイ","寺院","スパ","タイ料理","マッサージ"]',
+      imageUrl: 'https://images.unsplash.com/photo-1563492065599-3520f775eeed?w=800',
+      imageCaption: 'ワット・アルンとチャオプラヤ川',
+      highlights: ['エメラルド寺院（ワット・プラケオ）王宮拝観', 'チャオプラヤ川サンセットクルーズ', 'タイ古式マッサージ2時間コース体験'],
+    },
+    // ── leisure / オセアニア　（discountPrice あり）──
+    {
+      title: 'フィジー 水上バンガロー楽園5日間',
+      description: '南太平洋に浮かぶ楽園・フィジーでの究極ビーチリゾート体験。ターコイズブルーの珊瑚礁に囲まれた水上バンガローに宿泊し、シュノーケリングや伝統セービングセレモニーで南国の時間を過ごします。',
+      destination: 'ナディ・マナ島', country: 'フィジー', region: 'オセアニア',
+      latitude: -17.7134, longitude: 178.065,
+      price: 400000, discountPrice: 360000 as number | null,
+      durationDays: 5, maxParticipants: 8, currentBookings: 3,
+      category: 'leisure', difficulty: 'easy', rating: 4.8, reviewCount: 56, isAvailable: true,
+      language: '日本語', meetingPoint: 'ナディ国際空港 到着ロビー',
+      cancellationPolicy: '出発30日前まで：全額返金\n出発14〜29日前：60%返金\n出発13日前以降：返金不可',
+      minimumAge: null as number | null, tags: '["フィジー","水上バンガロー","珊瑚礁","シュノーケリング","リゾート","南太平洋"]',
+      imageUrl: 'https://images.unsplash.com/photo-1533760881669-80db4d7b341c?w=800',
+      imageCaption: 'フィジーのターコイズブルーと水上バンガロー',
+      highlights: ['珊瑚礁に囲まれた水上バンガロー宿泊', '珊瑚礁でのシュノーケリング&ダイビング', 'セービングセレモニー&伝統フィジーダンス'],
+    },
+  ];
+
+  for (const p of newPlansData) {
+    const { imageUrl, imageCaption, highlights, ...planFields } = p;
+    await prisma.travelPlan.create({
+      data: {
+        title: planFields.title,
+        description: planFields.description,
+        destination: planFields.destination,
+        country: planFields.country,
+        region: planFields.region,
+        latitude: planFields.latitude,
+        longitude: planFields.longitude,
+        price: planFields.price,
+        discountPrice: planFields.discountPrice,
+        durationDays: planFields.durationDays,
+        maxParticipants: planFields.maxParticipants,
+        currentBookings: planFields.currentBookings,
+        category: planFields.category,
+        difficulty: planFields.difficulty,
+        rating: planFields.rating,
+        reviewCount: planFields.reviewCount,
+        isAvailable: planFields.isAvailable,
+        language: planFields.language,
+        meetingPoint: planFields.meetingPoint,
+        cancellationPolicy: planFields.cancellationPolicy,
+        minimumAge: planFields.minimumAge,
+        tags: planFields.tags,
+        images: { create: [{ url: imageUrl, caption: imageCaption, isPrimary: true, displayOrder: 0 }] },
+        highlights: { create: highlights.map((text) => ({ text })) },
+        itinerary: { create: generateItinerary(planFields.durationDays, planFields.destination) },
+        includedItems: { create: generateIncluded(planFields.category) },
+        excludedItems: { create: generateExcluded() },
+      },
+    });
+  }
+
+  // ──────────────────────────────────────────────────────────────
+  // 追加プランデータ（さらに10件 → 合計30件）
+  // 不足補完: moderate+5 / hard+5 / price≥350k+3 / price≤100k+1
+  //           isAvailable:false +1 / maxParticipants≤5 +1
+  // ──────────────────────────────────────────────────────────────
+  const newPlansData2 = [
+    // ── leisure / オセアニア / moderate / ¥480k（プレミアム）──
+    {
+      title: 'タヒチ・ボラボラ島 南太平洋楽園5日間',
+      description: '天国に最も近い島と称されるボラボラ島で過ごす究極の5日間。エメラルドグリーンのラグーンに浮かぶ水上コテージ、レイフィッシュと泳ぐシュノーケリング、伝統タヒチアンダンスショーで南太平洋の魔法に溶け込みます。',
+      destination: 'タヒチ・ボラボラ島', country: 'フランス領ポリネシア', region: 'オセアニア',
+      latitude: -16.5004, longitude: -151.7415,
+      price: 480000, discountPrice: null as number | null,
+      durationDays: 5, maxParticipants: 8, currentBookings: 2,
+      category: 'leisure', difficulty: 'moderate', rating: 4.9, reviewCount: 83, isAvailable: true,
+      language: '日本語', meetingPoint: 'パペーテ国際空港 到着ロビー',
+      cancellationPolicy: '出発30日前まで：全額返金\n出発14〜29日前：60%返金\n出発13日前以降：返金不可',
+      minimumAge: null as number | null, tags: '["ボラボラ島","タヒチ","水上コテージ","ラグーン","シュノーケリング","南太平洋"]',
+      imageUrl: 'https://images.unsplash.com/photo-1589196978735-4cc4fc8e87eb?w=800',
+      imageCaption: 'ボラボラ島のラグーンと水上コテージ',
+      highlights: ['ラグーンに浮かぶ水上コテージ宿泊', 'レイフィッシュ&サメと泳ぐシュノーケリング', '伝統タヒチアンダンス&ウクレレ体験'],
+    },
+    // ── nature / アフリカ / moderate / ¥420k（プレミアム・少人数）──
+    {
+      title: 'ケニア マサイマラ 大サファリ体験7日間',
+      description: '世界最大の動物の大移動が見られるマサイマラ国立保護区で本格サファリを体験。ビッグファイブ（ライオン・ゾウ・バッファロー・ヒョウ・サイ）を少人数ジープで追い、マサイ族の集落訪問も行います。',
+      destination: 'ナイロビ・マサイマラ', country: 'ケニア', region: 'アフリカ',
+      latitude: -1.5032, longitude: 35.1426,
+      price: 420000, discountPrice: null as number | null,
+      durationDays: 7, maxParticipants: 4, currentBookings: 1,
+      category: 'nature', difficulty: 'moderate', rating: 4.9, reviewCount: 61, isAvailable: true,
+      language: '日本語・英語', meetingPoint: 'ジョモ・ケニヤッタ国際空港 到着ロビー',
+      cancellationPolicy: '出発30日前まで：全額返金\n出発14〜29日前：50%返金\n出発13日前以降：返金不可',
+      minimumAge: 8 as number | null, tags: '["ケニア","サファリ","マサイマラ","ビッグファイブ","マサイ族","野生動物"]',
+      imageUrl: 'https://images.unsplash.com/photo-1516426122078-c23e76319801?w=800',
+      imageCaption: 'マサイマラのライオンと夕日',
+      highlights: ['ビッグファイブを追うゲームドライブ（朝夕2回）', '熱気球サファリで上空から大地を一望', 'マサイ族集落訪問・伝統舞踊体験'],
+    },
+    // ── cultural / アジア / hard / ¥195k ──
+    {
+      title: 'インド ラジャスタン王侯の旅8日間',
+      description: 'インドが誇る王侯文化の聖地・ラジャスタン州を縦断する8日間。ピンクシティ・ジャイプール、青の街・ジョードプル、湖上の城・ウダイプール、そして白亜のタージマハルまで、ムガル帝国の栄華に浸ります。',
+      destination: 'デリー・ジャイプール・ジョードプル・ウダイプール・アグラ', country: 'インド', region: 'アジア',
+      latitude: 26.9124, longitude: 75.7873,
+      price: 195000, discountPrice: null as number | null,
+      durationDays: 8, maxParticipants: 10, currentBookings: 3,
+      category: 'cultural', difficulty: 'hard', rating: 4.4, reviewCount: 57, isAvailable: true,
+      language: '日本語', meetingPoint: 'インディラ・ガンジー国際空港 第3ターミナル到着ロビー',
+      cancellationPolicy: '出発21日前まで：全額返金\n出発7〜20日前：50%返金\n出発6日前以降：返金不可',
+      minimumAge: null as number | null, tags: '["インド","ラジャスタン","タージマハル","ジャイプール","ムガル帝国","世界遺産"]',
+      imageUrl: 'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=800',
+      imageCaption: 'アグラのタージマハルと反射池',
+      highlights: ['タージマハルの夜明け・夕暮れ2度の拝観', 'アンベール城でのゾウ乗り体験', 'ウダイプール・湖上宮殿でのサンセットディナー'],
+    },
+    // ── adventure / アメリカ大陸 / hard / ¥320k ──
+    {
+      title: 'ペルー マチュピチュ&インカ帝国7日間',
+      description: '「空中都市」マチュピチュを頂点に、インカ帝国の首都クスコ、神聖なる谷のオリャンタイタンボ、チチカカ湖の浮島文明まで、アンデス文明の謎を7日間で体感します。高山病対策も万全。',
+      destination: 'リマ・クスコ・マチュピチュ', country: 'ペルー', region: 'アメリカ大陸',
+      latitude: -13.1631, longitude: -72.5450,
+      price: 320000, discountPrice: null as number | null,
+      durationDays: 7, maxParticipants: 10, currentBookings: 4,
+      category: 'adventure', difficulty: 'hard', rating: 4.7, reviewCount: 98, isAvailable: true,
+      language: '日本語', meetingPoint: 'ホルヘ・チャベス国際空港（リマ） 到着ロビー',
+      cancellationPolicy: '出発21日前まで：全額返金\n出発7〜20日前：50%返金\n出発6日前以降：返金不可',
+      minimumAge: 12 as number | null, tags: '["ペルー","マチュピチュ","インカ","クスコ","アンデス","世界遺産"]',
+      imageUrl: 'https://images.unsplash.com/photo-1587595431973-160d0d94add1?w=800',
+      imageCaption: 'マチュピチュの空中都市と霧のアンデス',
+      highlights: ['早朝貸切入場でのマチュピチュ体験', 'クスコ・インカの石組み遺跡ガイドツアー', 'チチカカ湖・葦でできる浮島（ウロス島）訪問'],
+    },
+    // ── adventure / アフリカ / hard / ¥285k（isAvailable:false）──
+    {
+      title: '南アフリカ ケープタウン&ワインランド5日間',
+      description: '世界で最も美しい都市のひとつ・ケープタウンを拠点に、ケープ半島、ボルダーズビーチのペンギン、ステレンボッシュのワイナリーを巡るプラン。現在、安全確認のため一時受付停止中です。',
+      destination: 'ケープタウン・ステレンボッシュ', country: '南アフリカ', region: 'アフリカ',
+      latitude: -33.9249, longitude: 18.4241,
+      price: 285000, discountPrice: null as number | null,
+      durationDays: 5, maxParticipants: 10, currentBookings: 0,
+      category: 'adventure', difficulty: 'hard', rating: 3.3, reviewCount: 19, isAvailable: false,
+      language: '日本語', meetingPoint: 'ケープタウン国際空港 到着ロビー',
+      cancellationPolicy: '出発21日前まで：全額返金\n出発7〜20日前：50%返金\n出発6日前以降：返金不可',
+      minimumAge: null as number | null, tags: '["南アフリカ","ケープタウン","ケープ半島","ワイナリー","ペンギン","喜望峰"]',
+      imageUrl: 'https://images.unsplash.com/photo-1580060839134-75a5edca2e99?w=800',
+      imageCaption: 'ケープタウンとテーブルマウンテン',
+      highlights: ['テーブルマウンテン・ロープウェイで絶景体験', 'ボルダーズビーチのケープペンギンコロニー', 'ステレンボッシュ・ワイナリーツアー&テイスティング'],
+    },
+    // ── cultural / アジア / moderate / ¥95k（格安・rating高）──
+    {
+      title: '台湾一周鉄道旅行5日間',
+      description: '台湾の鉄道を乗り継いで島を一周する5日間。台北の故宮博物院、九份の幻想的な夜景、台南の古都文化、高雄の港町まで、多彩な台湾の顔を効率よく体験します。地元グルメも充実。',
+      destination: '台北・九份・台南・高雄', country: '台湾', region: 'アジア',
+      latitude: 25.033, longitude: 121.5654,
+      price: 95000, discountPrice: null as number | null,
+      durationDays: 5, maxParticipants: 12, currentBookings: 5,
+      category: 'cultural', difficulty: 'moderate', rating: 4.6, reviewCount: 112, isAvailable: true,
+      language: '日本語', meetingPoint: '台湾桃園国際空港 第2ターミナル到着ロビー',
+      cancellationPolicy: '出発7日前まで：全額返金\n出発3〜6日前：50%返金\n出発2日前以降：返金不可',
+      minimumAge: null as number | null, tags: '["台湾","九份","台北","台南","高雄","夜市","鉄道旅行"]',
+      imageUrl: 'https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?w=800',
+      imageCaption: '九份の提灯が灯る幻想的な夜景',
+      highlights: ['九份・老街の雨の夜景（ランタン提灯）', '故宮博物院・翠玉白菜を間近で鑑賞', '台南・孔子廟と赤崁楼の古都文化探索'],
+    },
+    // ── nature / アメリカ大陸 / moderate / ¥165k ──
+    {
+      title: 'コスタリカ エコツーリズム7日間',
+      description: '地球上の生物多様性の5%が集まる小国・コスタリカで最高のエコツーリズムを。モンテベルデ雲霧林でのカノピーツアー、マニュエル・アントニオのナマケモノ&サル観察、アレナル火山の温泉まで自然満喫の7日間。',
+      destination: 'サンホセ・モンテベルデ・アレナル・マニュエルアントニオ', country: 'コスタリカ', region: 'アメリカ大陸',
+      latitude: 9.7489, longitude: -83.7534,
+      price: 165000, discountPrice: null as number | null,
+      durationDays: 7, maxParticipants: 10, currentBookings: 2,
+      category: 'nature', difficulty: 'moderate', rating: 4.5, reviewCount: 44, isAvailable: true,
+      language: '日本語', meetingPoint: 'フアン・サンタマリア国際空港 到着ロビー',
+      cancellationPolicy: '出発14日前まで：全額返金\n出発7〜13日前：50%返金\n出発6日前以降：返金不可',
+      minimumAge: 10 as number | null, tags: '["コスタリカ","エコツーリズム","雲霧林","アレナル火山","ナマケモノ","自然"]',
+      imageUrl: 'https://images.unsplash.com/photo-1518105779142-d975f22f1b0a?w=800',
+      imageCaption: 'コスタリカの熱帯雨林と野生動物',
+      highlights: ['モンテベルデ雲霧林・カノピーツアー（ジップライン）', 'アレナル火山眺望＆天然温泉スパ', '熱帯雨林でのナマケモノ&サル&オウム観察'],
+    },
+    // ── cultural / ヨーロッパ / hard / ¥145k ──
+    {
+      title: 'スペイン バルセロナ&アンダルシア8日間',
+      description: 'ガウディ建築のバルセロナからフラメンコの聖地グラナダ、白い村ロンダ、セビリアの大聖堂まで情熱のスペインを縦断。連日の観光とタパス・バルでの地元文化体験でスペインの真髄に迫る充実の8日間。',
+      destination: 'バルセロナ・グラナダ・セビリア・ロンダ', country: 'スペイン', region: 'ヨーロッパ',
+      latitude: 41.3851, longitude: 2.1734,
+      price: 145000, discountPrice: null as number | null,
+      durationDays: 8, maxParticipants: 12, currentBookings: 6,
+      category: 'cultural', difficulty: 'hard', rating: 4.5, reviewCount: 79, isAvailable: true,
+      language: '日本語', meetingPoint: 'バルセロナ・エル・プラット空港 第2ターミナル到着ロビー',
+      cancellationPolicy: '出発21日前まで：全額返金\n出発7〜20日前：50%返金\n出発6日前以降：返金不可',
+      minimumAge: null as number | null, tags: '["スペイン","バルセロナ","ガウディ","グラナダ","フラメンコ","アンダルシア"]',
+      imageUrl: 'https://images.unsplash.com/photo-1583422409516-2895a77efded?w=800',
+      imageCaption: 'サグラダ・ファミリアとバルセロナの街並み',
+      highlights: ['サグラダ・ファミリア内部ガイドツアー', 'グラナダ・アルハンブラ宮殿の夜間特別見学', 'セビリアのタブラオで本場フラメンコ鑑賞'],
+    },
+    // ── nature / アフリカ / hard / ¥450k（プレミアム）──
+    {
+      title: 'タンザニア セレンゲティ 大移動サファリ7日間',
+      description: '年間160万頭のヌーが移動する「大移動」を間近で体感するセレンゲティ国立公園7日間。ンゴロンゴロ・クレーターでのビッグファイブ観察、キリマンジャロを背景にしたサバンナの夕日も忘れられません。',
+      destination: 'アルーシャ・セレンゲティ・ンゴロンゴロ', country: 'タンザニア', region: 'アフリカ',
+      latitude: -2.1540, longitude: 34.6857,
+      price: 450000, discountPrice: null as number | null,
+      durationDays: 7, maxParticipants: 8, currentBookings: 2,
+      category: 'nature', difficulty: 'hard', rating: 4.8, reviewCount: 48, isAvailable: true,
+      language: '日本語・英語', meetingPoint: 'キリマンジャロ国際空港 到着ロビー',
+      cancellationPolicy: '出発30日前まで：全額返金\n出発14〜29日前：50%返金\n出発13日前以降：返金不可',
+      minimumAge: 6 as number | null, tags: '["タンザニア","セレンゲティ","ヌーの大移動","ンゴロンゴロ","ビッグファイブ","サファリ"]',
+      imageUrl: 'https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?w=800',
+      imageCaption: 'セレンゲティのヌーの大移動と夕日',
+      highlights: ['ヌーの大移動を追うゲームドライブ', 'ンゴロンゴロ・クレーターでビッグファイブ全制覇を狙う', 'マサイ村訪問と伝統ビーズアクセサリー制作体験'],
+    },
+    // ── leisure / アメリカ大陸 / moderate / ¥280k ──
+    {
+      title: 'ブラジル リオ&アマゾン 大自然と情熱7日間',
+      description: 'コルコバードのキリスト像とカーニバルの都・リオデジャネイロ、そして地球の肺・アマゾン熱帯雨林でのジャングルロッジ宿泊まで。南米最大の国・ブラジルの圧倒的なスケールを7日間で体感します。',
+      destination: 'リオデジャネイロ・マナウス・アマゾン', country: 'ブラジル', region: 'アメリカ大陸',
+      latitude: -22.9068, longitude: -43.1729,
+      price: 280000, discountPrice: null as number | null,
+      durationDays: 7, maxParticipants: 10, currentBookings: 1,
+      category: 'leisure', difficulty: 'moderate', rating: 4.3, reviewCount: 36, isAvailable: true,
+      language: '日本語', meetingPoint: 'ガレオン国際空港（リオデジャネイロ） 到着ロビー',
+      cancellationPolicy: '出発21日前まで：全額返金\n出発7〜20日前：50%返金\n出発6日前以降：返金不可',
+      minimumAge: null as number | null, tags: '["ブラジル","リオデジャネイロ","アマゾン","コルコバード","カーニバル","熱帯雨林"]',
+      imageUrl: 'https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=800',
+      imageCaption: 'リオデジャネイロのコルコバードとグアナバラ湾',
+      highlights: ['コルコバード「キリスト像」展望台で絶景を一望', 'アマゾン川ジャングルロッジ宿泊（星空観察付き）', 'ピラルクとピラニアが泳ぐアマゾン川ボートクルーズ'],
+    },
+  ];
+
+  for (const p of newPlansData2) {
+    const { imageUrl, imageCaption, highlights, ...planFields } = p;
+    await prisma.travelPlan.create({
+      data: {
+        title: planFields.title,
+        description: planFields.description,
+        destination: planFields.destination,
+        country: planFields.country,
+        region: planFields.region,
+        latitude: planFields.latitude,
+        longitude: planFields.longitude,
+        price: planFields.price,
+        discountPrice: planFields.discountPrice,
+        durationDays: planFields.durationDays,
+        maxParticipants: planFields.maxParticipants,
+        currentBookings: planFields.currentBookings,
+        category: planFields.category,
+        difficulty: planFields.difficulty,
+        rating: planFields.rating,
+        reviewCount: planFields.reviewCount,
+        isAvailable: planFields.isAvailable,
+        language: planFields.language,
+        meetingPoint: planFields.meetingPoint,
+        cancellationPolicy: planFields.cancellationPolicy,
+        minimumAge: planFields.minimumAge,
+        tags: planFields.tags,
+        images: { create: [{ url: imageUrl, caption: imageCaption, isPrimary: true, displayOrder: 0 }] },
+        highlights: { create: highlights.map((text) => ({ text })) },
+        itinerary: { create: generateItinerary(planFields.durationDays, planFields.destination) },
+        includedItems: { create: generateIncluded(planFields.category) },
+        excludedItems: { create: generateExcluded() },
+      },
+    });
+  }
+
   console.log('Seeding completed successfully!');
-  console.log(`Created travel plans: Tokyo, Kyoto, Hokkaido, Paris, Swiss Alps, Bali, NYC, Australia, Morocco, Santorini`);
+  console.log('Created 30 travel plans (10 base + 10 + 10 new)');
 }
 
 main()
