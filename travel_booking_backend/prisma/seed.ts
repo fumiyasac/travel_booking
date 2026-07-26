@@ -1630,8 +1630,45 @@ async function main() {
     ],
   });
 
+  // ──────────────────────────────────────────────────────────────
+  // 予約データ追加（合計16件: CONFIRMED 8 / PENDING 4 / CANCELLED 4）
+  // ──────────────────────────────────────────────────────────────
+  const now = new Date();
+  const dAgo  = (n: number) => new Date(now.getTime() - n * 86400000);
+  const dFrom = (n: number) => new Date(now.getTime() + n * 86400000);
+
+  await prisma.booking.createMany({
+    data: [
+      // ── test@example.com: 10件 (CONFIRMED 5 + PENDING 2 + CANCELLED 3) ──
+      // CONFIRMED 過去
+      { planId: pid('東京エクスプローラー5日間'),               customerName: '田中 優樹', customerEmail: 'test@example.com',    customerPhone: '090-1111-2222', numberOfPeople: 2, travelDate: dAgo(90),   totalPrice:  300000, status: 'CONFIRMED',  paymentMethod: 'クレジットカード' },
+      { planId: pid('バリ島スピリチュアルリトリート5日間'),      customerName: '田中 優樹', customerEmail: 'test@example.com',    customerPhone: '090-1111-2222', numberOfPeople: 1, travelDate: dAgo(120),  totalPrice:  100000, status: 'CONFIRMED',  paymentMethod: 'クレジットカード' },
+      // CONFIRMED 未来
+      { planId: pid('京都伝統文化探訪4日間'),                   customerName: '田中 優樹', customerEmail: 'test@example.com',    customerPhone: '090-1111-2222', numberOfPeople: 2, travelDate: dFrom(45),  totalPrice:  240000, status: 'CONFIRMED',  paymentMethod: 'クレジットカード' },
+      { planId: pid('ニュージーランド フィヨルドランド6日間'),   customerName: '田中 優樹', customerEmail: 'test@example.com',    customerPhone: '090-1111-2222', numberOfPeople: 3, travelDate: dFrom(90),  totalPrice:  840000, status: 'CONFIRMED',  paymentMethod: '銀行振込'         },
+      { planId: pid('フィジー 水上バンガロー楽園5日間'),         customerName: '田中 優樹', customerEmail: 'test@example.com',    customerPhone: '090-1111-2222', numberOfPeople: 2, travelDate: dFrom(60),  totalPrice:  800000, status: 'CONFIRMED',  paymentMethod: 'クレジットカード' },
+      // PENDING 未来
+      { planId: pid('ペルー マチュピチュ&インカ帝国7日間'),      customerName: '田中 優樹', customerEmail: 'test@example.com',    customerPhone: '090-1111-2222', numberOfPeople: 2, travelDate: dFrom(150), totalPrice:  640000, status: 'PENDING',    paymentMethod: null               },
+      { planId: pid('キリマンジャロ登山チャレンジ7日間'),        customerName: '田中 優樹', customerEmail: 'test@example.com',    customerPhone: '090-1111-2222', numberOfPeople: 1, travelDate: dFrom(180), totalPrice:  460000, status: 'PENDING',    paymentMethod: null               },
+      // CANCELLED
+      { planId: pid('ニューヨーク・シティ・エクスペリエンス4日間'), customerName: '田中 優樹', customerEmail: 'test@example.com', customerPhone: '090-1111-2222', numberOfPeople: 2, travelDate: dAgo(30),   totalPrice:  360000, status: 'CANCELLED',  paymentMethod: 'クレジットカード' },
+      { planId: pid('北海道大自然アドベンチャー7日間'),           customerName: '田中 優樹', customerEmail: 'test@example.com',    customerPhone: '090-1111-2222', numberOfPeople: 3, travelDate: dFrom(90),  totalPrice:  600000, status: 'CANCELLED',  paymentMethod: null               },
+      { planId: pid('台湾一周鉄道旅行5日間'),                    customerName: '田中 優樹', customerEmail: 'test@example.com',    customerPhone: '090-1111-2222', numberOfPeople: 1, travelDate: dAgo(60),   totalPrice:   95000, status: 'CANCELLED',  paymentMethod: null               },
+
+      // ── other@example.com: 5件 (CONFIRMED 2 + PENDING 2 + CANCELLED 1) ──
+      { planId: pid('パリ・ロマンス＆カルチャー6日間'),          customerName: '佐藤 明子', customerEmail: 'other@example.com',   customerPhone: '080-3333-4444', numberOfPeople: 2, travelDate: dAgo(60),   totalPrice:  560000, status: 'CONFIRMED',  paymentMethod: 'クレジットカード' },
+      { planId: pid('スイスアルプス トレッキング8日間'),          customerName: '佐藤 明子', customerEmail: 'other@example.com',   customerPhone: '080-3333-4444', numberOfPeople: 4, travelDate: dFrom(120), totalPrice: 1400000, status: 'CONFIRMED',  paymentMethod: '銀行振込'         },
+      { planId: pid('アイスランド オーロラ&氷河5日間'),          customerName: '佐藤 明子', customerEmail: 'other@example.com',   customerPhone: '080-3333-4444', numberOfPeople: 3, travelDate: dFrom(90),  totalPrice: 1170000, status: 'PENDING',    paymentMethod: null               },
+      { planId: pid('タヒチ・ボラボラ島 南太平洋楽園5日間'),     customerName: '佐藤 明子', customerEmail: 'other@example.com',   customerPhone: '080-3333-4444', numberOfPeople: 2, travelDate: dFrom(45),  totalPrice:  960000, status: 'PENDING',    paymentMethod: null               },
+      { planId: pid('サントリーニ島 エーゲ海5日間'),             customerName: '佐藤 明子', customerEmail: 'other@example.com',   customerPhone: '080-3333-4444', numberOfPeople: 2, travelDate: dAgo(45),   totalPrice:  500000, status: 'CANCELLED',  paymentMethod: 'クレジットカード' },
+
+      // ── another@example.com: 1件 (CONFIRMED 1) ──
+      { planId: pid('オーストラリア グレートバリアリーフ6日間'), customerName: '鈴木 一郎', customerEmail: 'another@example.com', customerPhone: '070-5555-6666', numberOfPeople: 2, travelDate: dFrom(75),  totalPrice:  640000, status: 'CONFIRMED',  paymentMethod: 'クレジットカード' },
+    ],
+  });
+
   console.log('Seeding completed successfully!');
-  console.log('Created 30 travel plans + 52 reviews for new 20 plans (original 10 already had reviews)');
+  console.log('Created 30 travel plans + 52 reviews + 16 bookings (CONFIRMED 8 / PENDING 4 / CANCELLED 4)');
 }
 
 main()
