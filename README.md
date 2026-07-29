@@ -484,6 +484,28 @@ flutter run -d <AndroidデバイスID>
 
 > 以下のコマンドはすべて **リポジトリルート**（`travel_booking/`）で実行します。
 
+```mermaid
+graph TD
+  subgraph Mise["バージョン管理（mise）"]
+    FL["Flutter 3.38.5"]
+    ND["Node.js 20"]
+  end
+  subgraph Melos["タスクランナー（melos）"]
+    BR["build_runner"]
+    TEST["test / analyze"]
+    PREV["preview"]
+  end
+  subgraph Docker["コンテナ（Docker Compose）"]
+    MY["MySQL 8.0"]
+    BK["Apollo Server<br/>(port 4000)"]
+  end
+  FL --> BR & TEST & PREV
+  ND --> BK
+  BK --> MY
+```
+
+mise がツールバージョンを固定し、melos がモバイルタスクを束ね、Docker がバックエンドを提供します。
+
 ```bash
 dart run melos run build_runner          # Riverpod .g.dart ファイルを生成
 dart run melos run "build_runner:watch"  # コード生成をウォッチモードで実行
@@ -526,10 +548,32 @@ npm run start            # 本番サーバー起動
 | `fix-endpoint` | `/fix-endpoint [IP]` | 接続先 URL を変更 |
 | `graphql-check` | `/graphql-check` | GraphQL スキーマ整合性確認 |
 | `add-feature` | `/add-feature <機能名>` | MVVM 雛形ファイル生成 |
-| `schema-update` | `/schema-update <内容>` | 全レイヤースキーマ変更 |
+| `add-route` | `/add-route <path> <Screen> [--tab]` | GoRoute 追加・ボトムナビ更新 |
+| `backend-resolver` | `/backend-resolver <EntityName>` | GraphQL Resolver と typeDefs 生成 |
+| `schema-update` | `/schema-update <変更内容>` | 全レイヤースキーマ変更（8ステップ） |
 | `bug-trace` | `/bug-trace <エラー>` | バグ原因特定と修正 |
 | `add-viewmodel-test` | `/add-viewmodel-test <名前>` | ViewModel テスト追加 |
-| `state-audit` | `/state-audit <名前>` | 状態管理の問題チェック |
+| `add-mock-data` | `/add-mock-data <条件>` | 条件付きテストデータ DB 投入 |
+| `state-audit` | `/state-audit <名前>` | 状態管理監査 |
+| `perf-audit` | `/perf-audit <名前>` | パフォーマンス静的監査 |
+| `widget-gen` | `/widget-gen <名前>` | 共通ウィジェット雛形生成 |
+| `preview-setup` | `/preview-setup [--init] [<名前>]` | Widgetbook Preview 初期化・ケース追加 |
+
+### スキル連携フロー
+
+```mermaid
+graph LR
+  AF["/add-feature"] --> AR["/add-route"]
+  AR --> WG["/widget-gen"]
+  WG --> PS["/preview-setup"]
+  PS --> AVT["/add-viewmodel-test"]
+  AVT --> SA["/state-audit"]
+  SA --> GC["/graphql-check"]
+  SU["/schema-update"] --> GC
+  BR["/backend-resolver"] --> GC
+```
+
+機能追加の典型フロー（左→右）と、スキーマ変更・バックエンド追加後の整合性確認（→ graphql-check）を示します。
 
 ---
 
@@ -604,13 +648,34 @@ lib/
 
 **MVVM + Repository パターン**
 
+```mermaid
+graph TB
+  subgraph Presentation["Presentation 層"]
+    Screen["Screen<br/>(ConsumerWidget)"]
+    VM["ViewModel<br/>(@riverpod Notifier)"]
+  end
+  subgraph Data["Data 層"]
+    Repo["Repository<br/>(abstract)"]
+    RepoImpl["RepositoryImpl"]
+    RDS["RemoteDataSource<br/>(GraphQL HTTP)"]
+    LDS["LocalDataSource<br/>(SharedPreferences)"]
+  end
+  subgraph Backend["Backend"]
+    Apollo["Apollo Server<br/>(port 4000)"]
+    Prisma["Prisma ORM"]
+    MySQL["MySQL 8.0"]
+  end
+  Screen -->|watches| VM
+  VM --> Repo
+  Repo --> RepoImpl
+  RepoImpl --> RDS
+  RepoImpl --> LDS
+  RDS -->|HTTP POST| Apollo
+  Apollo --> Prisma
+  Prisma --> MySQL
 ```
-Screen (ConsumerWidget)
-  └─ watches ──→ ViewModel (@riverpod AsyncNotifier)
-                   └─ reads ───→ Repository (abstract)
-                                   └─ delegates → RepositoryImpl
-                                                    └─ calls → RemoteDataSource / LocalDataSource
-```
+
+Presentation は Riverpod Provider 経由で Data 層を参照し、Backend には RemoteDataSource のみが接触します。
 
 ### 技術スタック
 
@@ -644,30 +709,57 @@ Screen (ConsumerWidget)
 
 ### Riverpod Provider 依存関係
 
-```
-graphQLHttpClientProvider
-  └─→ travelPlanRemoteDataSourceProvider
-        └─→ travelPlanRepositoryProvider
-              ├─→ planListViewModelProvider
-              ├─→ planDetailViewModelProvider(id)
-              └─→ bookingViewModelProvider
+```mermaid
+graph TB
+  GQL["graphQLHttpClient\nProvider"]
+  RDS["travelPlanRemoteDataSource\nProvider"]
+  TPR["travelPlanRepository\nProvider"]
+  FST["favoritesStorage\nProvider"]
+  FLD["favoriteLocalDataSource\nProvider"]
+  FRP["favoriteRepository\nProvider"]
+  PIF["planIsFavorite\nProvider(planId)"]
+  PLV["planListViewModel\nProvider"]
+  PDV["planDetailViewModel\nProvider(id)"]
+  BKV["bookingViewModel\nProvider"]
+  BHV["bookingHistoryViewModel\nProvider"]
+  FAV["favoriteViewModel\nProvider"]
 
-favoritesStorageProvider
-  └─→ favoriteLocalDataSourceProvider
-        └─→ favoriteRepositoryProvider
-              └─→ favoriteViewModelProvider
+  GQL --> RDS --> TPR
+  FST --> FLD
+  FLD --> FRP
+  FLD --> PIF
+  TPR --> PLV
+  TPR --> PDV
+  TPR --> BKV
+  TPR --> BHV
+  FRP --> PDV
+  FRP --> FAV
 ```
+
+GraphQL 系（左）と SharedPreferences 系（右）の 2 系統で構成し、planDetailViewModel は両方に依存します。
 
 ### ルーティング（GoRouter）
 
+```mermaid
+graph TD
+  Nav["BottomNavBar<br/>(StatefulShellRoute)"]
+  Home["/\nHomeScreen"]
+  Fav["/favorites\nFavoritesScreen"]
+  Hist["/booking-history\nBookingHistoryScreen"]
+  PD["/plan/:id\nPlanDetailScreen"]
+  BK["/plan/:id/booking\nBookingScreen"]
+  FPD["/favorites/plan/:id\nPlanDetailScreen"]
+  Conf["/booking/confirmation/:bookingId\nBookingConfirmationScreen"]
+
+  Nav -->|"Tab: プラン"| Home
+  Nav -->|"Tab: お気に入り"| Fav
+  Nav -->|"Tab: 予約履歴"| Hist
+  Home --> PD --> BK
+  Fav --> FPD
+  BK -->|"push(extra)"| Conf
 ```
-/                            ホーム（プラン一覧・検索・フィルタ）
-  /plan/:id                  プラン詳細
-    /plan/:id/booking        予約フォーム
-/favorites                   お気に入り一覧
-  /favorites/plan/:id        お気に入りからのプラン詳細
-/booking/confirmation/:id    予約完了
-```
+
+ボトムナビ 3 タブ構成（StatefulShellRoute）で、BookingConfirmationScreen のみシェル外のトップレベルルートです。
 
 ---
 
