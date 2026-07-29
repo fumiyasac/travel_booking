@@ -30,6 +30,22 @@ Claude Code のチャット欄でスキル名を呼びかけるだけで自動�
 > **自動起動 ✓**: 関連する自然な文章でも Claude が自動的にスキルを起動します。  
 > **自動起動 —**: `disable-model-invocation: true` のため `/コマンド` での明示呼び出しが必要です。
 
+### スキル連携フロー
+
+```mermaid
+graph LR
+  AF["/add-feature"] --> AR["/add-route"]
+  AR --> WG["/widget-gen"]
+  WG --> PS["/preview-setup"]
+  PS --> AVT["/add-viewmodel-test"]
+  AVT --> SA["/state-audit"]
+  SA --> GC["/graphql-check"]
+  SU["/schema-update"] --> GC
+  BR["/backend-resolver"] --> GC
+```
+
+機能追加の典型フロー（左→右）と、スキーマ変更・バックエンド追加後の整合性確認（→ `/graphql-check`）を示します。
+
 ---
 
 ## スキルファイルの構成
