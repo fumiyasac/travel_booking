@@ -10,6 +10,7 @@ Flutter モバイルアプリ（iOS / Android）と Node.js / GraphQL バック�
 ## 目次
 
 1. [前提条件](#前提条件)
+   - [mise によるツールバージョン管理（推奨）](#mise-によるツールバージョン管理推奨)
 2. [クイックスタート](#クイックスタート)
 3. [詳細セットアップ](#詳細セットアップ)
    - [バックエンドのセットアップ](#step-2-バックエンドのセットアップdocker)
@@ -43,6 +44,36 @@ Flutter モバイルアプリ（iOS / Android）と Node.js / GraphQL バック�
 | Docker Desktop | 最新安定版 | `docker --version` |
 | Xcode | 15 以上（iOS 開発時） | `xcode-select -p` |
 | Android Studio | 最新版（Android 開発時） | — |
+| mise | 最新安定版 | `mise --version` |
+
+### mise によるツールバージョン管理（推奨）
+
+[mise](https://mise.jdx.dev/) はプロジェクトごとのツールバージョンを `.mise.toml` で管理するバージョンマネージャーです。  
+チームメンバー全員が同じ Flutter / Node.js のバージョンを使えるよう、このリポジトリでは `.mise.toml` を用意しています。
+
+#### mise のインストール
+
+```bash
+# Homebrew でインストール
+brew install mise
+
+# シェルへの統合（~/.zshrc に追記して source する）
+echo 'eval "$(mise activate zsh)"' >> ~/.zshrc
+source ~/.zshrc
+```
+
+#### mise でツールを一括セットアップ
+
+```bash
+# リポジトリルートで実行
+# .mise.toml に定義されたバージョン（flutter 3.38.5 / node 20）が自動でインストールされます
+mise install
+```
+
+> **mise を使わない場合も手動インストールで開発できます。**  
+> `.mise.toml` のバージョン表記（`flutter = "3.38.5"` / `node = "20"`）を参考に、各ツールの公式サイトからインストールしてください。
+
+---
 
 ### Flutter のインストール（未インストールの場合）
 
@@ -65,6 +96,9 @@ flutter doctor
 # 1. リポジトリをクローン
 git clone https://github.com/fumiyasac/travel_booking.git
 cd travel_booking
+
+# 1.5（推奨）mise でツールを一括セットアップ
+mise install
 
 # 2. melos をグローバルインストール（初回のみ）
 dart pub global activate melos
@@ -503,6 +537,10 @@ npm run start            # 本番サーバー起動
 
 ```
 travel_booking/
+├── .mise.toml                     # ツールバージョン管理（mise）
+├── .github/
+│   └── workflows/
+│       └── ci.yml                 # GitHub Actions CI（Flutter + Node.js）
 ├── pubspec.yaml                   # ルートワークスペース（melos インストール用）
 ├── melos.yaml                     # モノレポパッケージ管理
 ├── CLAUDE.md                      # Claude Code 向けプロジェクト仕様
@@ -926,3 +964,25 @@ docker compose exec backend npm run db:seed
 ```
 
 > **Claude Code を使っている場合:** `/db-reset` スキルで確認プロンプト付きで実行できます。
+
+---
+
+### mise 関連
+
+#### `mise install` で失敗する
+
+mise 自体が古い可能性があります。アップグレードしてから再試行してください:
+
+```bash
+brew upgrade mise
+mise install
+```
+
+#### mise を使わずにセットアップしたい
+
+`.mise.toml` に記載されているバージョンを参考に、各ツールを手動でインストールしてください:
+
+| ツール | バージョン | 公式ページ |
+|---|---|---|
+| Flutter | 3.38.5 | https://docs.flutter.dev/get-started/install |
+| Node.js | 20 | https://nodejs.org/ |
