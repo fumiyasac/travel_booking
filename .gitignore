@@ -23,3 +23,6 @@ pubspec_overrides.yaml
 # 環境変数
 .env
 *.local
+
+# mise（ローカル上書き設定は管理外）
+.mise.local.toml
