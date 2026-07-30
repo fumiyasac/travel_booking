@@ -10,6 +10,7 @@ Flutter モバイルアプリ（iOS / Android）と Node.js / GraphQL バック�
 ## 目次
 
 1. [前提条件](#前提条件)
+   - [mise によるツールバージョン管理（推奨）](#mise-によるツールバージョン管理推奨)
 2. [クイックスタート](#クイックスタート)
 3. [詳細セットアップ](#詳細セットアップ)
    - [バックエンドのセットアップ](#step-2-バックエンドのセットアップdocker)
@@ -43,6 +44,36 @@ Flutter モバイルアプリ（iOS / Android）と Node.js / GraphQL バック�
 | Docker Desktop | 最新安定版 | `docker --version` |
 | Xcode | 15 以上（iOS 開発時） | `xcode-select -p` |
 | Android Studio | 最新版（Android 開発時） | — |
+| mise | 最新安定版 | `mise --version` |
+
+### mise によるツールバージョン管理（推奨）
+
+[mise](https://mise.jdx.dev/) はプロジェクトごとのツールバージョンを `.mise.toml` で管理するバージョンマネージャーです。  
+チームメンバー全員が同じ Flutter / Node.js のバージョンを使えるよう、このリポジトリでは `.mise.toml` を用意しています。
+
+#### mise のインストール
+
+```bash
+# Homebrew でインストール
+brew install mise
+
+# シェルへの統合（~/.zshrc に追記して source する）
+echo 'eval "$(mise activate zsh)"' >> ~/.zshrc
+source ~/.zshrc
+```
+
+#### mise でツールを一括セットアップ
+
+```bash
+# リポジトリルートで実行
+# .mise.toml に定義されたバージョン（flutter 3.38.5 / node 20）が自動でインストールされます
+mise install
+```
+
+> **mise を使わない場合も手動インストールで開発できます。**  
+> `.mise.toml` のバージョン表記（`flutter = "3.38.5"` / `node = "20"`）を参考に、各ツールの公式サイトからインストールしてください。
+
+---
 
 ### Flutter のインストール（未インストールの場合）
 
@@ -65,6 +96,9 @@ flutter doctor
 # 1. リポジトリをクローン
 git clone https://github.com/fumiyasac/travel_booking.git
 cd travel_booking
+
+# 1.5（推奨）mise でツールを一括セットアップ
+mise install
 
 # 2. melos をグローバルインストール（初回のみ）
 dart pub global activate melos
@@ -450,6 +484,28 @@ flutter run -d <AndroidデバイスID>
 
 > 以下のコマンドはすべて **リポジトリルート**（`travel_booking/`）で実行します。
 
+```mermaid
+graph TD
+  subgraph Mise["バージョン管理（mise）"]
+    FL["Flutter 3.38.5"]
+    ND["Node.js 20"]
+  end
+  subgraph Melos["タスクランナー（melos）"]
+    BR["build_runner"]
+    TEST["test / analyze"]
+    PREV["preview"]
+  end
+  subgraph Docker["コンテナ（Docker Compose）"]
+    MY["MySQL 8.0"]
+    BK["Apollo Server<br/>(port 4000)"]
+  end
+  FL --> BR & TEST & PREV
+  ND --> BK
+  BK --> MY
+```
+
+mise がツールバージョンを固定し、melos がモバイルタスクを束ね、Docker がバックエンドを提供します。
+
 ```bash
 dart run melos run build_runner          # Riverpod .g.dart ファイルを生成
 dart run melos run "build_runner:watch"  # コード生成をウォッチモードで実行
@@ -492,10 +548,32 @@ npm run start            # 本番サーバー起動
 | `fix-endpoint` | `/fix-endpoint [IP]` | 接続先 URL を変更 |
 | `graphql-check` | `/graphql-check` | GraphQL スキーマ整合性確認 |
 | `add-feature` | `/add-feature <機能名>` | MVVM 雛形ファイル生成 |
-| `schema-update` | `/schema-update <内容>` | 全レイヤースキーマ変更 |
+| `add-route` | `/add-route <path> <Screen> [--tab]` | GoRoute 追加・ボトムナビ更新 |
+| `backend-resolver` | `/backend-resolver <EntityName>` | GraphQL Resolver と typeDefs 生成 |
+| `schema-update` | `/schema-update <変更内容>` | 全レイヤースキーマ変更（8ステップ） |
 | `bug-trace` | `/bug-trace <エラー>` | バグ原因特定と修正 |
 | `add-viewmodel-test` | `/add-viewmodel-test <名前>` | ViewModel テスト追加 |
-| `state-audit` | `/state-audit <名前>` | 状態管理の問題チェック |
+| `add-mock-data` | `/add-mock-data <条件>` | 条件付きテストデータ DB 投入 |
+| `state-audit` | `/state-audit <名前>` | 状態管理監査 |
+| `perf-audit` | `/perf-audit <名前>` | パフォーマンス静的監査 |
+| `widget-gen` | `/widget-gen <名前>` | 共通ウィジェット雛形生成 |
+| `preview-setup` | `/preview-setup [--init] [<名前>]` | Widgetbook Preview 初期化・ケース追加 |
+
+### スキル連携フロー
+
+```mermaid
+graph LR
+  AF["/add-feature"] --> AR["/add-route"]
+  AR --> WG["/widget-gen"]
+  WG --> PS["/preview-setup"]
+  PS --> AVT["/add-viewmodel-test"]
+  AVT --> SA["/state-audit"]
+  SA --> GC["/graphql-check"]
+  SU["/schema-update"] --> GC
+  BR["/backend-resolver"] --> GC
+```
+
+機能追加の典型フロー（左→右）と、スキーマ変更・バックエンド追加後の整合性確認（→ graphql-check）を示します。
 
 ---
 
@@ -503,6 +581,10 @@ npm run start            # 本番サーバー起動
 
 ```
 travel_booking/
+├── .mise.toml                     # ツールバージョン管理（mise）
+├── .github/
+│   └── workflows/
+│       └── ci.yml                 # GitHub Actions CI（Flutter + Node.js）
 ├── pubspec.yaml                   # ルートワークスペース（melos インストール用）
 ├── melos.yaml                     # モノレポパッケージ管理
 ├── CLAUDE.md                      # Claude Code 向けプロジェクト仕様
@@ -566,13 +648,34 @@ lib/
 
 **MVVM + Repository パターン**
 
+```mermaid
+graph TB
+  subgraph Presentation["Presentation 層"]
+    Screen["Screen<br/>(ConsumerWidget)"]
+    VM["ViewModel<br/>(@riverpod Notifier)"]
+  end
+  subgraph Data["Data 層"]
+    Repo["Repository<br/>(abstract)"]
+    RepoImpl["RepositoryImpl"]
+    RDS["RemoteDataSource<br/>(GraphQL HTTP)"]
+    LDS["LocalDataSource<br/>(SharedPreferences)"]
+  end
+  subgraph Backend["Backend"]
+    Apollo["Apollo Server<br/>(port 4000)"]
+    Prisma["Prisma ORM"]
+    MySQL["MySQL 8.0"]
+  end
+  Screen -->|watches| VM
+  VM --> Repo
+  Repo --> RepoImpl
+  RepoImpl --> RDS
+  RepoImpl --> LDS
+  RDS -->|HTTP POST| Apollo
+  Apollo --> Prisma
+  Prisma --> MySQL
 ```
-Screen (ConsumerWidget)
-  └─ watches ──→ ViewModel (@riverpod AsyncNotifier)
-                   └─ reads ───→ Repository (abstract)
-                                   └─ delegates → RepositoryImpl
-                                                    └─ calls → RemoteDataSource / LocalDataSource
-```
+
+Presentation は Riverpod Provider 経由で Data 層を参照し、Backend には RemoteDataSource のみが接触します。
 
 ### 技術スタック
 
@@ -606,30 +709,57 @@ Screen (ConsumerWidget)
 
 ### Riverpod Provider 依存関係
 
-```
-graphQLHttpClientProvider
-  └─→ travelPlanRemoteDataSourceProvider
-        └─→ travelPlanRepositoryProvider
-              ├─→ planListViewModelProvider
-              ├─→ planDetailViewModelProvider(id)
-              └─→ bookingViewModelProvider
+```mermaid
+graph TB
+  GQL["graphQLHttpClient\nProvider"]
+  RDS["travelPlanRemoteDataSource\nProvider"]
+  TPR["travelPlanRepository\nProvider"]
+  FST["favoritesStorage\nProvider"]
+  FLD["favoriteLocalDataSource\nProvider"]
+  FRP["favoriteRepository\nProvider"]
+  PIF["planIsFavorite\nProvider(planId)"]
+  PLV["planListViewModel\nProvider"]
+  PDV["planDetailViewModel\nProvider(id)"]
+  BKV["bookingViewModel\nProvider"]
+  BHV["bookingHistoryViewModel\nProvider"]
+  FAV["favoriteViewModel\nProvider"]
 
-favoritesStorageProvider
-  └─→ favoriteLocalDataSourceProvider
-        └─→ favoriteRepositoryProvider
-              └─→ favoriteViewModelProvider
+  GQL --> RDS --> TPR
+  FST --> FLD
+  FLD --> FRP
+  FLD --> PIF
+  TPR --> PLV
+  TPR --> PDV
+  TPR --> BKV
+  TPR --> BHV
+  FRP --> PDV
+  FRP --> FAV
 ```
+
+GraphQL 系（左）と SharedPreferences 系（右）の 2 系統で構成し、planDetailViewModel は両方に依存します。
 
 ### ルーティング（GoRouter）
 
+```mermaid
+graph TD
+  Nav["BottomNavBar<br/>(StatefulShellRoute)"]
+  Home["/\nHomeScreen"]
+  Fav["/favorites\nFavoritesScreen"]
+  Hist["/booking-history\nBookingHistoryScreen"]
+  PD["/plan/:id\nPlanDetailScreen"]
+  BK["/plan/:id/booking\nBookingScreen"]
+  FPD["/favorites/plan/:id\nPlanDetailScreen"]
+  Conf["/booking/confirmation/:bookingId\nBookingConfirmationScreen"]
+
+  Nav -->|"Tab: プラン"| Home
+  Nav -->|"Tab: お気に入り"| Fav
+  Nav -->|"Tab: 予約履歴"| Hist
+  Home --> PD --> BK
+  Fav --> FPD
+  BK -->|"push(extra)"| Conf
 ```
-/                            ホーム（プラン一覧・検索・フィルタ）
-  /plan/:id                  プラン詳細
-    /plan/:id/booking        予約フォーム
-/favorites                   お気に入り一覧
-  /favorites/plan/:id        お気に入りからのプラン詳細
-/booking/confirmation/:id    予約完了
-```
+
+ボトムナビ 3 タブ構成（StatefulShellRoute）で、BookingConfirmationScreen のみシェル外のトップレベルルートです。
 
 ---
 
@@ -686,20 +816,45 @@ mutation CancelBooking($id: ID!) {
 | `minPrice` / `maxPrice` | 価格帯（円） |
 | `maxDuration` | 最大日数 |
 
-### シードデータ（旅行プラン 10 件）
+### シードデータ（旅行プラン 30 件）
 
-| # | プラン名 | 目的地 | カテゴリ | 料金/人 |
-|---|---|---|---|---|
-| 1 | 東京エクスプローラー5日間 | 東京・日本 | city | ¥150,000 |
-| 2 | 京都伝統文化探訪4日間 | 京都・日本 | cultural | ¥120,000 |
-| 3 | 北海道大自然アドベンチャー7日間 | 北海道・日本 | nature | ¥200,000 |
-| 4 | パリ・ロマンス＆カルチャー6日間 | パリ・フランス | leisure | ¥280,000 |
-| 5 | スイスアルプストレッキング8日間 | スイス | adventure | ¥350,000 |
-| 6 | バリ島スピリチュアルリトリート5日間 | バリ・インドネシア | leisure | ¥100,000 |
-| 7 | ニューヨーク・シティ・エクスペリエンス4日間 | NY・USA | city | ¥180,000 |
-| 8 | オーストラリアグレートバリアリーフ6日間 | ケアンズ | adventure | ¥320,000 |
-| 9 | モロッコ砂漠とメディナ7日間 | マラケシュ | adventure | ¥160,000 |
-| 10 | サントリーニ島エーゲ海5日間 | サントリーニ・ギリシャ | leisure | ¥250,000 |
+<details>
+<summary>シードデータ一覧（全30件）— クリックで展開</summary>
+
+| # | プラン名 | 目的地 | カテゴリ | 地域 | 料金/人 |
+|---|---|---|---|---|---|
+| 1 | 東京エクスプローラー5日間 | 東京 | city | アジア | ¥150,000 |
+| 2 | 京都伝統文化探訪4日間 | 京都 | cultural | アジア | ¥120,000 |
+| 3 | 北海道大自然アドベンチャー7日間 | 北海道 | nature | アジア | ¥200,000 |
+| 4 | パリ・ロマンス＆カルチャー6日間 | パリ | leisure | ヨーロッパ | ¥280,000 |
+| 5 | スイスアルプス トレッキング8日間 | インターラーケン他 | adventure | ヨーロッパ | ¥350,000 |
+| 6 | バリ島スピリチュアルリトリート5日間 | ウブド・バリ | leisure | アジア | ¥100,000 |
+| 7 | ニューヨーク・シティ・エクスペリエンス4日間 | ニューヨーク | city | アメリカ大陸 | ¥180,000 |
+| 8 | オーストラリア グレートバリアリーフ6日間 | ケアンズ | adventure | オセアニア | ¥320,000 |
+| 9 | モロッコ砂漠とメディナ7日間 | マラケシュ他 | adventure | アフリカ | ¥160,000 |
+| 10 | サントリーニ島 エーゲ海5日間 | サントリーニ島 | leisure | ヨーロッパ | ¥250,000 |
+| 11 | 上海アート&グルメ探訪3日間 | 上海 | city | アジア | ¥65,000 |
+| 12 | メキシコシティ 歴史&グルメ探訪4日間 | メキシコシティ | city | アメリカ大陸 | ¥78,000 |
+| 13 | プラハ・ウィーン 中欧芸術の旅6日間 | プラハ・ウィーン | cultural | ヨーロッパ | ¥245,000 |
+| 14 | エジプト 古代遺跡&ナイル川クルーズ5日間 | カイロ・ルクソール | cultural | アフリカ | ¥155,000 |
+| 15 | ニュージーランド フィヨルドランド6日間 | クイーンズタウン他 | nature | オセアニア | ¥280,000 |
+| 16 | カナダ バンフ国立公園 ロッキー絶景5日間 | バンフ・ルイーズ湖 | nature | アメリカ大陸 | ¥190,000 |
+| 17 | キリマンジャロ登山チャレンジ7日間 | キリマンジャロ | adventure | アフリカ | ¥460,000 |
+| 18 | アイスランド オーロラ&氷河5日間 | レイキャビク他 | adventure | ヨーロッパ | ¥390,000 |
+| 19 | バンコク 寺院巡り&スパ3日間 | バンコク | leisure | アジア | ¥58,000 |
+| 20 | フィジー 水上バンガロー楽園5日間 | ナディ・マナ島 | leisure | オセアニア | ¥400,000 |
+| 21 | タヒチ・ボラボラ島 南太平洋楽園5日間 | タヒチ・ボラボラ島 | leisure | オセアニア | ¥480,000 |
+| 22 | ケニア マサイマラ 大サファリ体験7日間 | ナイロビ・マサイマラ | nature | アフリカ | ¥420,000 |
+| 23 | インド ラジャスタン王侯の旅8日間 | デリー・ジャイプール他 | cultural | アジア | ¥195,000 |
+| 24 | ペルー マチュピチュ&インカ帝国7日間 | リマ・クスコ他 | adventure | アメリカ大陸 | ¥320,000 |
+| 25 | 南アフリカ ケープタウン&ワインランド5日間 | ケープタウン他 | adventure | アフリカ | ¥285,000 |
+| 26 | 台湾一周鉄道旅行5日間 | 台北・九份他 | cultural | アジア | ¥95,000 |
+| 27 | コスタリカ エコツーリズム7日間 | サンホセ他 | nature | アメリカ大陸 | ¥165,000 |
+| 28 | スペイン バルセロナ&アンダルシア8日間 | バルセロナ他 | cultural | ヨーロッパ | ¥145,000 |
+| 29 | タンザニア セレンゲティ 大移動サファリ7日間 | アルーシャ他 | nature | アフリカ | ¥450,000 |
+| 30 | ブラジル リオ&アマゾン 大自然と情熱7日間 | リオデジャネイロ他 | leisure | アメリカ大陸 | ¥280,000 |
+
+</details>
 
 ---
 
@@ -721,6 +876,7 @@ flutter test
 | `plan_detail_viewmodel_test.dart` | 詳細取得・お気に入りトグル・エラー処理 |
 | `booking_viewmodel_test.dart` | フォームバリデーション・予約成功/失敗・料金計算・リセット |
 | `favorite_viewmodel_test.dart` | 一覧取得・リアルタイム更新・削除・エラー処理 |
+| `booking_history_viewmodel_test.dart` | 初期状態・予約履歴取得・空リスト・エラー処理・メールバリデーション・clearError・二重実行防止 |
 
 ### テストでのモック再生成
 
@@ -926,3 +1082,25 @@ docker compose exec backend npm run db:seed
 ```
 
 > **Claude Code を使っている場合:** `/db-reset` スキルで確認プロンプト付きで実行できます。
+
+---
+
+### mise 関連
+
+#### `mise install` で失敗する
+
+mise 自体が古い可能性があります。アップグレードしてから再試行してください:
+
+```bash
+brew upgrade mise
+mise install
+```
+
+#### mise を使わずにセットアップしたい
+
+`.mise.toml` に記載されているバージョンを参考に、各ツールを手動でインストールしてください:
+
+| ツール | バージョン | 公式ページ |
+|---|---|---|
+| Flutter | 3.38.5 | https://docs.flutter.dev/get-started/install |
+| Node.js | 20 | https://nodejs.org/ |
