@@ -76,8 +76,7 @@ class _Fallback extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             meetingPoint,
-            style: const TextStyle(
-                fontSize: 11, color: AppTheme.textHint),
+            style: const TextStyle(fontSize: 11, color: AppTheme.textHint),
           ),
         ],
       ),

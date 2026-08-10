@@ -89,8 +89,7 @@ class FakeTravelPlanRepository implements TravelPlanRepository {
   Future<void> cancelBooking(String bookingId) async {}
 
   @override
-  Future<List<Booking>> fetchBookings(String customerEmail) async =>
-      const [];
+  Future<List<Booking>> fetchBookings(String customerEmail) async => const [];
 }
 
 /// PlanDetailScreen / PlanListScreen などの Screen Preview 用 override リスト。
