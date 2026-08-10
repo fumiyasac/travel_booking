@@ -14,17 +14,21 @@ TravelPlan _makePlan({
   double? discountPrice,
   required int durationDays,
   required String imagePhotoId,
+  String meetingPoint = '',
+  double latitude = 35.0,
+  double longitude = 135.0,
+  List<String> highlights = const [],
 }) {
   final effectivePrice = discountPrice ?? price;
   return TravelPlan(
     id: id,
     title: title,
-    description: 'プレビュー用のサンプル説明文です。',
+    description: 'プレビュー用のサンプル説明文です。このプランでは現地の文化や自然を体験できます。',
     destination: destination,
     country: country,
     region: 'サンプル地域',
-    latitude: 35.0,
-    longitude: 135.0,
+    latitude: latitude,
+    longitude: longitude,
     price: price,
     discountPrice: discountPrice,
     effectivePrice: effectivePrice,
@@ -38,6 +42,7 @@ TravelPlan _makePlan({
     reviewCount: reviewCount,
     isAvailable: true,
     language: '日本語',
+    meetingPoint: meetingPoint,
     tags: const [],
     images: [
       TravelPlanImage(
@@ -48,7 +53,7 @@ TravelPlan _makePlan({
         displayOrder: 0,
       ),
     ],
-    highlights: const [],
+    highlights: highlights,
     itinerary: const [],
     includedItems: const [],
     excludedItems: const [],
@@ -98,4 +103,28 @@ final mockPlanHimalayas = _makePlan(
   price: 480000,
   durationDays: 10,
   imagePhotoId: '1464822759023-fed622ff2c3b',
+);
+
+// PlanDetailScreen 専用: 集合場所・ハイライトあり（地図セクション確認用）
+final mockPlanDetail = _makePlan(
+  id: 'mock_detail',
+  title: '東京エクスプローラー5日間',
+  destination: '東京',
+  country: '日本',
+  category: 'city',
+  difficulty: 'easy',
+  rating: 4.8,
+  reviewCount: 128,
+  price: 150000,
+  durationDays: 5,
+  imagePhotoId: '1540959733332-eab4deabeeaf',
+  meetingPoint: '東京駅 丸の内北口（JR 改札前）',
+  latitude: 35.6812,
+  longitude: 139.7671,
+  highlights: [
+    '皇居周辺のランニングコース体験',
+    '渋谷スクランブル交差点ウォーク',
+    '築地場外市場でのグルメ探訪',
+    '浅草・浅草寺で伝統文化に触れる',
+  ],
 );
