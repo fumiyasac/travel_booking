@@ -4,6 +4,11 @@
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="true">
+        <!-- Google Maps API Key: 本番運用時は Google Cloud Console で Maps SDK for Android を
+             有効化し、GOOGLE_MAPS_API_KEY 環境変数経由で設定してください -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="${googleMapsApiKey}"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"

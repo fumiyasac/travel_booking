@@ -279,6 +279,18 @@ ifconfig | grep "inet " | grep -v 127.0.0.1
 
 ## 実行環境別の起動手順
 
+> **地図表示には Google Maps API キーが必要です**  
+> プラン詳細画面の地図を表示するには、[Google Cloud Console](https://console.cloud.google.com/) で
+> **Maps SDK for iOS** / **Maps SDK for Android** を有効化し、API キーを取得してください。  
+> API キーはリポジトリにコミットせず、以下の方法で設定します：
+>
+> | プラットフォーム | 設定方法 |
+> |---|---|
+> | iOS | Xcode > Build Settings > User-Defined に `GOOGLE_MAPS_API_KEY` を追加 |
+> | Android | 環境変数 `GOOGLE_MAPS_API_KEY` を設定（`build.gradle.kts` 経由で `AndroidManifest.xml` に注入） |
+>
+> **未設定の場合でも地図以外の機能は正常に動作します。**
+
 ### iOS シミュレーター
 
 #### 1. Xcode のインストール確認
