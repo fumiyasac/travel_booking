@@ -64,7 +64,8 @@ class FavoriteViewModel extends _$FavoriteViewModel {
       final repo = ref.read(favoriteRepositoryProvider);
       await repo.removeFavorite(planId);
     } catch (e) {
-      state = state.copyWith(error: e is AppError ? e : UnknownError(e.toString()));
+      state =
+          state.copyWith(error: e is AppError ? e : UnknownError(e.toString()));
     }
   }
 
@@ -74,7 +75,8 @@ class FavoriteViewModel extends _$FavoriteViewModel {
       final repo = ref.read(favoriteRepositoryProvider);
       await repo.clearFavorites();
     } catch (e) {
-      state = state.copyWith(error: e is AppError ? e : UnknownError(e.toString()));
+      state =
+          state.copyWith(error: e is AppError ? e : UnknownError(e.toString()));
     }
   }
 

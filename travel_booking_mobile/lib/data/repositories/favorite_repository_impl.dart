@@ -10,7 +10,8 @@ class FavoriteRepositoryImpl implements FavoriteRepository {
   const FavoriteRepositoryImpl(this._localDataSource);
 
   @override
-  Stream<List<FavoritePlan>> watchFavorites() => _localDataSource.watchFavorites();
+  Stream<List<FavoritePlan>> watchFavorites() =>
+      _localDataSource.watchFavorites();
 
   @override
   Future<List<FavoritePlan>> getFavorites() async {
