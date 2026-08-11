@@ -13,6 +13,8 @@ custom_lint.log
 # コード生成ファイル（build_runner）
 *.g.dart
 *.mocks.dart
+# Widgetbook の自動収集ファイルはリポジトリで管理する
+!lib/preview/main.directories.g.dart
 
 
 # Android
