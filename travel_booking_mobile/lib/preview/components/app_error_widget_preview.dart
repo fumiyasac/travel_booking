@@ -2,19 +2,34 @@ import 'package:flutter/material.dart';
 // ignore: depend_on_referenced_packages
 import 'package:widgetbook_annotation/widgetbook_annotation.dart' as widgetbook;
 
+import '../../core/error/app_error.dart';
 import '../../presentation/widgets/app_error_widget.dart';
 
-@widgetbook.UseCase(name: '再試行ボタンあり', type: AppErrorWidget)
-Widget buildAppErrorWidgetWithRetry(BuildContext context) {
+@widgetbook.UseCase(name: 'NetworkError（再試行あり）', type: AppErrorWidget)
+Widget buildAppErrorWidgetNetwork(BuildContext context) {
   return AppErrorWidget(
-    message: 'ネットワークに接続できませんでした。',
+    error: const NetworkError(),
     onRetry: () {},
   );
 }
 
-@widgetbook.UseCase(name: '再試行ボタンなし', type: AppErrorWidget)
-Widget buildAppErrorWidgetNoRetry(BuildContext context) {
+@widgetbook.UseCase(name: 'GraphQLError', type: AppErrorWidget)
+Widget buildAppErrorWidgetGraphQL(BuildContext context) {
   return const AppErrorWidget(
-    message: 'データの取得に失敗しました。しばらくしてから再度お試しください。',
+    error: GraphQLError('サーバーとの通信中にエラーが発生しました。'),
+  );
+}
+
+@widgetbook.UseCase(name: 'ValidationError', type: AppErrorWidget)
+Widget buildAppErrorWidgetValidation(BuildContext context) {
+  return const AppErrorWidget(
+    error: ValidationError('メールアドレスが指定されていません', field: 'email'),
+  );
+}
+
+@widgetbook.UseCase(name: 'UnknownError', type: AppErrorWidget)
+Widget buildAppErrorWidgetUnknown(BuildContext context) {
+  return const AppErrorWidget(
+    error: UnknownError(),
   );
 }

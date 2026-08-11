@@ -1,29 +1,36 @@
 import 'package:flutter/material.dart';
+import '../../core/error/app_error.dart';
 import '../../core/theme/app_theme.dart';
 
 class AppErrorWidget extends StatelessWidget {
-  final String message;
+  final AppError error;
   final VoidCallback? onRetry;
 
   const AppErrorWidget({
     super.key,
-    required this.message,
+    required this.error,
     this.onRetry,
   });
 
   @override
   Widget build(BuildContext context) {
+    final (icon, title) = switch (error) {
+      NetworkError() => (Icons.wifi_off, 'ネットワークエラー'),
+      GraphQLError() => (Icons.error_outline, 'サーバーエラー'),
+      ValidationError() => (Icons.warning_amber_rounded, '入力エラー'),
+      UnknownError() => (Icons.help_outline, 'エラーが発生しました'),
+    };
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.cloud_off_rounded,
-                size: 64, color: AppTheme.textHint),
+            Icon(icon, size: 64, color: AppTheme.textHint),
             const SizedBox(height: 16),
             Text(
-              'エラーが発生しました',
+              title,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     color: AppTheme.textPrimary,
                     fontWeight: FontWeight.w600,
@@ -31,7 +38,7 @@ class AppErrorWidget extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              message,
+              error.message,
               textAlign: TextAlign.center,
               style:
                   const TextStyle(color: AppTheme.textSecondary, fontSize: 13),

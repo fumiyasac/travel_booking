@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shimmer/shimmer.dart';
+import '../../../core/error/app_error.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../presentation/viewmodels/plan_list_viewmodel.dart';
 import '../../../presentation/widgets/app_error_widget.dart';
@@ -137,8 +138,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     if (state.error != null && state.plans.isEmpty) {
       return AppErrorWidget(
-        message: state.error!,
-        onRetry: () => ref.read(planListViewModelProvider.notifier).loadPlans(),
+        error: state.error!,
+        onRetry: state.error is NetworkError
+            ? () => ref.read(planListViewModelProvider.notifier).loadPlans()
+            : null,
       );
     }
 

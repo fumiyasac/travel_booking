@@ -1,4 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import '../../core/error/app_error.dart';
 import '../../data/models/booking.dart';
 import 'plan_list_viewmodel.dart';
 
@@ -9,7 +10,7 @@ part 'booking_history_viewmodel.g.dart';
 class BookingHistoryState {
   final List<Booking> bookings;
   final bool isLoading;
-  final String? error;
+  final AppError? error;
 
   const BookingHistoryState({
     this.bookings = const [],
@@ -20,7 +21,7 @@ class BookingHistoryState {
   BookingHistoryState copyWith({
     List<Booking>? bookings,
     bool? isLoading,
-    String? error,
+    AppError? error,
     bool clearError = false,
   }) {
     return BookingHistoryState(
@@ -43,7 +44,7 @@ class BookingHistoryViewModel extends _$BookingHistoryViewModel {
     if (customerEmail.trim().isEmpty) {
       state = state.copyWith(
         isLoading: false,
-        error: 'メールアドレスが指定されていません',
+        error: const ValidationError('メールアドレスが指定されていません'),
       );
       return;
     }
@@ -61,7 +62,7 @@ class BookingHistoryViewModel extends _$BookingHistoryViewModel {
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        error: e.toString().replaceAll('Exception: ', ''),
+        error: e is AppError ? e : UnknownError(e.toString()),
       );
     }
   }

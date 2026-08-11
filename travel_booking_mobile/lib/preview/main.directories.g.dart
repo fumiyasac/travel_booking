@@ -105,16 +105,28 @@ final directories = <_widgetbook.WidgetbookNode>[
             name: 'AppErrorWidget',
             useCases: [
               _widgetbook.WidgetbookUseCase(
-                name: '再試行ボタンあり',
+                name: 'GraphQLError',
                 builder:
                     _travel_booking_mobile_preview_components_app_error_widget_preview
-                        .buildAppErrorWidgetWithRetry,
+                        .buildAppErrorWidgetGraphQL,
               ),
               _widgetbook.WidgetbookUseCase(
-                name: '再試行ボタンなし',
+                name: 'NetworkError（再試行あり）',
                 builder:
                     _travel_booking_mobile_preview_components_app_error_widget_preview
-                        .buildAppErrorWidgetNoRetry,
+                        .buildAppErrorWidgetNetwork,
+              ),
+              _widgetbook.WidgetbookUseCase(
+                name: 'UnknownError',
+                builder:
+                    _travel_booking_mobile_preview_components_app_error_widget_preview
+                        .buildAppErrorWidgetUnknown,
+              ),
+              _widgetbook.WidgetbookUseCase(
+                name: 'ValidationError',
+                builder:
+                    _travel_booking_mobile_preview_components_app_error_widget_preview
+                        .buildAppErrorWidgetValidation,
               ),
             ],
           ),

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import '../../../core/error/app_error.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../data/models/travel_plan.dart';
 import '../../../presentation/viewmodels/booking_viewmodel.dart';
@@ -114,10 +115,28 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                   color: AppTheme.errorColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Text(
-                  bookingState.error!,
-                  style:
-                      const TextStyle(color: AppTheme.errorColor, fontSize: 13),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(
+                      switch (bookingState.error!) {
+                        NetworkError() => Icons.wifi_off,
+                        GraphQLError() => Icons.error_outline,
+                        ValidationError() => Icons.warning_amber_rounded,
+                        UnknownError() => Icons.help_outline,
+                      },
+                      color: AppTheme.errorColor,
+                      size: 16,
+                    ),
+                    const Gap(6),
+                    Expanded(
+                      child: Text(
+                        bookingState.error!.message,
+                        style: const TextStyle(
+                            color: AppTheme.errorColor, fontSize: 13),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             SizedBox(

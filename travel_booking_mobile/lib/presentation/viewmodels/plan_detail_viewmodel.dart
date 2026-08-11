@@ -1,4 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import '../../core/error/app_error.dart';
 import '../../data/models/travel_plan.dart';
 import 'plan_list_viewmodel.dart';
 
@@ -9,7 +10,7 @@ part 'plan_detail_viewmodel.g.dart';
 class PlanDetailState {
   final TravelPlan? plan;
   final bool isLoading;
-  final String? error;
+  final AppError? error;
   final bool isFavorite;
   final bool isFavoriteLoading;
 
@@ -24,7 +25,7 @@ class PlanDetailState {
   PlanDetailState copyWith({
     TravelPlan? plan,
     bool? isLoading,
-    String? error,
+    AppError? error,
     bool? isFavorite,
     bool? isFavoriteLoading,
     bool clearError = false,
@@ -71,7 +72,7 @@ class PlanDetailViewModel extends _$PlanDetailViewModel {
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        error: e.toString(),
+        error: e is AppError ? e : UnknownError(e.toString()),
       );
     }
   }
@@ -94,7 +95,7 @@ class PlanDetailViewModel extends _$PlanDetailViewModel {
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        error: e.toString(),
+        error: e is AppError ? e : UnknownError(e.toString()),
       );
     }
   }
@@ -118,7 +119,7 @@ class PlanDetailViewModel extends _$PlanDetailViewModel {
     } catch (e) {
       state = state.copyWith(
         isFavoriteLoading: false,
-        error: e.toString(),
+        error: e is AppError ? e : UnknownError(e.toString()),
       );
     }
   }

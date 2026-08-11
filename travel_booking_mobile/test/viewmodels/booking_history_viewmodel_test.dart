@@ -123,7 +123,7 @@ void main() {
       expect(state.isLoading, isFalse);
       expect(state.bookings, isEmpty);
       expect(state.error, isNotNull);
-      expect(state.error, contains('Network error'));
+      expect(state.error!.message, contains('Network error'));
     });
 
     test('loadBookings with empty email sets error without calling repository',

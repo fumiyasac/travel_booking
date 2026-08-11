@@ -1,4 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import '../../core/error/app_error.dart';
 import '../../data/models/booking.dart';
 import '../../data/models/travel_plan.dart';
 import 'plan_list_viewmodel.dart';
@@ -15,7 +16,7 @@ class BookingFormState {
   final DateTime? travelDate;
   final String specialRequests;
   final bool isSubmitting;
-  final String? error;
+  final AppError? error;
   final Booking? completedBooking;
   final Map<String, String> validationErrors;
 
@@ -52,7 +53,7 @@ class BookingFormState {
     DateTime? travelDate,
     String? specialRequests,
     bool? isSubmitting,
-    String? error,
+    AppError? error,
     Booking? completedBooking,
     Map<String, String>? validationErrors,
     bool clearError = false,
@@ -160,7 +161,7 @@ class BookingViewModel extends _$BookingViewModel {
 
     if (state.numberOfPeople > availableSpots) {
       state = state.copyWith(
-        error: '空き枠が不足しています。残り$availableSpots名まで予約可能です',
+        error: ValidationError('空き枠が不足しています。残り$availableSpots名まで予約可能です'),
       );
       return false;
     }
@@ -189,7 +190,7 @@ class BookingViewModel extends _$BookingViewModel {
     } catch (e) {
       state = state.copyWith(
         isSubmitting: false,
-        error: e.toString().replaceAll('Exception: ', ''),
+        error: e is AppError ? e : UnknownError(e.toString()),
       );
       return false;
     }
