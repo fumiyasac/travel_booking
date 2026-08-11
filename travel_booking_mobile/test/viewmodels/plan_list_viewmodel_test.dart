@@ -152,7 +152,7 @@ void main() {
       expect(state.isLoading, isFalse);
       expect(state.plans, isEmpty);
       expect(state.error, isNotNull);
-      expect(state.error, contains('Network error'));
+      expect(state.error!.message, contains('Network error'));
     });
 
     test('updateFilter updates filter and triggers reload', () async {

@@ -137,7 +137,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     if (state.error != null && state.plans.isEmpty) {
       return AppErrorWidget(
-        message: state.error!,
+        message: state.error!.message,
         onRetry: () => ref.read(planListViewModelProvider.notifier).loadPlans(),
       );
     }

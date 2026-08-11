@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../core/config/graphql_config.dart';
 import '../../core/database/app_database.dart';
+import '../../core/error/app_error.dart';
 import '../../data/datasources/local/favorite_local_datasource.dart';
 import '../../data/datasources/remote/travel_plan_remote_datasource.dart';
 import '../../data/models/plan_filter.dart';
@@ -66,7 +67,7 @@ class PlanListState {
   final List<TravelPlan> plans;
   final bool isLoading;
   final bool isLoadingMore;
-  final String? error;
+  final AppError? error;
   final PlanFilter filter;
   final int currentPage;
   final bool hasNextPage;
@@ -89,7 +90,7 @@ class PlanListState {
     List<TravelPlan>? plans,
     bool? isLoading,
     bool? isLoadingMore,
-    String? error,
+    AppError? error,
     PlanFilter? filter,
     int? currentPage,
     bool? hasNextPage,
@@ -153,7 +154,7 @@ class PlanListViewModel extends _$PlanListViewModel {
       print('[PlanListVM] loadPlans error: $e\n$st');
       state = state.copyWith(
         isLoading: false,
-        error: e.toString(),
+        error: e is AppError ? e : UnknownError(e.toString()),
       );
     }
   }
@@ -184,7 +185,7 @@ class PlanListViewModel extends _$PlanListViewModel {
     } catch (e) {
       state = state.copyWith(
         isLoadingMore: false,
-        error: e.toString(),
+        error: e is AppError ? e : UnknownError(e.toString()),
       );
     }
   }

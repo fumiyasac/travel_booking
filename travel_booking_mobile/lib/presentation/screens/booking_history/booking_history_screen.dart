@@ -47,7 +47,7 @@ class _BookingHistoryScreenState extends ConsumerState<BookingHistoryScreen> {
 
     if (state.error != null) {
       return AppErrorWidget(
-        message: state.error!,
+        message: state.error!.message,
         onRetry: () => ref
             .read(bookingHistoryViewModelProvider.notifier)
             .loadBookings(_kCustomerEmail),

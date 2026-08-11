@@ -115,7 +115,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  bookingState.error!,
+                  bookingState.error!.message,
                   style:
                       const TextStyle(color: AppTheme.errorColor, fontSize: 13),
                 ),

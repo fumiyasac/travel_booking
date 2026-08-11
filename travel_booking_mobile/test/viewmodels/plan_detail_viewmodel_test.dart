@@ -117,7 +117,7 @@ void main() {
       expect(state.isLoading, isFalse);
       expect(state.plan, isNull);
       expect(state.error, isNotNull);
-      expect(state.error, contains('Plan not found'));
+      expect(state.error!.message, contains('Plan not found'));
     });
 
     test('toggleFavorite adds to favorites when not favorited', () async {

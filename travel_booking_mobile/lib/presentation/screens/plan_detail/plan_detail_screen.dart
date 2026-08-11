@@ -46,7 +46,7 @@ class _PlanDetailScreenState extends ConsumerState<PlanDetailScreen> {
       return Scaffold(
         appBar: AppBar(title: const Text('プラン詳細')),
         body: AppErrorWidget(
-          message: state.error!,
+          message: state.error!.message,
           onRetry: () => ref
               .read(planDetailViewModelProvider(widget.planId).notifier)
               .loadPlanById(widget.planId),

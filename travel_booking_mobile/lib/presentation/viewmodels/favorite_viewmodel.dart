@@ -1,4 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import '../../core/error/app_error.dart';
 import '../../data/models/favorite_plan.dart';
 import 'plan_list_viewmodel.dart';
 
@@ -9,7 +10,7 @@ part 'favorite_viewmodel.g.dart';
 class FavoriteState {
   final List<FavoritePlan> favorites;
   final bool isLoading;
-  final String? error;
+  final AppError? error;
 
   const FavoriteState({
     this.favorites = const [],
@@ -22,7 +23,7 @@ class FavoriteState {
   FavoriteState copyWith({
     List<FavoritePlan>? favorites,
     bool? isLoading,
-    String? error,
+    AppError? error,
     bool clearError = false,
   }) {
     return FavoriteState(
@@ -47,7 +48,10 @@ class FavoriteViewModel extends _$FavoriteViewModel {
         state = state.copyWith(favorites: favorites, isLoading: false);
       },
       onError: (Object e) {
-        state = state.copyWith(isLoading: false, error: e.toString());
+        state = state.copyWith(
+          isLoading: false,
+          error: e is AppError ? e : UnknownError(e.toString()),
+        );
       },
     );
 
@@ -60,7 +64,7 @@ class FavoriteViewModel extends _$FavoriteViewModel {
       final repo = ref.read(favoriteRepositoryProvider);
       await repo.removeFavorite(planId);
     } catch (e) {
-      state = state.copyWith(error: e.toString());
+      state = state.copyWith(error: e is AppError ? e : UnknownError(e.toString()));
     }
   }
 
@@ -70,7 +74,7 @@ class FavoriteViewModel extends _$FavoriteViewModel {
       final repo = ref.read(favoriteRepositoryProvider);
       await repo.clearFavorites();
     } catch (e) {
-      state = state.copyWith(error: e.toString());
+      state = state.copyWith(error: e is AppError ? e : UnknownError(e.toString()));
     }
   }
 
