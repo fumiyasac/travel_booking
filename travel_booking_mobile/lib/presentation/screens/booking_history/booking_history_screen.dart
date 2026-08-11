@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import '../../../core/error/app_error.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../data/models/booking.dart';
 import '../../viewmodels/booking_history_viewmodel.dart';
@@ -47,10 +48,12 @@ class _BookingHistoryScreenState extends ConsumerState<BookingHistoryScreen> {
 
     if (state.error != null) {
       return AppErrorWidget(
-        message: state.error!.message,
-        onRetry: () => ref
-            .read(bookingHistoryViewModelProvider.notifier)
-            .loadBookings(_kCustomerEmail),
+        error: state.error!,
+        onRetry: state.error is NetworkError
+            ? () => ref
+                .read(bookingHistoryViewModelProvider.notifier)
+                .loadBookings(_kCustomerEmail)
+            : null,
       );
     }
 

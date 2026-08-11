@@ -4,6 +4,7 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import '../../../core/error/app_error.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../data/models/itinerary_day.dart';
 import '../../../data/models/review.dart';
@@ -46,10 +47,12 @@ class _PlanDetailScreenState extends ConsumerState<PlanDetailScreen> {
       return Scaffold(
         appBar: AppBar(title: const Text('プラン詳細')),
         body: AppErrorWidget(
-          message: state.error!.message,
-          onRetry: () => ref
-              .read(planDetailViewModelProvider(widget.planId).notifier)
-              .loadPlanById(widget.planId),
+          error: state.error!,
+          onRetry: state.error is NetworkError
+              ? () => ref
+                  .read(planDetailViewModelProvider(widget.planId).notifier)
+                  .loadPlanById(widget.planId)
+              : null,
         ),
       );
     }
