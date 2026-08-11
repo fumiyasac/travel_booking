@@ -1,0 +1,17 @@
+#!/bin/sh
+# Auto-format Dart files before commit.
+# Reformatted files are re-staged so CI's --set-exit-if-changed check passes.
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+MOBILE_DIR="$REPO_ROOT/travel_booking_mobile"
+
+if [ ! -d "$MOBILE_DIR/lib" ]; then
+  exit 0
+fi
+
+dart format "$MOBILE_DIR/lib/" "$MOBILE_DIR/test/" 2>/dev/null
+
+# Re-stage any dart files that were reformatted
+git diff --name-only -- "*.dart" | xargs -I{} git add "$REPO_ROOT/{}" 2>/dev/null
+
+exit 0

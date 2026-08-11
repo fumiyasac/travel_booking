@@ -114,10 +114,13 @@ docker compose exec backend npm run db:migrate
 docker compose exec backend npm run db:seed
 cd ..
 
-# 4. 接続 URL を設定（実機使用時のみ必要 — 詳細は後述）
+# 4. pre-commit フックを有効化（初回のみ）
+dart run melos run setup-hooks
+
+# 5. 接続 URL を設定（実機使用時のみ必要 — 詳細は後述）
 #    シミュレーター/エミュレーターは自動設定のためスキップ可
 
-# 5. アプリを起動
+# 6. アプリを起動
 cd travel_booking_mobile
 flutter run
 ```
@@ -238,6 +241,19 @@ ViewModel やモデルを変更した後は以下を実行してください:
 # リポジトリルートで実行
 dart run melos run build_runner
 ```
+
+#### pre-commit フックの有効化
+
+コミット前に Dart ファイルを自動フォーマットする Git フックをセットアップします。  
+**初回セットアップ時に一度だけ実行してください。**
+
+```bash
+# リポジトリルートで実行
+dart run melos run setup-hooks
+```
+
+これにより `.githooks/pre-commit` が有効になり、`git commit` のたびに `dart format` が自動実行されます。  
+CI の format チェックが失敗するケースを防ぐことができます。
 
 ---
 
