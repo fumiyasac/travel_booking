@@ -64,3 +64,7 @@ scripts:
     exec: flutter run -t lib/preview/main.dart -d chrome
     packageFilters:
       dirExists: lib/preview
+
+  setup-hooks:
+    description: Git pre-commit フックを有効化する（初回セットアップ時に一度だけ実行）
+    run: git config core.hooksPath .githooks && chmod +x .githooks/pre-commit && echo "✅ pre-commit フックを有効化しました"

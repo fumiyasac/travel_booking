@@ -75,6 +75,9 @@ export PATH="$PATH":"$HOME/.pub-cache/bin"
 dart pub get
 dart run melos bootstrap
 
+# pre-commit フックを有効化（初回のみ）
+dart run melos run setup-hooks
+
 # バックエンド Docker 起動
 cd travel_booking_backend && docker compose up -d
 
