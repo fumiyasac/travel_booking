@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../data/models/favorite_plan.dart';
+import '../../data/models/plan_filter.dart';
 
 class FavoritesStorage {
   static const _key = 'favorite_plans';
@@ -51,5 +52,44 @@ class FavoritesStorage {
   Future<bool> contains(String planId) async {
     final current = await getAll();
     return current.any((f) => f.planId == planId);
+  }
+}
+
+class FilterStorage {
+  static const _key = 'last_search_filter';
+
+  SharedPreferences? _prefs;
+
+  Future<SharedPreferences> _getPrefs() async {
+    _prefs ??= await SharedPreferences.getInstance();
+    return _prefs!;
+  }
+
+  Future<void> saveFilter(PlanFilter filter) async {
+    final prefs = await _getPrefs();
+    final map = <String, dynamic>{
+      'category': filter.category,
+      'region': filter.region,
+      'difficulty': filter.difficulty,
+      'sortBy': filter.sortBy,
+    };
+    await prefs.setString(_key, jsonEncode(map));
+  }
+
+  Future<PlanFilter?> loadFilter() async {
+    final prefs = await _getPrefs();
+    final raw = prefs.getString(_key);
+    if (raw == null) return null;
+    try {
+      final map = jsonDecode(raw) as Map<String, dynamic>;
+      return PlanFilter(
+        category: map['category'] as String?,
+        region: map['region'] as String?,
+        difficulty: map['difficulty'] as String?,
+        sortBy: (map['sortBy'] as String?) ?? 'rating',
+      );
+    } catch (_) {
+      return null;
+    }
   }
 }
