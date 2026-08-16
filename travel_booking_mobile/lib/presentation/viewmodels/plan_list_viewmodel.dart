@@ -1,13 +1,17 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../core/config/graphql_config.dart';
 import '../../core/database/app_database.dart';
+import '../../core/database/recently_viewed_storage.dart';
 import '../../core/error/app_error.dart';
 import '../../data/datasources/local/favorite_local_datasource.dart';
+import '../../data/datasources/local/recently_viewed_local_data_source.dart';
 import '../../data/datasources/remote/travel_plan_remote_datasource.dart';
 import '../../data/models/plan_filter.dart';
 import '../../data/models/travel_plan.dart';
 import '../../data/repositories/favorite_repository.dart';
 import '../../data/repositories/favorite_repository_impl.dart';
+import '../../data/repositories/recently_viewed_repository.dart';
+import '../../data/repositories/recently_viewed_repository_impl.dart';
 import '../../data/repositories/travel_plan_repository.dart';
 import '../../data/repositories/travel_plan_repository_impl.dart';
 
@@ -50,6 +54,27 @@ FavoriteLocalDataSource favoriteLocalDataSource(Ref ref) {
 @Riverpod(keepAlive: true)
 FavoriteRepository favoriteRepository(Ref ref) {
   return FavoriteRepositoryImpl(ref.watch(favoriteLocalDataSourceProvider));
+}
+
+@Riverpod(keepAlive: true)
+RecentlyViewedStorage recentlyViewedStorage(Ref ref) {
+  final storage = RecentlyViewedStorage();
+  ref.onDispose(storage.dispose);
+  return storage;
+}
+
+@Riverpod(keepAlive: true)
+RecentlyViewedLocalDataSource recentlyViewedLocalDataSource(Ref ref) {
+  return RecentlyViewedLocalDataSource(
+      ref.watch(recentlyViewedStorageProvider));
+}
+
+@Riverpod(keepAlive: true)
+RecentlyViewedRepository recentlyViewedRepository(Ref ref) {
+  return RecentlyViewedRepositoryImpl(
+    ref.watch(recentlyViewedLocalDataSourceProvider),
+    ref.watch(travelPlanRemoteDataSourceProvider),
+  );
 }
 
 // autoDispose: カード単位で必要な間だけ生存すれば十分
