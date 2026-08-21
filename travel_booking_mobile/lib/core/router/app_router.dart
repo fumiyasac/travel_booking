@@ -6,6 +6,7 @@ import '../../presentation/screens/booking/booking_screen.dart';
 import '../../presentation/screens/booking/booking_confirmation_screen.dart';
 import '../../presentation/screens/favorites/favorites_screen.dart';
 import '../../presentation/screens/booking_history/booking_history_screen.dart';
+import '../../presentation/screens/recently_viewed/recently_viewed_screen.dart';
 
 class AppRouter {
   static final GoRouter router = GoRouter(
@@ -72,6 +73,21 @@ class AppRouter {
                 builder: (context, state) => const BookingHistoryScreen(),
               ),
             ],
+          ),
+        ],
+      ),
+      GoRoute(
+        path: '/recently-viewed',
+        name: 'recently-viewed',
+        builder: (context, state) => const RecentlyViewedScreen(),
+        routes: [
+          GoRoute(
+            path: 'plan/:id',
+            name: 'recently-viewed-plan-detail',
+            builder: (context, state) {
+              final planId = state.pathParameters['id']!;
+              return PlanDetailScreen(planId: planId);
+            },
           ),
         ],
       ),

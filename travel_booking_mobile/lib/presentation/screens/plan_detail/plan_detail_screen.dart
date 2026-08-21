@@ -10,6 +10,7 @@ import '../../../data/models/itinerary_day.dart';
 import '../../../data/models/review.dart';
 import '../../../data/models/travel_plan.dart';
 import '../../../presentation/viewmodels/plan_detail_viewmodel.dart';
+import '../../../presentation/viewmodels/plan_list_viewmodel.dart';
 import '../../../presentation/widgets/app_error_widget.dart';
 import '../../../presentation/widgets/loading_indicator.dart';
 import '../../../presentation/widgets/plan_map_view.dart';
@@ -32,6 +33,11 @@ class _PlanDetailScreenState extends ConsumerState<PlanDetailScreen> {
       ref
           .read(planDetailViewModelProvider(widget.planId).notifier)
           .loadPlanById(widget.planId);
+      // 閲覧履歴を記録（エラーは画面表示に影響させない）
+      ref
+          .read(recentlyViewedRepositoryProvider)
+          .addViewedPlan(widget.planId)
+          .catchError((_) {});
     });
   }
 
@@ -193,10 +199,13 @@ class _PlanDetailScreenState extends ConsumerState<PlanDetailScreen> {
             const Icon(Icons.location_on,
                 size: 16, color: AppTheme.textSecondary),
             const Gap(2),
-            Text(
-              '${plan.destination}・${plan.country}',
-              style:
-                  const TextStyle(fontSize: 14, color: AppTheme.textSecondary),
+            Flexible(
+              child: Text(
+                '${plan.destination}・${plan.country}',
+                style: const TextStyle(
+                    fontSize: 14, color: AppTheme.textSecondary),
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ],
         ),

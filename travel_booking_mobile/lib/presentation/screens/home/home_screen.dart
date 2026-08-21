@@ -2,7 +2,9 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
+import '../../../core/database/app_database.dart';
 import '../../../core/error/app_error.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../presentation/viewmodels/plan_list_viewmodel.dart';
@@ -28,6 +30,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     _scrollController.addListener(_onScroll);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(planListViewModelProvider.notifier).loadPlans();
+      FilterStorage().loadFilter().then((lastFilter) {
+        if (lastFilter != null && mounted) {
+          ref.read(planListViewModelProvider.notifier).updateFilter(lastFilter);
+        }
+      });
     });
   }
 
@@ -115,9 +122,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ref
                       .read(planListViewModelProvider.notifier)
                       .updateFilter(newFilter);
+                  FilterStorage().saveFilter(newFilter);
                 },
               );
             },
+          ),
+          IconButton(
+            icon: const Icon(Icons.history),
+            tooltip: '最近見たプラン',
+            onPressed: () => context.push('/recently-viewed'),
           ),
         ],
       ),

@@ -8,13 +8,14 @@ import '../../../widgets/rating_stars.dart';
 
 class PlanCard extends ConsumerWidget {
   final TravelPlan plan;
+  final VoidCallback? onTap;
 
-  const PlanCard({super.key, required this.plan});
+  const PlanCard({super.key, required this.plan, this.onTap});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return GestureDetector(
-      onTap: () => context.push('/plan/${plan.id}'),
+      onTap: onTap ?? () => context.push('/plan/${plan.id}'),
       child: Card(
         clipBehavior: Clip.antiAlias,
         child: Column(
