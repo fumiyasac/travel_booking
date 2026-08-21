@@ -199,10 +199,13 @@ class _PlanDetailScreenState extends ConsumerState<PlanDetailScreen> {
             const Icon(Icons.location_on,
                 size: 16, color: AppTheme.textSecondary),
             const Gap(2),
-            Text(
-              '${plan.destination}・${plan.country}',
-              style:
-                  const TextStyle(fontSize: 14, color: AppTheme.textSecondary),
+            Flexible(
+              child: Text(
+                '${plan.destination}・${plan.country}',
+                style: const TextStyle(
+                    fontSize: 14, color: AppTheme.textSecondary),
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ],
         ),

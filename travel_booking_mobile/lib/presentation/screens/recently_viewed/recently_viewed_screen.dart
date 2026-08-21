@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/error/app_error.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../presentation/viewmodels/recently_viewed_viewmodel.dart';
@@ -56,11 +57,14 @@ class _RecentlyViewedScreenState extends ConsumerState<RecentlyViewedScreen> {
       return _buildEmptyState();
     }
 
-    return ListView.separated(
-      padding: const EdgeInsets.all(16),
+    return ListView.builder(
+      padding: const EdgeInsets.only(top: 8, bottom: 24),
       itemCount: state.plans.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
-      itemBuilder: (context, index) => PlanCard(plan: state.plans[index]),
+      itemBuilder: (context, index) => PlanCard(
+        plan: state.plans[index],
+        onTap: () =>
+            context.push('/recently-viewed/plan/${state.plans[index].id}'),
+      ),
     );
   }
 
