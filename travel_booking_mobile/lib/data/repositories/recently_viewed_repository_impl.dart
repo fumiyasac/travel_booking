@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import '../../core/error/app_error.dart';
 import '../datasources/local/recently_viewed_local_data_source.dart';
 import '../datasources/remote/travel_plan_remote_datasource.dart';
@@ -37,11 +39,19 @@ class RecentlyViewedRepositoryImpl implements RecentlyViewedRepository {
         try {
           final plan = await _remoteDataSource.getTravelPlan(id);
           plans.add(plan);
+        } on SocketException {
+          rethrow;
+        } on HttpException {
+          rethrow;
         } catch (_) {
-          // Skip plans that can no longer be fetched
+          // Skip plans that can no longer be fetched (deleted etc.)
         }
       }
       return plans;
+    } on SocketException {
+      throw const NetworkError();
+    } on HttpException catch (e) {
+      throw NetworkError(e.message.isNotEmpty ? e.message : '通信エラーが発生しました');
     } on AppError {
       rethrow;
     } catch (e) {
