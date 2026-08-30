@@ -45,6 +45,10 @@ jobs:
       - name: Static analysis
         run: melos run analyze
 
+      - name: Custom lint (riverpod_lint)
+        working-directory: travel_booking_mobile
+        run: dart run custom_lint
+
       - name: Run unit tests
         run: melos run test
 
