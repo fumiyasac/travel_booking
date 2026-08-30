@@ -1,5 +1,9 @@
 import { Prisma } from '@prisma/client';
+import { GraphQLError } from 'graphql';
 import { Context } from '../../index';
+import { validate } from '../validations/validate';
+import { planFilterSchema, paginationSchema } from '../validations/schemas';
+import { handlePrismaError } from '../validations/prismaErrorMapper';
 
 export interface PlanFilterInput {
   keyword?: string;
@@ -125,44 +129,59 @@ export const planResolvers = {
       args: { filter?: PlanFilterInput; page?: number; pageSize?: number },
       { prisma }: Context,
     ) => {
-      const page = Math.max(1, args.page ?? 1);
-      const pageSize = Math.min(50, Math.max(1, args.pageSize ?? 20));
+      const validatedFilter = args.filter
+        ? validate(planFilterSchema, args.filter)
+        : undefined;
+      const { page, pageSize } = validate(paginationSchema, {
+        page: args.page,
+        pageSize: args.pageSize,
+      });
       const skip = (page - 1) * pageSize;
 
-      const where = buildPlanWhereClause(args.filter);
-      const orderBy = buildOrderByClause(args.filter?.sortBy, args.filter?.sortOrder);
+      try {
+        const where = buildPlanWhereClause(validatedFilter);
+        const orderBy = buildOrderByClause(validatedFilter?.sortBy, validatedFilter?.sortOrder);
 
-      const [plans, totalCount] = await Promise.all([
-        prisma.travelPlan.findMany({
-          where,
-          orderBy,
-          skip,
-          take: pageSize,
-          include: PLAN_INCLUDE,
-        }),
-        prisma.travelPlan.count({ where }),
-      ]);
+        const [plans, totalCount] = await Promise.all([
+          prisma.travelPlan.findMany({
+            where,
+            orderBy,
+            skip,
+            take: pageSize,
+            include: PLAN_INCLUDE,
+          }),
+          prisma.travelPlan.count({ where }),
+        ]);
 
-      const totalPages = Math.ceil(totalCount / pageSize);
+        const totalPages = Math.ceil(totalCount / pageSize);
 
-      return {
-        plans: plans.map(formatPlan),
-        totalCount,
-        hasNextPage: page < totalPages,
-        currentPage: page,
-        totalPages,
-      };
+        return {
+          plans: plans.map(formatPlan),
+          totalCount,
+          hasNextPage: page < totalPages,
+          currentPage: page,
+          totalPages,
+        };
+      } catch (error) {
+        if (error instanceof GraphQLError) throw error;
+        return handlePrismaError(error);
+      }
     },
 
     travelPlan: async (_: unknown, args: { id: string }, { prisma }: Context) => {
-      const plan = await prisma.travelPlan.findUnique({
-        where: { id: args.id },
-        include: PLAN_INCLUDE,
-      });
+      try {
+        const plan = await prisma.travelPlan.findUnique({
+          where: { id: args.id },
+          include: PLAN_INCLUDE,
+        });
 
-      if (!plan) return null;
+        if (!plan) return null;
 
-      return formatPlan(plan);
+        return formatPlan(plan);
+      } catch (error) {
+        if (error instanceof GraphQLError) throw error;
+        return handlePrismaError(error);
+      }
     },
   },
 };

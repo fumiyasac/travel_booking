@@ -1,3 +1,4 @@
+import { GraphQLError } from 'graphql';
 import { planResolvers } from '../../graphql/resolvers/planResolver';
 import { prismaMock, resetPrismaMocks } from '../helpers/prismaMock';
 
@@ -120,6 +121,28 @@ describe('planResolvers', () => {
       expect(result.plans).toEqual([]);
       expect(result.totalCount).toBe(0);
       expect(result.hasNextPage).toBe(false);
+    });
+
+    it('バリデーション: 不正な category 値で VALIDATION_ERROR が発生すること', async () => {
+      await expect(
+        planResolvers.Query.travelPlans(undefined, { filter: { category: 'invalid' } }, ctx),
+      ).rejects.toMatchObject({
+        extensions: { code: 'VALIDATION_ERROR' },
+      });
+      expect(prismaMock.travelPlan.findMany).not.toHaveBeenCalled();
+    });
+
+    it('バリデーション: minPrice > maxPrice で VALIDATION_ERROR が発生すること', async () => {
+      await expect(
+        planResolvers.Query.travelPlans(
+          undefined,
+          { filter: { minPrice: 50000, maxPrice: 10000 } },
+          ctx,
+        ),
+      ).rejects.toMatchObject({
+        extensions: { code: 'VALIDATION_ERROR' },
+      });
+      expect(prismaMock.travelPlan.findMany).not.toHaveBeenCalled();
     });
   });
 
