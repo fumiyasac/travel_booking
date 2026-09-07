@@ -123,11 +123,11 @@ describe('bookingResolvers', () => {
     });
 
     it.each([
-      ['customerName 空文字',        { ...baseInput, customerName: '' },             'お名前を入力してください'],
-      ['customerEmail に @ なし',    { ...baseInput, customerEmail: 'invalid' },     '有効なメールアドレスを入力してください'],
-      ['customerPhone 空文字',       { ...baseInput, customerPhone: '' },            '電話番号を入力してください'],
-      ['numberOfPeople が 0',        { ...baseInput, numberOfPeople: 0 },            '参加人数は1名以上を指定してください'],
-    ])('バリデーション(%s): success: false と適切なメッセージが返ること', async (_label, input, expectedMsg) => {
+      ['customerName 空文字',    { ...baseInput, customerName: '' },         'customerName'],
+      ['customerEmail 不正形式', { ...baseInput, customerEmail: 'invalid' }, 'customerEmail'],
+      ['customerPhone 空文字',   { ...baseInput, customerPhone: '' },        'customerPhone'],
+      ['numberOfPeople が 0',    { ...baseInput, numberOfPeople: 0 },        'numberOfPeople'],
+    ])('バリデーション(%s): success: false でエラーメッセージにフィールド名が含まれること', async (_label, input, expectedField) => {
       const result = await bookingResolvers.Mutation.createBooking(
         undefined,
         { input },
@@ -135,8 +135,32 @@ describe('bookingResolvers', () => {
       );
 
       expect(result.success).toBe(false);
-      expect(result.message).toBe(expectedMsg);
+      expect(result.message).toContain(expectedField);
       // バリデーションエラーは $transaction を呼ばない
+      expect(prismaMock.$transaction).not.toHaveBeenCalled();
+    });
+
+    it('バリデーション(planId 空文字): success: false で planId エラーが返ること', async () => {
+      const result = await bookingResolvers.Mutation.createBooking(
+        undefined,
+        { input: { ...baseInput, planId: '' } },
+        ctx,
+      );
+
+      expect(result.success).toBe(false);
+      expect(result.message).toContain('planId');
+      expect(prismaMock.$transaction).not.toHaveBeenCalled();
+    });
+
+    it('バリデーション(不正なメールアドレス形式): success: false で customerEmail エラーが返ること', async () => {
+      const result = await bookingResolvers.Mutation.createBooking(
+        undefined,
+        { input: { ...baseInput, customerEmail: 'not-an-email' } },
+        ctx,
+      );
+
+      expect(result.success).toBe(false);
+      expect(result.message).toContain('customerEmail');
       expect(prismaMock.$transaction).not.toHaveBeenCalled();
     });
   });

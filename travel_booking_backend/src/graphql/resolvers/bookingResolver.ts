@@ -1,5 +1,9 @@
+import { z } from 'zod';
 import { GraphQLError } from 'graphql';
 import { Context } from '../../index';
+import { validate } from '../validations/validate';
+import { createBookingSchema } from '../validations/schemas';
+import { handlePrismaError } from '../validations/prismaErrorMapper';
 
 export interface CreateBookingInput {
   planId: string;
@@ -34,21 +38,37 @@ export const bookingResolvers = {
       args: { customerEmail?: string },
       { prisma }: Context,
     ) => {
-      const bookings = await prisma.booking.findMany({
-        where: args.customerEmail ? { customerEmail: args.customerEmail } : undefined,
-        include: { plan: true },
-        orderBy: { createdAt: 'desc' },
-      });
-      return bookings.map(formatBooking);
+      if (args.customerEmail !== undefined) {
+        validate(
+          z.object({ customerEmail: z.string().email('Invalid email address') }),
+          { customerEmail: args.customerEmail },
+        );
+      }
+      try {
+        const bookings = await prisma.booking.findMany({
+          where: args.customerEmail ? { customerEmail: args.customerEmail } : undefined,
+          include: { plan: true },
+          orderBy: { createdAt: 'desc' },
+        });
+        return bookings.map(formatBooking);
+      } catch (error) {
+        if (error instanceof GraphQLError) throw error;
+        return handlePrismaError(error);
+      }
     },
 
     booking: async (_: unknown, args: { id: string }, { prisma }: Context) => {
-      const booking = await prisma.booking.findUnique({
-        where: { id: args.id },
-        include: { plan: true },
-      });
-      if (!booking) return null;
-      return formatBooking(booking);
+      try {
+        const booking = await prisma.booking.findUnique({
+          where: { id: args.id },
+          include: { plan: true },
+        });
+        if (!booking) return null;
+        return formatBooking(booking);
+      } catch (error) {
+        if (error instanceof GraphQLError) throw error;
+        return handlePrismaError(error);
+      }
     },
   },
 
@@ -60,20 +80,8 @@ export const bookingResolvers = {
     ) => {
       const { input } = args;
 
-      if (!input.customerName?.trim()) {
-        return { success: false, message: 'お名前を入力してください', booking: null };
-      }
-      if (!input.customerEmail?.trim() || !input.customerEmail.includes('@')) {
-        return { success: false, message: '有効なメールアドレスを入力してください', booking: null };
-      }
-      if (!input.customerPhone?.trim()) {
-        return { success: false, message: '電話番号を入力してください', booking: null };
-      }
-      if (input.numberOfPeople < 1) {
-        return { success: false, message: '参加人数は1名以上を指定してください', booking: null };
-      }
-
       try {
+        validate(createBookingSchema, input);
         const result = await prisma.$transaction(async (tx) => {
           const plan = await tx.travelPlan.findUnique({
             where: { id: input.planId },
@@ -136,11 +144,12 @@ export const bookingResolvers = {
           return { success: false, message: error.message, booking: null };
         }
         console.error('Booking creation error:', error);
-        return { success: false, message: '予約処理中にエラーが発生しました。しばらくしてから再度お試しください', booking: null };
+        return handlePrismaError(error);
       }
     },
 
     cancelBooking: async (_: unknown, args: { id: string }, { prisma }: Context) => {
+      validate(z.object({ id: z.string().min(1, 'id is required') }), args);
       try {
         const result = await prisma.$transaction(async (tx) => {
           const booking = await tx.booking.findUnique({
@@ -187,7 +196,7 @@ export const bookingResolvers = {
           return { success: false, message: error.message, booking: null };
         }
         console.error('Booking cancellation error:', error);
-        return { success: false, message: 'キャンセル処理中にエラーが発生しました', booking: null };
+        return handlePrismaError(error);
       }
     },
   },
