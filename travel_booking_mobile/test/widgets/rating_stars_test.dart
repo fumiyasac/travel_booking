@@ -41,4 +41,19 @@ void main() {
 
     expect(find.text('(128)'), findsNothing);
   });
+
+  testWidgets('rating が負の値 (-1.0) でもクラッシュせず RatingBarIndicator が表示されること',
+      (tester) async {
+    await tester.pumpWidget(wrap(const RatingStars(rating: -1.0)));
+
+    expect(find.byType(RatingBarIndicator), findsOneWidget);
+  });
+
+  testWidgets('rating が上限超え (6.0) でもクラッシュせず RatingBarIndicator が表示されること',
+      (tester) async {
+    await tester.pumpWidget(wrap(const RatingStars(rating: 6.0)));
+
+    expect(find.byType(RatingBarIndicator), findsOneWidget);
+    expect(find.text('6.0'), findsOneWidget);
+  });
 }
