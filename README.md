@@ -589,11 +589,14 @@ npm run start            # 本番サーバー起動
 | `add-widget-test` | `/add-widget-test <名前> [--with-callback] [--with-error]` | Widget テスト自動生成（add-viewmodel-test の姉妹スキル） |
 | `refactor-screen` | `/refactor-screen <Screen名> [--wizard\|--extract-widgets\|--split]` | 既存 Screen を構造的にリファクタ |
 | `test-fix` | `/test-fix [--flutter\|--backend\|--all]` | 壊れたテストを自動検出・修復（context: fork） |
+| `doc-sync` | `/doc-sync [--check\|--fix\|--readme\|--skills\|--arch]` | ドキュメント更新漏れを検出・修復（context: fork） |
+| `impact-analysis` | `/impact-analysis <ファイルパスまたはクラス名>` | 変更前の影響範囲を事前分析（context: fork） |
 
 ### スキル連携フロー
 
 ```mermaid
 graph LR
+  IA["/impact-analysis"] -.->|"変更前の影響確認"| AF
   AF["/add-feature"] --> AR["/add-route"]
   AR --> WG["/widget-gen"]
   WG --> PS["/preview-setup"]
@@ -602,9 +605,11 @@ graph LR
   SA --> GC["/graphql-check"]
   SU["/schema-update"] --> GC
   BR["/backend-resolver"] --> GC
+  GC --> TF["/test-fix"]
+  TF --> DS["/doc-sync"]
 ```
 
-機能追加の典型フロー（左→右）と、スキーマ変更・バックエンド追加後の整合性確認（→ graphql-check）を示します。
+変更前に `/impact-analysis` で影響範囲を確認し、機能追加（左→右）、変更後に `/test-fix` → `/doc-sync` でテスト修復とドキュメント同期を行います。
 
 ---
 

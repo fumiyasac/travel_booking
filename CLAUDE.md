@@ -217,3 +217,4 @@ test/viewmodels/
 | `refactor-screen` | `/refactor-screen <Screen名> [--wizard] [--extract-widgets] [--split <数>]` または自然文 | 既存 Screen を構造的にリファクタ（分割・ウィザード化・ウィジェット抽出） | ✓ |
 | `test-fix` | `/test-fix [--flutter\|--backend\|--all]` または自然文 | 壊れたテストを自動検出・修復（context: fork で独立実行） | ✓ |
 | `doc-sync` | `/doc-sync [--check\|--fix\|--readme\|--skills\|--arch]` または自然文 | ドキュメント更新漏れ検出・修復（8種類の diff タイプ、context: fork で独立実行） | ✓ |
+| `impact-analysis` | `/impact-analysis <ファイルパスまたはクラス名>` または自然文 | 変更前の影響範囲を事前分析（依存・テスト・ドキュメント・スキル、context: fork で独立実行） | ✓ |

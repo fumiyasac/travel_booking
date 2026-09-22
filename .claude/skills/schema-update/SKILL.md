@@ -112,3 +112,5 @@ cd /Users/sakaifumiya/Desktop/FlutterApp/travel_booking && melos run test
 ## 完了報告
 
 変更したファイル一覧と変更内容を日本語でまとめて報告する。
+
+- ドキュメントの更新が必要な可能性があります。/doc-sync --check で確認してください

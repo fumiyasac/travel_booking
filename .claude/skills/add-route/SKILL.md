@@ -159,4 +159,5 @@ cd /Users/sakaifumiya/Desktop/FlutterApp/travel_booking/travel_booking_mobile &&
 
 次のステップ:
   /add-viewmodel-test <機能名> でテストも追加できます
+  /doc-sync --check でドキュメントの更新漏れも確認できます
 ```
