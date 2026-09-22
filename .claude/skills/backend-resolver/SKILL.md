@@ -117,6 +117,8 @@ curl -s -X POST http://localhost:4000/graphql \
   DB〜Flutter まで全変更      → /schema-update
 ```
 
+- ドキュメントの更新が必要な可能性があります。/doc-sync --check で確認してください
+
 ---
 
 ## ミドルウェア追加モード（--middleware）
@@ -242,3 +244,5 @@ Docker が起動していない場合は「先に `/backend-up` を実行して�
   ミドルウェア追加             → /backend-resolver --middleware <名前>
   DB〜Flutter まで全変更      → /schema-update
 ```
+
+- ドキュメントの更新が必要な可能性があります。/doc-sync --check で確認してください

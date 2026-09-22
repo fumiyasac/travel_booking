@@ -129,3 +129,5 @@ cd travel_booking_mobile && dart analyze lib/presentation/widgets/<widget_name>.
 - テスト:     test/widgets/<widget_name>_test.dart（--test 指定時のみ）
 - 静的解析:   No issues found
 ```
+
+- ドキュメントの更新が必要な可能性があります。/doc-sync --check で確認してください

@@ -1,6 +1,6 @@
 # Claude Code スキル活用ガイド — travel_booking
 
-このプロジェクトには 20 個のカスタムスキルが定義されています。
+このプロジェクトには 21 個のカスタムスキルが定義されています。
 Claude Code のチャット欄でスキル名を呼びかけるだけで自動起動するものと、
 `/スキル名 [引数]` と明示的に呼び出すものがあります。
 
@@ -30,6 +30,7 @@ Claude Code のチャット欄でスキル名を呼びかけるだけで自動�
 | `refactor-screen` | `/refactor-screen <Screen名> [--wizard] [--extract-widgets] [--split <数>]` または自然文 | 既存 Screen を構造的にリファクタ（分割・ウィザード化・ウィジェット抽出） | ✓ |
 | `test-fix` | `/test-fix [--flutter\|--backend\|--all]` または自然文 | 壊れたテストを自動検出・修復（context: fork で独立実行） | ✓ |
 | `doc-sync` | `/doc-sync [--check\|--fix\|--readme\|--skills\|--arch]` または自然文 | ドキュメント更新漏れを検出・修復（8種類 diff タイプ、context: fork で独立実行） | ✓ |
+| `impact-analysis` | `/impact-analysis <ファイルパスまたはクラス名>` または自然文 | 変更前の影響範囲を事前分析（依存ファイル・テスト・ドキュメント・スキル、context: fork で独立実行） | ✓ |
 
 > **自動起動 ✓**: 関連する自然な文章でも Claude が自動的にスキルを起動します。  
 > **自動起動 —**: `disable-model-invocation: true` のため `/コマンド` での明示呼び出しが必要です。
@@ -38,6 +39,7 @@ Claude Code のチャット欄でスキル名を呼びかけるだけで自動�
 
 ```mermaid
 graph LR
+  IA["/impact-analysis"] -.->|"変更前の影響確認"| AF
   AF["/add-feature"] --> AR["/add-route"]
   AR --> WG["/widget-gen"]
   WG --> PS["/preview-setup"]
@@ -46,9 +48,11 @@ graph LR
   SA --> GC["/graphql-check"]
   SU["/schema-update"] --> GC
   BR["/backend-resolver"] --> GC
+  GC --> TF["/test-fix"]
+  TF --> DS["/doc-sync"]
 ```
 
-機能追加の典型フロー（左→右）と、スキーマ変更・バックエンド追加後の整合性確認（→ `/graphql-check`）を示します。
+機能追加の典型フロー（左→右）。変更前に `/impact-analysis` で影響範囲を確認し、変更後に `/test-fix` でテスト修復、`/doc-sync` でドキュメント同期を行います。
 
 ---
 
@@ -130,10 +134,14 @@ graph LR
 │   ├── SKILL.md
 │   └── references/
 │       └── error-fix-patterns.md   # 5カテゴリのエラーパターンと修正手順
-└── doc-sync/
+├── doc-sync/
+│   ├── SKILL.md
+│   └── references/
+│       └── sync-rules.md           # ドキュメント↔ソースのマッピング定義・8種類の差分タイプ
+└── impact-analysis/
     ├── SKILL.md
     └── references/
-        └── sync-rules.md           # ドキュメント↔ソースのマッピング定義・8種類の差分タイプ
+        └── analysis-checklist.md   # grep パターン・カテゴリ分類・レポートテンプレート・影響パターン例5種
 ```
 
 ---
@@ -759,6 +767,44 @@ DB マイグレーションも Flutter 側も変更しないため、API の追�
 - `--wizard` は Step の数・フィールド配置はユーザー確認後に決定
 
 （パターンコード: `.claude/skills/refactor-screen/references/refactor-patterns.md`）
+
+---
+
+### impact-analysis — 変更前影響範囲分析
+
+#### 概要
+ファイルパスまたはクラス名を指定して、変更した場合の影響範囲を事前に分析します。
+依存ファイル・影響テスト・ドキュメント・スキルの4種類の影響をレポートとして出力します。
+独立実行（`context: fork`）で本会話のコンテキストを汚しません。**分析のみ（コード変更なし）**。
+
+#### 起動方法
+```
+/impact-analysis lib/core/config/graphql_config.dart
+/impact-analysis GraphQLHttpClient
+/impact-analysis lib/data/models/travel_plan.dart
+```
+または「この変更の影響範囲を教えて」「リファクタの影響を分析して」などの自然文で自動起動。
+
+#### 出力レポート構成
+
+| セクション | 内容 |
+|---|---|
+| 【依存ファイル】 | 直接依存（import）と間接依存（最大2階層）をカテゴリ別に一覧 |
+| 【影響テスト】 | mock 更新要否・テストデータ更新要否を分類 |
+| 【ドキュメント更新】 | README/architecture_guidance に言及箇所があれば行番号付きで報告 |
+| 【スキル更新】 | `.claude/skills/references/` の言及箇所を報告 |
+| 【推奨アクション】 | /test-fix・/doc-sync への誘導を含む優先順位付きアクションリスト |
+
+#### よくある使い方
+
+| ケース | コマンド |
+|---|---|
+| GraphQL 通信層を変更する前 | `/impact-analysis GraphQLHttpClient` |
+| モデルにフィールドを追加する前 | `/impact-analysis TravelPlan` |
+| Repository インターフェースを変更する前 | `/impact-analysis TravelPlanRepository` |
+| ViewModel の State を変更する前 | `/impact-analysis PlanListViewModel` |
+
+（チェックリスト詳細: `.claude/skills/impact-analysis/references/analysis-checklist.md`）
 
 ---
 
