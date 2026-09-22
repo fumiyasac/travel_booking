@@ -105,19 +105,25 @@ lib/
 │       ├── travel_plan_repository.dart          # インターフェース
 │       ├── travel_plan_repository_impl.dart     # 実装
 │       ├── favorite_repository.dart             # インターフェース
-│       └── favorite_repository_impl.dart        # 実装
+│       ├── favorite_repository_impl.dart        # 実装
+│       ├── recently_viewed_repository.dart      # インターフェース
+│       └── recently_viewed_repository_impl.dart # 実装
 │
 └── presentation/
     ├── viewmodels/                        # @riverpod Notifier（.g.dart 自動生成）
     │   ├── plan_list_viewmodel.dart       # Provider 定義も集約
     │   ├── plan_detail_viewmodel.dart
     │   ├── booking_viewmodel.dart
-    │   └── favorite_viewmodel.dart
+    │   ├── favorite_viewmodel.dart
+    │   ├── booking_history_viewmodel.dart
+    │   └── recently_viewed_viewmodel.dart
     ├── screens/
     │   ├── home/                          # プラン一覧 + フィルター
     │   ├── plan_detail/                   # プラン詳細
     │   ├── booking/                       # 予約フォーム + 完了画面
-    │   └── favorites/                     # お気に入り一覧
+    │   ├── favorites/                     # お気に入り一覧
+    │   ├── booking_history/               # 予約履歴一覧
+    │   └── recently_viewed/              # 最近閲覧したプラン
     └── widgets/                           # 共通ウィジェット
         ├── rating_stars.dart
         ├── loading_indicator.dart
@@ -202,6 +208,8 @@ flowchart TD
 | `PlanDetailViewModel(planId)` | `PlanDetailState` | プラン詳細取得・お気に入りトグル |
 | `BookingViewModel` | `BookingFormState` | フォーム入力管理・バリデーション・予約送信 |
 | `FavoriteViewModel` | `FavoriteState` | お気に入りリストのストリーム購読・削除・全件削除 |
+| `BookingHistoryViewModel` | `BookingHistoryState` | メール指定で予約履歴一覧取得 |
+| `RecentlyViewedViewModel` | `RecentlyViewedState` | 最近閲覧プランの Stream 購読・履歴クリア |
 
 各 State は `copyWith` を持つ**イミュータブルオブジェクト**です。エラーは `error: String?` フィールドで管理し、`clearError: true` フラグで明示的にリセットします。
 
@@ -214,10 +222,12 @@ flowchart TD
 | Screen | ルート | Widget 種別 |
 |---|---|---|
 | `HomeScreen` | `/` | `ConsumerStatefulWidget`（ScrollController 管理） |
-| `PlanDetailScreen` | `/plan/:id`, `/favorites/plan/:id` | `ConsumerStatefulWidget` |
+| `PlanDetailScreen` | `/plan/:id`, `/favorites/plan/:id`, `/recently-viewed/plan/:id` | `ConsumerStatefulWidget` |
 | `BookingScreen` | `/plan/:id/booking` | `ConsumerWidget` |
-| `BookingConfirmationScreen` | `/booking/confirmation/:bookingId` | `ConsumerWidget` |
+| `BookingConfirmationScreen` | `/booking/confirmation/:bookingId`（Shell 外） | `ConsumerWidget` |
 | `FavoritesScreen` | `/favorites` | `ConsumerWidget` |
+| `BookingHistoryScreen` | `/booking-history` | `ConsumerStatefulWidget` |
+| `RecentlyViewedScreen` | `/recently-viewed`（Shell 外） | `ConsumerWidget` |
 
 ---
 
@@ -259,6 +269,9 @@ SharedPreferences のキー `favorite_plans` に `List<String>`（JSON シリア
 | `favoritesStorageProvider` | ✓ | 関数 Provider | `FavoritesStorage` シングルトン |
 | `favoriteLocalDataSourceProvider` | ✓ | 関数 Provider | `FavoriteLocalDataSource`（StreamController を維持） |
 | `favoriteRepositoryProvider` | ✓ | 関数 Provider | `FavoriteRepositoryImpl` シングルトン |
+| `recentlyViewedStorageProvider` | ✓ | 関数 Provider | `RecentlyViewedStorage` シングルトン |
+| `recentlyViewedLocalDataSourceProvider` | ✓ | 関数 Provider | `RecentlyViewedLocalDataSource`（StreamController を維持） |
+| `recentlyViewedRepositoryProvider` | ✓ | 関数 Provider | `RecentlyViewedRepositoryImpl` シングルトン |
 | `graphQLHttpClientProvider` | — | 関数 Provider | `GraphQLHttpClient`（autoDispose） |
 | `travelPlanRemoteDataSourceProvider` | — | 関数 Provider | `TravelPlanRemoteDataSource`（autoDispose） |
 | `travelPlanRepositoryProvider` | — | 関数 Provider | `TravelPlanRepositoryImpl`（autoDispose） |
@@ -266,6 +279,8 @@ SharedPreferences のキー `favorite_plans` に `List<String>`（JSON シリア
 | `planDetailViewModelProvider(planId)` | — | Notifier (family) | プラン詳細の状態管理 |
 | `bookingViewModelProvider` | — | Notifier | 予約フォームの状態管理 |
 | `favoriteViewModelProvider` | — | Notifier | お気に入り一覧の状態管理 |
+| `bookingHistoryViewModelProvider` | — | Notifier | 予約履歴一覧の状態管理 |
+| `recentlyViewedViewModelProvider` | — | Notifier | 最近閲覧プランの状態管理 |
 | `planIsFavoriteProvider(planId)` | — | Stream Provider (family) | カード単位のお気に入り boolean |
 
 **keepAlive を使う理由**
@@ -281,6 +296,10 @@ graph TD
         FavDS["favoriteLocalDataSourceProvider"]
         FavRepo["favoriteRepositoryProvider"]
         FavStorage --> FavDS --> FavRepo
+        RVStorage["recentlyViewedStorageProvider"]
+        RVDS["recentlyViewedLocalDataSourceProvider"]
+        RVRepo["recentlyViewedRepositoryProvider"]
+        RVStorage --> RVDS --> RVRepo
     end
 
     subgraph auto["autoDispose（画面離脱時に破棄）"]
@@ -295,6 +314,8 @@ graph TD
         PlanDetailVM["planDetailViewModelProvider(planId)"]
         BookingVM["bookingViewModelProvider"]
         FavVM["favoriteViewModelProvider"]
+        BookingHistVM["bookingHistoryViewModelProvider"]
+        RVVM["recentlyViewedViewModelProvider"]
         PlanIsFav["planIsFavoriteProvider(planId)"]
     end
 
@@ -304,6 +325,9 @@ graph TD
     TPRepo --> BookingVM
     FavDS --> FavVM
     FavRepo --> FavVM
+    TPRepo --> BookingHistVM
+    RVDS --> RVVM
+    RVRepo --> RVVM
     FavDS --> PlanIsFav
 ```
 
@@ -347,16 +371,24 @@ graph TD
         Favorites --> FavDetail
     end
 
-    Top["/booking/confirmation/:bookingId\nBookingConfirmationScreen\n※ Shell 外のトップレベルルート"]
+    subgraph Branch2["Branch 2（予約履歴タブ）"]
+        BookingHist["/booking-history\nBookingHistoryScreen"]
+    end
+
+    Conf["/booking/confirmation/:bookingId\nBookingConfirmationScreen\n※ Shell 外のトップレベルルート"]
+    RV["/recently-viewed\nRecentlyViewedScreen\n※ Shell 外のトップレベルルート"]
+    RVDetail["/recently-viewed/plan/:id\nPlanDetailScreen"]
 
     Shell --> Branch0
     Shell --> Branch1
-    Booking -.->|"予約完了後に push"| Top
+    Shell --> Branch2
+    Booking -.->|"予約完了後に push"| Conf
+    RV --> RVDetail
 ```
 
 > **`indexedStack` の重要な挙動**
 > 一度訪問したブランチのウィジェットツリーはタブ切り替え後も**破棄されません**。
-> そのため `FavoriteViewModel` は初回訪問後、アプリ終了まで生存し続けます。
+> そのため `FavoriteViewModel` / `BookingHistoryViewModel` は初回訪問後、アプリ終了まで生存し続けます。
 
 ---
 
@@ -715,14 +747,18 @@ flowchart TD
 
 ```
 test/viewmodels/
-├── plan_list_viewmodel_test.dart        # PlanListViewModel
-├── plan_list_viewmodel_test.mocks.dart  # 自動生成（@GenerateMocks）
+├── plan_list_viewmodel_test.dart               # PlanListViewModel
+├── plan_list_viewmodel_test.mocks.dart         # 自動生成（@GenerateMocks）
 ├── plan_detail_viewmodel_test.dart
 ├── plan_detail_viewmodel_test.mocks.dart
 ├── booking_viewmodel_test.dart
 ├── booking_viewmodel_test.mocks.dart
 ├── favorite_viewmodel_test.dart
-└── favorite_viewmodel_test.mocks.dart
+├── favorite_viewmodel_test.mocks.dart
+├── booking_history_viewmodel_test.dart         # BookingHistoryViewModel
+├── booking_history_viewmodel_test.mocks.dart   # 自動生成（@GenerateMocks）
+├── recently_viewed_viewmodel_test.dart         # RecentlyViewedViewModel（Stream 制御）
+└── recently_viewed_viewmodel_test.mocks.dart   # 自動生成（@GenerateMocks）
 ```
 
 ### テストの基本構造

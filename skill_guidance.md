@@ -1,6 +1,6 @@
 # Claude Code スキル活用ガイド — travel_booking
 
-このプロジェクトには 19 個のカスタムスキルが定義されています。
+このプロジェクトには 20 個のカスタムスキルが定義されています。
 Claude Code のチャット欄でスキル名を呼びかけるだけで自動起動するものと、
 `/スキル名 [引数]` と明示的に呼び出すものがあります。
 
@@ -29,6 +29,7 @@ Claude Code のチャット欄でスキル名を呼びかけるだけで自動�
 | `add-widget-test` | `/add-widget-test <名前> [--with-callback] [--with-error]` または自然文 | Widget テスト自動生成（add-viewmodel-test の姉妹スキル） | ✓ |
 | `refactor-screen` | `/refactor-screen <Screen名> [--wizard] [--extract-widgets] [--split <数>]` または自然文 | 既存 Screen を構造的にリファクタ（分割・ウィザード化・ウィジェット抽出） | ✓ |
 | `test-fix` | `/test-fix [--flutter\|--backend\|--all]` または自然文 | 壊れたテストを自動検出・修復（context: fork で独立実行） | ✓ |
+| `doc-sync` | `/doc-sync [--check\|--fix\|--readme\|--skills\|--arch]` または自然文 | ドキュメント更新漏れを検出・修復（8種類 diff タイプ、context: fork で独立実行） | ✓ |
 
 > **自動起動 ✓**: 関連する自然な文章でも Claude が自動的にスキルを起動します。  
 > **自動起動 —**: `disable-model-invocation: true` のため `/コマンド` での明示呼び出しが必要です。
@@ -125,10 +126,14 @@ graph LR
 │   ├── SKILL.md
 │   └── references/
 │       └── refactor-patterns.md    # wizard / extract-widgets / split パターンコード例
-└── test-fix/
+├── test-fix/
+│   ├── SKILL.md
+│   └── references/
+│       └── error-fix-patterns.md   # 5カテゴリのエラーパターンと修正手順
+└── doc-sync/
     ├── SKILL.md
     └── references/
-        └── error-fix-patterns.md   # 5カテゴリのエラーパターンと修正手順
+        └── sync-rules.md           # ドキュメント↔ソースのマッピング定義・8種類の差分タイプ
 ```
 
 ---
@@ -754,6 +759,50 @@ DB マイグレーションも Flutter 側も変更しないため、API の追�
 - `--wizard` は Step の数・フィールド配置はユーザー確認後に決定
 
 （パターンコード: `.claude/skills/refactor-screen/references/refactor-patterns.md`）
+
+---
+
+### doc-sync — ドキュメント更新漏れ検出・修復
+
+#### 概要
+ソースコードとドキュメントの差分を 8 種類の diff タイプに分類して検出・修復します。
+独立実行（`context: fork`）で本会話のコンテキストを汚しません。
+`--check` で検出のみ、`--fix` で修復まで実行します。
+
+#### 起動方法
+```
+/doc-sync --check
+/doc-sync --fix
+/doc-sync --readme
+/doc-sync --skills
+/doc-sync --arch
+```
+または「ドキュメントが古い」「doc を同期して」「README を最新にして」「アーキテクチャドキュメントを更新して」などの自然文で自動起動。
+
+#### オプション
+
+| オプション | 対象 |
+|---|---|
+| `--check`（省略時デフォルト） | 全ドキュメント（検出のみ） |
+| `--fix` | 全ドキュメント（検出 + 修復） |
+| `--readme` | README.md のみ |
+| `--skills` | skill_guidance.md + CLAUDE.md のみ |
+| `--arch` | architecture_guidance.md のみ |
+
+#### 対応 diff タイプ
+
+| タイプ | 検出内容 |
+|---|---|
+| SKILL_COUNT | スキルディレクトリ数 ≠ skill_guidance.md テーブル行数 |
+| SKILL_MISSING | .claude/skills/ に存在するがドキュメントに未記載 |
+| SKILL_DETAIL | skill_guidance.md の ### セクションが SKILL.md と乖離 |
+| ROUTE_OUTDATED | app_router.dart の GoRoute と mermaid が不一致 |
+| SCREEN_MISSING | lib/presentation/screens/ にあるが一覧に未記載 |
+| TEST_MISSING | test/ の *_test.dart がテスト一覧に未記載 |
+| PROVIDER_OUTDATED | plan_list_viewmodel.dart の Provider 定義が一覧と不一致 |
+| SEED_OUTDATED | prisma/seed.ts の変更が README のシードデータ一覧に未反映 |
+
+（マッピングルール詳細: `.claude/skills/doc-sync/references/sync-rules.md`）
 
 ---
 

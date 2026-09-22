@@ -780,7 +780,9 @@ graph TD
   PD["/plan/:id\nPlanDetailScreen"]
   BK["/plan/:id/booking\nBookingScreen"]
   FPD["/favorites/plan/:id\nPlanDetailScreen"]
-  Conf["/booking/confirmation/:bookingId\nBookingConfirmationScreen"]
+  Conf["/booking/confirmation/:bookingId\nBookingConfirmationScreen\n※ Shell 外のトップレベルルート"]
+  RV["/recently-viewed\nRecentlyViewedScreen\n※ Shell 外のトップレベルルート"]
+  RVPD["/recently-viewed/plan/:id\nPlanDetailScreen"]
 
   Nav -->|"Tab: プラン"| Home
   Nav -->|"Tab: お気に入り"| Fav
@@ -788,9 +790,10 @@ graph TD
   Home --> PD --> BK
   Fav --> FPD
   BK -->|"push(extra)"| Conf
+  RV --> RVPD
 ```
 
-ボトムナビ 3 タブ構成（StatefulShellRoute）で、BookingConfirmationScreen のみシェル外のトップレベルルートです。
+ボトムナビ 3 タブ構成（StatefulShellRoute）で、BookingConfirmationScreen と RecentlyViewedScreen はシェル外のトップレベルルートです。
 
 ---
 
