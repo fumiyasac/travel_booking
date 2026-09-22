@@ -888,7 +888,7 @@ mutation CancelBooking($id: ID!) {
 
 ## テスト
 
-ViewModel の全メソッドに対してユニットテストを実装しています（Mockito + ProviderContainer）。
+ViewModel ユニットテスト（Mockito + ProviderContainer）と共通ウィジェットの Widget テスト（testWidgets）を実装しています。
 
 ```bash
 # リポジトリルートで実行
@@ -898,6 +898,8 @@ dart run melos run test
 flutter test
 ```
 
+### ViewModel テスト（`test/viewmodels/`）
+
 | テストファイル | テスト内容 |
 |---|---|
 | `plan_list_viewmodel_test.dart` | 初期状態・プラン取得・エラー処理・フィルタ・無限スクロール |
@@ -905,6 +907,15 @@ flutter test
 | `booking_viewmodel_test.dart` | フォームバリデーション・予約成功/失敗・料金計算・リセット |
 | `favorite_viewmodel_test.dart` | 一覧取得・リアルタイム更新・削除・エラー処理 |
 | `booking_history_viewmodel_test.dart` | 初期状態・予約履歴取得・空リスト・エラー処理・メールバリデーション・clearError・二重実行防止 |
+
+### Widget テスト（`test/widgets/`）
+
+| テストファイル | テスト内容 |
+|---|---|
+| `rating_stars_test.dart` | RatingBarIndicator 描画・rating テキスト表示・reviewCount 有無・range guard（負値/上限超え） |
+| `loading_indicator_test.dart` | CircularProgressIndicator 常時表示・message テキスト有無 |
+| `plan_map_view_test.dart` | 座標 0 で SizedBox.shrink・API キー未設定時のフォールバック UI・meetingPoint テキスト表示 |
+| `app_error_widget_test.dart` | NetworkError/GraphQLError/ValidationError/UnknownError の各型でアイコン・タイトル・message 表示を検証。onRetry コールバック動作・リトライボタン非表示を確認 |
 
 ### テストでのモック再生成
 
