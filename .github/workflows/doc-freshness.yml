@@ -1,0 +1,19 @@
+name: Doc Freshness
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  check-docs:
+    name: Check Document Freshness
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # git diff のために全履歴を取得
+
+      - name: Check document freshness
+        run: bash scripts/check-doc-freshness.sh
