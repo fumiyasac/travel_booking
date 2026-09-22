@@ -1,6 +1,6 @@
 # Claude Code スキル活用ガイド — travel_booking
 
-このプロジェクトには 16 個のカスタムスキルが定義されています。
+このプロジェクトには 20 個のカスタムスキルが定義されています。
 Claude Code のチャット欄でスキル名を呼びかけるだけで自動起動するものと、
 `/スキル名 [引数]` と明示的に呼び出すものがあります。
 
@@ -26,6 +26,10 @@ Claude Code のチャット欄でスキル名を呼びかけるだけで自動�
 | `perf-audit` | `/perf-audit <名前>` または自然文 | パフォーマンス問題の静的監査（独立実行） | ✓ |
 | `widget-gen` | `/widget-gen <名前>` または自然文 | 共通ウィジェット雛形生成 | ✓ |
 | `preview-setup` | `/preview-setup [--init] [<名前>]` または自然文 | Widgetbook Preview 初期化・ケース追加 | ✓ |
+| `add-widget-test` | `/add-widget-test <名前> [--with-callback] [--with-error]` または自然文 | Widget テスト自動生成（add-viewmodel-test の姉妹スキル） | ✓ |
+| `refactor-screen` | `/refactor-screen <Screen名> [--wizard] [--extract-widgets] [--split <数>]` または自然文 | 既存 Screen を構造的にリファクタ（分割・ウィザード化・ウィジェット抽出） | ✓ |
+| `test-fix` | `/test-fix [--flutter\|--backend\|--all]` または自然文 | 壊れたテストを自動検出・修復（context: fork で独立実行） | ✓ |
+| `doc-sync` | `/doc-sync [--check\|--fix\|--readme\|--skills\|--arch]` または自然文 | ドキュメント更新漏れを検出・修復（8種類 diff タイプ、context: fork で独立実行） | ✓ |
 
 > **自動起動 ✓**: 関連する自然な文章でも Claude が自動的にスキルを起動します。  
 > **自動起動 —**: `disable-model-invocation: true` のため `/コマンド` での明示呼び出しが必要です。
@@ -109,11 +113,27 @@ graph LR
 │   ├── SKILL.md
 │   └── references/
 │       └── widget-template.md      # StatelessWidget / StatefulWidget テンプレート
-└── preview-setup/
+├── preview-setup/
+│   ├── SKILL.md
+│   └── references/
+│       ├── preview-structure.md    # mock_providers / mock_data / main.dart ボイラープレート
+│       └── preview-case-template.md # Screen 4シナリオ・Widget ケーステンプレート
+├── add-widget-test/
+│   ├── SKILL.md
+│   └── references/
+│       └── widget-test-template.md # 4種テンプレート（基本/コールバック/sealed class/ガード処理）
+├── refactor-screen/
+│   ├── SKILL.md
+│   └── references/
+│       └── refactor-patterns.md    # wizard / extract-widgets / split パターンコード例
+├── test-fix/
+│   ├── SKILL.md
+│   └── references/
+│       └── error-fix-patterns.md   # 5カテゴリのエラーパターンと修正手順
+└── doc-sync/
     ├── SKILL.md
     └── references/
-        ├── preview-structure.md    # mock_providers / mock_data / main.dart ボイラープレート
-        └── preview-case-template.md # Screen 4シナリオ・Widget ケーステンプレート
+        └── sync-rules.md           # ドキュメント↔ソースのマッピング定義・8種類の差分タイプ
 ```
 
 ---
@@ -668,6 +688,157 @@ DB マイグレーションも Flutter 側も変更しないため、API の追�
 5. `dart analyze` で構文エラーを確認
 
 （テンプレートコード: `.claude/skills/widget-gen/references/widget-template.md`）
+
+---
+
+### add-widget-test — Widget テスト自動生成
+
+#### 概要
+指定した Widget の `testWidgets` ベースのテストを自動生成します。
+`add-viewmodel-test`（ViewModel 単体テスト）の姉妹スキルで、UI 表示・インタラクションを担当します。
+
+#### 起動方法
+```
+/add-widget-test RatingStars
+/add-widget-test AppErrorWidget --with-error
+/add-widget-test BookingStepIndicator --with-callback
+```
+または「Widget テストを追加して」「ウィジェットのテストを書いて」などの自然文で自動起動。
+
+#### オプション
+
+| オプション | 説明 |
+|---|---|
+| `--with-callback` | `onTap` / `onRetry` 等コールバック prop のテストを重点的に生成 |
+| `--with-error` | `AppError` sealed class の型分岐テストを生成 |
+
+#### 実行内容
+1. 対象 Widget ファイルを Read して props・条件分岐・コールバックを把握
+2. `test/widgets/` の既存テストを確認（あれば不足ケースを追記）
+3. `references/widget-test-template.md` のパターンでテストファイルを生成
+4. `dart run melos run test` で全件パスを確認
+
+#### 注意点
+- `ConsumerWidget`（Riverpod 依存）はこのスキルの対象外（`ProviderScope` + mock の手動設定が必要）
+- Flutter 3.22+ では `ElevatedButton.icon()` は `find.byType(ElevatedButton)` でヒットしない → `find.text('ラベル')` を使う
+
+（テンプレートコード: `.claude/skills/add-widget-test/references/widget-test-template.md`）
+
+---
+
+### refactor-screen — 既存 Screen 構造的リファクタ
+
+#### 概要
+既存の Screen ファイルを 3 モードで構造的にリファクタします。
+内部ロジックは変えず、UI 構造のみを整理します。
+
+#### 起動方法
+```
+/refactor-screen BookingScreen --wizard
+/refactor-screen PlanDetailScreen --extract-widgets
+/refactor-screen HomeScreen --split 3
+```
+または「画面をウィザード形式にして」「ウィジェットを分割して」などの自然文で自動起動。
+
+#### モード
+
+| モード | 説明 |
+|---|---|
+| `--wizard` | PageView + ステップ管理で多段フォームに変換 |
+| `--extract-widgets` | プライベートメソッドをウィジェットクラスに抽出 |
+| `--split <N>` | 画面を N 個の Widget/Screen に分割 |
+
+#### 実行内容
+1. 対象 Screen と関連 ViewModel を Read して構造を把握
+2. **ユーザーに変更方針を確認**してから実施
+3. `references/refactor-patterns.md` のパターンで修正を適用
+4. `dart analyze` で構文エラーを確認
+
+#### 注意点
+- `app_router.dart` は変更しない（ルーティング変更が必要なら `/add-route` を案内）
+- `--wizard` は Step の数・フィールド配置はユーザー確認後に決定
+
+（パターンコード: `.claude/skills/refactor-screen/references/refactor-patterns.md`）
+
+---
+
+### doc-sync — ドキュメント更新漏れ検出・修復
+
+#### 概要
+ソースコードとドキュメントの差分を 8 種類の diff タイプに分類して検出・修復します。
+独立実行（`context: fork`）で本会話のコンテキストを汚しません。
+`--check` で検出のみ、`--fix` で修復まで実行します。
+
+#### 起動方法
+```
+/doc-sync --check
+/doc-sync --fix
+/doc-sync --readme
+/doc-sync --skills
+/doc-sync --arch
+```
+または「ドキュメントが古い」「doc を同期して」「README を最新にして」「アーキテクチャドキュメントを更新して」などの自然文で自動起動。
+
+#### オプション
+
+| オプション | 対象 |
+|---|---|
+| `--check`（省略時デフォルト） | 全ドキュメント（検出のみ） |
+| `--fix` | 全ドキュメント（検出 + 修復） |
+| `--readme` | README.md のみ |
+| `--skills` | skill_guidance.md + CLAUDE.md のみ |
+| `--arch` | architecture_guidance.md のみ |
+
+#### 対応 diff タイプ
+
+| タイプ | 検出内容 |
+|---|---|
+| SKILL_COUNT | スキルディレクトリ数 ≠ skill_guidance.md テーブル行数 |
+| SKILL_MISSING | .claude/skills/ に存在するがドキュメントに未記載 |
+| SKILL_DETAIL | skill_guidance.md の ### セクションが SKILL.md と乖離 |
+| ROUTE_OUTDATED | app_router.dart の GoRoute と mermaid が不一致 |
+| SCREEN_MISSING | lib/presentation/screens/ にあるが一覧に未記載 |
+| TEST_MISSING | test/ の *_test.dart がテスト一覧に未記載 |
+| PROVIDER_OUTDATED | plan_list_viewmodel.dart の Provider 定義が一覧と不一致 |
+| SEED_OUTDATED | prisma/seed.ts の変更が README のシードデータ一覧に未反映 |
+
+（マッピングルール詳細: `.claude/skills/doc-sync/references/sync-rules.md`）
+
+---
+
+### test-fix — 壊れたテスト自動検出・修復
+
+#### 概要
+テストを自動実行して失敗を検出し、プロジェクト固有の 5 カテゴリのエラーパターンと照合して自動修復します。
+独立実行（`context: fork`）で本会話のコンテキストを汚しません。
+
+#### 起動方法
+```
+/test-fix --flutter
+/test-fix --backend
+/test-fix --all
+```
+または「テストが壊れた」「CIが落ちている」「テストエラーを直して」などの自然文で自動起動。
+
+#### オプション
+
+| オプション | 対象 |
+|---|---|
+| `--flutter`（省略時デフォルト） | Flutter ViewModel テスト + Widget テスト |
+| `--backend` | Node.js / Jest テスト |
+| `--all` | Flutter + Backend 両方 |
+
+#### 対応エラーカテゴリ
+
+| カテゴリ | 識別キーワード |
+|---|---|
+| A: コード生成未実行 | `The getter '.*Provider' isn't defined` |
+| B: Flutter 3.22+ Finder 問題 | `find.byType(ElevatedButton)` ヒットしない |
+| C: Mock ファイル未生成 | `.mocks.dart が存在しない` |
+| D: assert 違反 | `flutter_rating_bar` の負値など |
+| E: TypeScript / Jest エラー | Backend 側のコンパイルエラー |
+
+（エラーパターン詳細: `.claude/skills/test-fix/references/error-fix-patterns.md`）
 
 ---
 

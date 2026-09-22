@@ -586,6 +586,9 @@ npm run start            # 本番サーバー起動
 | `perf-audit` | `/perf-audit <名前>` | パフォーマンス静的監査 |
 | `widget-gen` | `/widget-gen <名前>` | 共通ウィジェット雛形生成 |
 | `preview-setup` | `/preview-setup [--init] [<名前>]` | Widgetbook Preview 初期化・ケース追加 |
+| `add-widget-test` | `/add-widget-test <名前> [--with-callback] [--with-error]` | Widget テスト自動生成（add-viewmodel-test の姉妹スキル） |
+| `refactor-screen` | `/refactor-screen <Screen名> [--wizard\|--extract-widgets\|--split]` | 既存 Screen を構造的にリファクタ |
+| `test-fix` | `/test-fix [--flutter\|--backend\|--all]` | 壊れたテストを自動検出・修復（context: fork） |
 
 ### スキル連携フロー
 
@@ -658,7 +661,7 @@ lib/
 │   └── repositories/               # インターフェース + 実装ペア
 ├── presentation/
 │   ├── viewmodels/                  # @riverpod AsyncNotifier（.g.dart は自動生成）
-│   ├── screens/                     # home / plan_detail / booking / favorites
+│   ├── screens/                     # home / plan_detail / booking / favorites / booking_history / recently_viewed
 │   └── widgets/                     # 共通ウィジェット
 └── preview/                         # Widgetbook Preview 環境（開発用）
     ├── main.dart                    # Widgetbook エントリポイント
@@ -777,7 +780,9 @@ graph TD
   PD["/plan/:id\nPlanDetailScreen"]
   BK["/plan/:id/booking\nBookingScreen"]
   FPD["/favorites/plan/:id\nPlanDetailScreen"]
-  Conf["/booking/confirmation/:bookingId\nBookingConfirmationScreen"]
+  Conf["/booking/confirmation/:bookingId\nBookingConfirmationScreen\n※ Shell 外のトップレベルルート"]
+  RV["/recently-viewed\nRecentlyViewedScreen\n※ Shell 外のトップレベルルート"]
+  RVPD["/recently-viewed/plan/:id\nPlanDetailScreen"]
 
   Nav -->|"Tab: プラン"| Home
   Nav -->|"Tab: お気に入り"| Fav
@@ -785,9 +790,10 @@ graph TD
   Home --> PD --> BK
   Fav --> FPD
   BK -->|"push(extra)"| Conf
+  RV --> RVPD
 ```
 
-ボトムナビ 3 タブ構成（StatefulShellRoute）で、BookingConfirmationScreen のみシェル外のトップレベルルートです。
+ボトムナビ 3 タブ構成（StatefulShellRoute）で、BookingConfirmationScreen と RecentlyViewedScreen はシェル外のトップレベルルートです。
 
 ---
 
@@ -907,6 +913,7 @@ flutter test
 | `booking_viewmodel_test.dart` | フォームバリデーション・予約成功/失敗・料金計算・リセット |
 | `favorite_viewmodel_test.dart` | 一覧取得・リアルタイム更新・削除・エラー処理 |
 | `booking_history_viewmodel_test.dart` | 初期状態・予約履歴取得・空リスト・エラー処理・メールバリデーション・clearError・二重実行防止 |
+| `recently_viewed_viewmodel_test.dart` | 初期状態・Stream によるプラン一覧取得・空リスト・エラー処理・履歴クリア・clearError・リアクティブ更新 |
 
 ### Widget テスト（`test/widgets/`）
 
