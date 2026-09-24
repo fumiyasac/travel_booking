@@ -18,7 +18,7 @@ class PlanFilter {
     this.maxDuration,
     this.difficulty,
     this.sortBy = 'rating',
-    this.sortOrder = 'DESC',
+    this.sortOrder = 'desc',
   });
 
   bool get hasActiveFilters =>
@@ -39,8 +39,8 @@ class PlanFilter {
     if (maxPrice != null) map['maxPrice'] = maxPrice;
     if (maxDuration != null) map['maxDuration'] = maxDuration;
     if (difficulty != null) map['difficulty'] = difficulty;
-    map['sortBy'] = sortBy;
-    map['sortOrder'] = sortOrder;
+    map['sortBy'] = sortBy.toLowerCase();
+    map['sortOrder'] = sortOrder.toLowerCase();
     return map;
   }
 
