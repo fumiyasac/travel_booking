@@ -1,4 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+
 import '../../core/error/app_error.dart';
 import '../../data/models/booking.dart';
 import '../../data/models/travel_plan.dart';
@@ -68,8 +69,9 @@ class BookingFormState {
       specialRequests: specialRequests ?? this.specialRequests,
       isSubmitting: isSubmitting ?? this.isSubmitting,
       error: clearError ? null : (error ?? this.error),
-      completedBooking:
-          clearBooking ? null : (completedBooking ?? this.completedBooking),
+      completedBooking: clearBooking
+          ? null
+          : (completedBooking ?? this.completedBooking),
       validationErrors: validationErrors ?? this.validationErrors,
     );
   }
@@ -182,10 +184,7 @@ class BookingViewModel extends _$BookingViewModel {
             : state.specialRequests.trim(),
       );
 
-      state = state.copyWith(
-        isSubmitting: false,
-        completedBooking: booking,
-      );
+      state = state.copyWith(isSubmitting: false, completedBooking: booking);
       return true;
     } catch (e) {
       state = state.copyWith(

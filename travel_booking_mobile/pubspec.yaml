@@ -4,7 +4,7 @@ publish_to: 'none'
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.3.0 <4.0.0'
+  sdk: '>=3.13.0 <4.0.0'
 
 dependencies:
   flutter:
@@ -13,28 +13,28 @@ dependencies:
     sdk: flutter
   # State management
   flutter_riverpod: ^3.0.0
-  riverpod_annotation: ^3.0.0
+  riverpod_annotation: ^4.0.0
   # Local storage (favorites)
   shared_preferences: ^2.3.0
   # HTTP client (GraphQL via HTTP POST)
   http: ^1.2.0
   # Navigation
-  go_router: ^14.6.2
+  go_router: ^18.0.1
   # UI utilities
   intl: ^0.20.2
   flutter_rating_bar: ^4.0.1
-  shimmer: ^3.0.0
+  shimmer: ^4.0.0
   gap: ^3.0.1
   google_maps_flutter: ^2.18.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^4.0.0
+  flutter_lints: ^6.0.0
   build_runner: '>=2.4.0 <3.0.0'
-  riverpod_generator: ^3.0.0
+  riverpod_generator: ^4.0.0+1
   custom_lint: ^0.8.1
-  riverpod_lint: '>=3.0.0 <3.1.0'
+  riverpod_lint: ^3.0.0
   mockito: ^5.4.4
   widgetbook: ^3.23.0
   widgetbook_annotation: ^3.11.0

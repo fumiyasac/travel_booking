@@ -57,9 +57,9 @@ final directories = <_widgetbook.WidgetbookNode>[
                                 .buildPlanCardDefault,
                       ),
                     ],
-                  )
+                  ),
                 ],
-              )
+              ),
             ],
           ),
           _widgetbook.WidgetbookFolder(
@@ -93,7 +93,7 @@ final directories = <_widgetbook.WidgetbookNode>[
                             .buildPlanDetailNormal,
                   ),
                 ],
-              )
+              ),
             ],
           ),
         ],
@@ -173,5 +173,5 @@ final directories = <_widgetbook.WidgetbookNode>[
         ],
       ),
     ],
-  )
+  ),
 ];

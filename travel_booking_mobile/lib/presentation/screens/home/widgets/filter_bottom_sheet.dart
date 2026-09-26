@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../../../core/theme/app_theme.dart';
 import '../../../../data/models/plan_filter.dart';
 
@@ -21,10 +22,8 @@ class FilterBottomSheet extends StatefulWidget {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => FilterBottomSheet(
-        currentFilter: currentFilter,
-        onApply: onApply,
-      ),
+      builder: (_) =>
+          FilterBottomSheet(currentFilter: currentFilter, onApply: onApply),
     );
   }
 
@@ -97,31 +96,38 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                     _buildChips(
                       _categories,
                       _filter.category ?? '',
-                      (v) => setState(() => _filter = _filter.copyWith(
-                            category: v.isEmpty ? null : v,
-                            clearCategory: v.isEmpty,
-                          )),
+                      (v) => setState(
+                        () => _filter = _filter.copyWith(
+                          category: v.isEmpty ? null : v,
+                          clearCategory: v.isEmpty,
+                        ),
+                      ),
                     ),
                     _buildSectionTitle('地域'),
                     _buildChips(
                       _regions,
                       _filter.region ?? '',
-                      (v) => setState(() => _filter = _filter.copyWith(
-                            region: v.isEmpty ? null : v,
-                            clearRegion: v.isEmpty,
-                          )),
+                      (v) => setState(
+                        () => _filter = _filter.copyWith(
+                          region: v.isEmpty ? null : v,
+                          clearRegion: v.isEmpty,
+                        ),
+                      ),
                     ),
                     _buildSectionTitle('難易度'),
                     _buildChips(
                       _difficulties,
                       _filter.difficulty ?? '',
-                      (v) => setState(() => _filter = _filter.copyWith(
-                            difficulty: v.isEmpty ? null : v,
-                            clearDifficulty: v.isEmpty,
-                          )),
+                      (v) => setState(
+                        () => _filter = _filter.copyWith(
+                          difficulty: v.isEmpty ? null : v,
+                          clearDifficulty: v.isEmpty,
+                        ),
+                      ),
                     ),
                     _buildSectionTitle(
-                        '最大日数: ${_filter.maxDuration ?? "制限なし"}日'),
+                      '最大日数: ${_filter.maxDuration ?? "制限なし"}日',
+                    ),
                     Slider(
                       value: (_filter.maxDuration ?? 30).toDouble(),
                       min: 1,

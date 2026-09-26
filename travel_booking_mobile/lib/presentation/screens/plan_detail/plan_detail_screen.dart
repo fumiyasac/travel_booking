@@ -4,6 +4,7 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+
 import '../../../core/error/app_error.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../data/models/itinerary_day.dart';
@@ -56,8 +57,8 @@ class _PlanDetailScreenState extends ConsumerState<PlanDetailScreen> {
           error: state.error!,
           onRetry: state.error is NetworkError
               ? () => ref
-                  .read(planDetailViewModelProvider(widget.planId).notifier)
-                  .loadPlanById(widget.planId)
+                    .read(planDetailViewModelProvider(widget.planId).notifier)
+                    .loadPlanById(widget.planId)
               : null,
         ),
       );
@@ -103,7 +104,9 @@ class _PlanDetailScreenState extends ConsumerState<PlanDetailScreen> {
                   width: 24,
                   height: 24,
                   child: CircularProgressIndicator(
-                      color: Colors.white, strokeWidth: 2),
+                    color: Colors.white,
+                    strokeWidth: 2,
+                  ),
                 )
               : Icon(
                   state.isFavorite ? Icons.favorite : Icons.favorite_border,
@@ -196,14 +199,19 @@ class _PlanDetailScreenState extends ConsumerState<PlanDetailScreen> {
         const Gap(4),
         Row(
           children: [
-            const Icon(Icons.location_on,
-                size: 16, color: AppTheme.textSecondary),
+            const Icon(
+              Icons.location_on,
+              size: 16,
+              color: AppTheme.textSecondary,
+            ),
             const Gap(2),
             Flexible(
               child: Text(
                 '${plan.destination}・${plan.country}',
                 style: const TextStyle(
-                    fontSize: 14, color: AppTheme.textSecondary),
+                  fontSize: 14,
+                  color: AppTheme.textSecondary,
+                ),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -255,7 +263,9 @@ class _PlanDetailScreenState extends ConsumerState<PlanDetailScreen> {
                 Text(
                   '最大${plan.maxParticipants}名',
                   style: const TextStyle(
-                      fontSize: 12, color: AppTheme.textSecondary),
+                    fontSize: 12,
+                    color: AppTheme.textSecondary,
+                  ),
                 ),
               ],
             ),
@@ -270,19 +280,25 @@ class _PlanDetailScreenState extends ConsumerState<PlanDetailScreen> {
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         _KeyInfoItem(
-            icon: Icons.calendar_today_outlined,
-            label: '期間',
-            value: '${plan.durationDays}日間'),
+          icon: Icons.calendar_today_outlined,
+          label: '期間',
+          value: '${plan.durationDays}日間',
+        ),
         _KeyInfoItem(
-            icon: Icons.people_outline,
-            label: '最大人数',
-            value: '${plan.maxParticipants}名'),
+          icon: Icons.people_outline,
+          label: '最大人数',
+          value: '${plan.maxParticipants}名',
+        ),
         _KeyInfoItem(
-            icon: Icons.signal_cellular_alt,
-            label: '難易度',
-            value: _difficultyLabel(plan.difficulty)),
+          icon: Icons.signal_cellular_alt,
+          label: '難易度',
+          value: _difficultyLabel(plan.difficulty),
+        ),
         _KeyInfoItem(
-            icon: Icons.language, label: 'ガイド言語', value: plan.language),
+          icon: Icons.language,
+          label: 'ガイド言語',
+          value: plan.language,
+        ),
       ],
     );
   }
@@ -294,15 +310,19 @@ class _PlanDetailScreenState extends ConsumerState<PlanDetailScreen> {
         const Text(
           'プラン概要',
           style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: AppTheme.textPrimary),
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: AppTheme.textPrimary,
+          ),
         ),
         const Gap(12),
         Text(
           plan.description,
           style: const TextStyle(
-              fontSize: 14, color: AppTheme.textSecondary, height: 1.7),
+            fontSize: 14,
+            color: AppTheme.textSecondary,
+            height: 1.7,
+          ),
         ),
         if (plan.tags.isNotEmpty) ...[
           const Gap(12),
@@ -310,22 +330,26 @@ class _PlanDetailScreenState extends ConsumerState<PlanDetailScreen> {
             spacing: 6,
             runSpacing: 6,
             children: plan.tags
-                .map((tag) => Chip(
-                      label: Text(
-                        '#$tag',
-                        style: const TextStyle(
-                          fontSize: 11,
-                          color: AppTheme.primaryColor,
-                          fontWeight: FontWeight.w600,
-                        ),
+                .map(
+                  (tag) => Chip(
+                    label: Text(
+                      '#$tag',
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: AppTheme.primaryColor,
+                        fontWeight: FontWeight.w600,
                       ),
-                      backgroundColor:
-                          AppTheme.primaryColor.withValues(alpha: 0.12),
-                      side: BorderSide(
-                          color: AppTheme.primaryColor.withValues(alpha: 0.35)),
-                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                    ))
+                    ),
+                    backgroundColor: AppTheme.primaryColor.withValues(
+                      alpha: 0.12,
+                    ),
+                    side: BorderSide(
+                      color: AppTheme.primaryColor.withValues(alpha: 0.35),
+                    ),
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                  ),
+                )
                 .toList(),
           ),
         ],
@@ -340,27 +364,37 @@ class _PlanDetailScreenState extends ConsumerState<PlanDetailScreen> {
         const Text(
           'このプランのハイライト',
           style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: AppTheme.textPrimary),
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: AppTheme.textPrimary,
+          ),
         ),
         const Gap(12),
-        ...plan.highlights.map((h) => Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Icon(Icons.check_circle,
-                      color: AppTheme.successColor, size: 18),
-                  const Gap(8),
-                  Expanded(
-                    child: Text(h,
-                        style: const TextStyle(
-                            fontSize: 14, color: AppTheme.textPrimary)),
+        ...plan.highlights.map(
+          (h) => Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(
+                  Icons.check_circle,
+                  color: AppTheme.successColor,
+                  size: 18,
+                ),
+                const Gap(8),
+                Expanded(
+                  child: Text(
+                    h,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: AppTheme.textPrimary,
+                    ),
                   ),
-                ],
-              ),
-            )),
+                ),
+              ],
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -372,9 +406,10 @@ class _PlanDetailScreenState extends ConsumerState<PlanDetailScreen> {
         const Text(
           'スケジュール',
           style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: AppTheme.textPrimary),
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: AppTheme.textPrimary,
+          ),
         ),
         const Gap(12),
         ...plan.itinerary.map((day) => _ItineraryDayCard(day: day)),
@@ -389,49 +424,63 @@ class _PlanDetailScreenState extends ConsumerState<PlanDetailScreen> {
         const Text(
           '料金に含まれるもの',
           style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: AppTheme.textPrimary),
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: AppTheme.textPrimary,
+          ),
         ),
         const Gap(12),
-        ...plan.includedItems.map((item) => Padding(
-              padding: const EdgeInsets.only(bottom: 6),
-              child: Row(
-                children: [
-                  const Icon(Icons.check,
-                      color: AppTheme.successColor, size: 16),
-                  const Gap(8),
-                  Expanded(
-                      child: Text(item,
-                          style: const TextStyle(
-                              fontSize: 13, color: AppTheme.textPrimary))),
-                ],
-              ),
-            )),
+        ...plan.includedItems.map(
+          (item) => Padding(
+            padding: const EdgeInsets.only(bottom: 6),
+            child: Row(
+              children: [
+                const Icon(Icons.check, color: AppTheme.successColor, size: 16),
+                const Gap(8),
+                Expanded(
+                  child: Text(
+                    item,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: AppTheme.textPrimary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
         if (plan.excludedItems.isNotEmpty) ...[
           const Gap(16),
           const Text(
             '料金に含まれないもの',
             style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: AppTheme.textPrimary),
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: AppTheme.textPrimary,
+            ),
           ),
           const Gap(8),
-          ...plan.excludedItems.map((item) => Padding(
-                padding: const EdgeInsets.only(bottom: 6),
-                child: Row(
-                  children: [
-                    const Icon(Icons.close,
-                        color: AppTheme.errorColor, size: 16),
-                    const Gap(8),
-                    Expanded(
-                        child: Text(item,
-                            style: const TextStyle(
-                                fontSize: 13, color: AppTheme.textSecondary))),
-                  ],
-                ),
-              )),
+          ...plan.excludedItems.map(
+            (item) => Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: Row(
+                children: [
+                  const Icon(Icons.close, color: AppTheme.errorColor, size: 16),
+                  const Gap(8),
+                  Expanded(
+                    child: Text(
+                      item,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: AppTheme.textSecondary,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ],
     );
@@ -444,9 +493,10 @@ class _PlanDetailScreenState extends ConsumerState<PlanDetailScreen> {
         const Text(
           '集合場所',
           style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: AppTheme.textPrimary),
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: AppTheme.textPrimary,
+          ),
         ),
         const Gap(12),
         Container(
@@ -464,7 +514,9 @@ class _PlanDetailScreenState extends ConsumerState<PlanDetailScreen> {
                 child: Text(
                   plan.meetingPoint,
                   style: const TextStyle(
-                      fontSize: 13, color: AppTheme.textPrimary),
+                    fontSize: 13,
+                    color: AppTheme.textPrimary,
+                  ),
                 ),
               ),
             ],
@@ -489,15 +541,18 @@ class _PlanDetailScreenState extends ConsumerState<PlanDetailScreen> {
             const Text(
               'クチコミ',
               style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: AppTheme.textPrimary),
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: AppTheme.textPrimary,
+              ),
             ),
             const Gap(8),
             Text(
               '(${plan.reviewCount}件)',
-              style:
-                  const TextStyle(fontSize: 14, color: AppTheme.textSecondary),
+              style: const TextStyle(
+                fontSize: 14,
+                color: AppTheme.textSecondary,
+              ),
             ),
           ],
         ),
@@ -514,9 +569,10 @@ class _PlanDetailScreenState extends ConsumerState<PlanDetailScreen> {
         const Text(
           'キャンセルポリシー',
           style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: AppTheme.textPrimary),
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: AppTheme.textPrimary,
+          ),
         ),
         const Gap(12),
         Container(
@@ -529,7 +585,10 @@ class _PlanDetailScreenState extends ConsumerState<PlanDetailScreen> {
           child: Text(
             plan.cancellationPolicy,
             style: const TextStyle(
-                fontSize: 13, color: AppTheme.textPrimary, height: 1.6),
+              fontSize: 13,
+              color: AppTheme.textPrimary,
+              height: 1.6,
+            ),
           ),
         ),
       ],
@@ -555,9 +614,10 @@ class _PlanDetailScreenState extends ConsumerState<PlanDetailScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('1名あたり',
-                  style:
-                      TextStyle(fontSize: 11, color: AppTheme.textSecondary)),
+              const Text(
+                '1名あたり',
+                style: TextStyle(fontSize: 11, color: AppTheme.textSecondary),
+              ),
               Text(
                 '¥${_formatPrice(plan.effectivePrice.toInt())}〜',
                 style: const TextStyle(
@@ -584,9 +644,9 @@ class _PlanDetailScreenState extends ConsumerState<PlanDetailScreen> {
 
   String _formatPrice(int price) {
     return price.toString().replaceAllMapped(
-          RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
-          (m) => '${m[1]},',
-        );
+      RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
+      (m) => '${m[1]},',
+    );
   }
 
   String _categoryLabel(String cat) {
@@ -595,7 +655,7 @@ class _PlanDetailScreenState extends ConsumerState<PlanDetailScreen> {
       'cultural': '文化体験',
       'nature': '自然',
       'adventure': 'アドベンチャー',
-      'leisure': 'リゾート'
+      'leisure': 'リゾート',
     };
     return labels[cat] ?? cat;
   }
@@ -611,8 +671,11 @@ class _KeyInfoItem extends StatelessWidget {
   final String label;
   final String value;
 
-  const _KeyInfoItem(
-      {required this.icon, required this.label, required this.value});
+  const _KeyInfoItem({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -620,15 +683,19 @@ class _KeyInfoItem extends StatelessWidget {
       children: [
         Icon(icon, color: AppTheme.primaryColor, size: 24),
         const Gap(4),
-        Text(label,
-            style:
-                const TextStyle(fontSize: 11, color: AppTheme.textSecondary)),
+        Text(
+          label,
+          style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary),
+        ),
         const Gap(2),
-        Text(value,
-            style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: AppTheme.textPrimary)),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: AppTheme.textPrimary,
+          ),
+        ),
       ],
     );
   }
@@ -674,7 +741,9 @@ class _ItineraryDayCardState extends State<_ItineraryDayCard> {
                       child: Text(
                         '${widget.day.dayNumber}',
                         style: const TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.w700),
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
                   ),
@@ -683,18 +752,28 @@ class _ItineraryDayCardState extends State<_ItineraryDayCard> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(widget.day.title,
-                            style: const TextStyle(
-                                fontWeight: FontWeight.w600, fontSize: 14)),
+                        Text(
+                          widget.day.title,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
+                        ),
                         if (widget.day.accommodation != null)
-                          Text('宿泊: ${widget.day.accommodation}',
-                              style: const TextStyle(
-                                  fontSize: 11, color: AppTheme.textSecondary)),
+                          Text(
+                            '宿泊: ${widget.day.accommodation}',
+                            style: const TextStyle(
+                              fontSize: 11,
+                              color: AppTheme.textSecondary,
+                            ),
+                          ),
                       ],
                     ),
                   ),
-                  Icon(_expanded ? Icons.expand_less : Icons.expand_more,
-                      color: AppTheme.textSecondary),
+                  Icon(
+                    _expanded ? Icons.expand_less : Icons.expand_more,
+                    color: AppTheme.textSecondary,
+                  ),
                 ],
               ),
             ),
@@ -706,49 +785,66 @@ class _ItineraryDayCardState extends State<_ItineraryDayCard> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Divider(),
-                  Text(widget.day.description,
-                      style: const TextStyle(
-                          fontSize: 13,
-                          color: AppTheme.textSecondary,
-                          height: 1.5)),
+                  Text(
+                    widget.day.description,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: AppTheme.textSecondary,
+                      height: 1.5,
+                    ),
+                  ),
                   if (widget.day.activities.isNotEmpty) ...[
                     const Gap(10),
-                    ...widget.day.activities.map((activity) => Padding(
-                          padding: const EdgeInsets.only(bottom: 8),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              if (activity.startTime != null)
-                                SizedBox(
-                                  width: 45,
-                                  child: Text(activity.startTime!,
-                                      style: const TextStyle(
-                                          fontSize: 11,
-                                          color: AppTheme.primaryColor,
-                                          fontWeight: FontWeight.w600)),
-                                ),
-                              const Icon(Icons.circle,
-                                  size: 6, color: AppTheme.primaryColor),
-                              const Gap(6),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(activity.name,
-                                        style: const TextStyle(
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w600)),
-                                    if (activity.location != null)
-                                      Text(activity.location!,
-                                          style: const TextStyle(
-                                              fontSize: 11,
-                                              color: AppTheme.textSecondary)),
-                                  ],
+                    ...widget.day.activities.map(
+                      (activity) => Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (activity.startTime != null)
+                              SizedBox(
+                                width: 45,
+                                child: Text(
+                                  activity.startTime!,
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    color: AppTheme.primaryColor,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                               ),
-                            ],
-                          ),
-                        )),
+                            const Icon(
+                              Icons.circle,
+                              size: 6,
+                              color: AppTheme.primaryColor,
+                            ),
+                            const Gap(6),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    activity.name,
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  if (activity.location != null)
+                                    Text(
+                                      activity.location!,
+                                      style: const TextStyle(
+                                        fontSize: 11,
+                                        color: AppTheme.textSecondary,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ],
                 ],
               ),
@@ -790,13 +886,19 @@ class _ReviewCard extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(review.reviewerName,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.w600, fontSize: 13)),
+                  Text(
+                    review.reviewerName,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13,
+                    ),
+                  ),
                   Text(
                     DateFormat('yyyy年M月').format(review.travelDate),
                     style: const TextStyle(
-                        fontSize: 11, color: AppTheme.textSecondary),
+                      fontSize: 11,
+                      color: AppTheme.textSecondary,
+                    ),
                   ),
                 ],
               ),
@@ -811,9 +913,14 @@ class _ReviewCard extends StatelessWidget {
             ],
           ),
           const Gap(8),
-          Text(review.comment,
-              style: const TextStyle(
-                  fontSize: 13, color: AppTheme.textSecondary, height: 1.5)),
+          Text(
+            review.comment,
+            style: const TextStyle(
+              fontSize: 13,
+              color: AppTheme.textSecondary,
+              height: 1.5,
+            ),
+          ),
         ],
       ),
     );

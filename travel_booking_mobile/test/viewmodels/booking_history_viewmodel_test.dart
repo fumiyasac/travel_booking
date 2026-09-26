@@ -65,21 +65,25 @@ void main() {
       expect(state.error, isNull);
     });
 
-    test('loadBookings sets isLoading during fetch then false on success',
-        () async {
-      when(mockRepository.fetchBookings('test@example.com'))
-          .thenAnswer((_) async => [mockBooking1, mockBooking2]);
+    test(
+      'loadBookings sets isLoading during fetch then false on success',
+      () async {
+        when(mockRepository.fetchBookings('test@example.com'))
+            .thenAnswer((_) async => [mockBooking1, mockBooking2]);
 
-      final notifier = container.read(bookingHistoryViewModelProvider.notifier);
-      final future = notifier.loadBookings('test@example.com');
+        final notifier = container.read(
+          bookingHistoryViewModelProvider.notifier,
+        );
+        final future = notifier.loadBookings('test@example.com');
 
-      await future;
+        await future;
 
-      final state = container.read(bookingHistoryViewModelProvider);
-      expect(state.isLoading, isFalse);
-      expect(state.bookings.length, 2);
-      expect(state.error, isNull);
-    });
+        final state = container.read(bookingHistoryViewModelProvider);
+        expect(state.isLoading, isFalse);
+        expect(state.bookings.length, 2);
+        expect(state.error, isNull);
+      },
+    );
 
     test('loadBookings populates bookings correctly', () async {
       when(mockRepository.fetchBookings('test@example.com'))
@@ -126,17 +130,19 @@ void main() {
       expect(state.error!.message, contains('Network error'));
     });
 
-    test('loadBookings with empty email sets error without calling repository',
-        () async {
-      await container
-          .read(bookingHistoryViewModelProvider.notifier)
-          .loadBookings('');
+    test(
+      'loadBookings with empty email sets error without calling repository',
+      () async {
+        await container
+            .read(bookingHistoryViewModelProvider.notifier)
+            .loadBookings('');
 
-      final state = container.read(bookingHistoryViewModelProvider);
-      expect(state.error, isNotNull);
-      expect(state.isLoading, isFalse);
-      verifyNever(mockRepository.fetchBookings(any));
-    });
+        final state = container.read(bookingHistoryViewModelProvider);
+        expect(state.error, isNotNull);
+        expect(state.isLoading, isFalse);
+        verifyNever(mockRepository.fetchBookings(any));
+      },
+    );
 
     test('loadBookings with whitespace-only email sets error', () async {
       await container
@@ -168,9 +174,9 @@ void main() {
       var callCount = 0;
       when(mockRepository.fetchBookings('test@example.com'))
           .thenAnswer((_) async {
-        callCount++;
-        return [mockBooking1];
-      });
+            callCount++;
+            return [mockBooking1];
+          });
 
       final notifier = container.read(bookingHistoryViewModelProvider.notifier);
 
@@ -189,7 +195,9 @@ void main() {
       // Repository must have been called exactly once
       expect(callCount, 1);
       expect(
-          container.read(bookingHistoryViewModelProvider).isLoading, isFalse);
+        container.read(bookingHistoryViewModelProvider).isLoading,
+        isFalse,
+      );
     });
   });
 }

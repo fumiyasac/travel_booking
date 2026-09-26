@@ -141,27 +141,29 @@ void main() {
       expect(state.isFavoriteLoading, isFalse);
     });
 
-    test('toggleFavorite removes from favorites when already favorited',
-        () async {
-      when(mockPlanRepository.getPlan(planId))
-          .thenAnswer((_) async => mockPlan);
-      when(mockFavoriteRepository.isFavorite(planId))
-          .thenAnswer((_) async => true);
-      when(mockFavoriteRepository.removeFavorite(planId))
-          .thenAnswer((_) async {});
+    test(
+      'toggleFavorite removes from favorites when already favorited',
+      () async {
+        when(mockPlanRepository.getPlan(planId))
+            .thenAnswer((_) async => mockPlan);
+        when(mockFavoriteRepository.isFavorite(planId))
+            .thenAnswer((_) async => true);
+        when(mockFavoriteRepository.removeFavorite(planId))
+            .thenAnswer((_) async {});
 
-      await container
-          .read(planDetailViewModelProvider(planId).notifier)
-          .loadPlanById(planId);
+        await container
+            .read(planDetailViewModelProvider(planId).notifier)
+            .loadPlanById(planId);
 
-      await container
-          .read(planDetailViewModelProvider(planId).notifier)
-          .toggleFavorite();
+        await container
+            .read(planDetailViewModelProvider(planId).notifier)
+            .toggleFavorite();
 
-      verify(mockFavoriteRepository.removeFavorite(planId)).called(1);
-      final state = container.read(planDetailViewModelProvider(planId));
-      expect(state.isFavorite, isFalse);
-    });
+        verify(mockFavoriteRepository.removeFavorite(planId)).called(1);
+        final state = container.read(planDetailViewModelProvider(planId));
+        expect(state.isFavorite, isFalse);
+      },
+    );
 
     test('toggleFavorite sets error when repository fails', () async {
       when(mockPlanRepository.getPlan(planId))

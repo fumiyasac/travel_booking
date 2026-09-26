@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
+
 import '../../../core/database/app_database.dart';
 import '../../../core/error/app_error.dart';
 import '../../../core/theme/app_theme.dart';
@@ -115,16 +116,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ],
             ),
             onPressed: () {
-              FilterBottomSheet.show(
-                context,
-                state.filter,
-                (newFilter) {
-                  ref
-                      .read(planListViewModelProvider.notifier)
-                      .updateFilter(newFilter);
-                  FilterStorage().saveFilter(newFilter);
-                },
-              );
+              FilterBottomSheet.show(context, state.filter, (newFilter) {
+                ref
+                    .read(planListViewModelProvider.notifier)
+                    .updateFilter(newFilter);
+                FilterStorage().saveFilter(newFilter);
+              });
             },
           ),
           IconButton(
@@ -175,8 +172,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 return const Padding(
                   padding: EdgeInsets.all(16),
                   child: Center(
-                    child:
-                        CircularProgressIndicator(color: AppTheme.primaryColor),
+                    child: CircularProgressIndicator(
+                      color: AppTheme.primaryColor,
+                    ),
                   ),
                 );
               }
@@ -225,10 +223,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         highlightColor: Colors.grey[100]!,
         child: Card(
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: SizedBox(
-            height: 280,
-            child: Container(color: Colors.white),
-          ),
+          child: SizedBox(height: 280, child: Container(color: Colors.white)),
         ),
       ),
     );
@@ -244,9 +239,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           const Text(
             'プランが見つかりませんでした',
             style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: AppTheme.textPrimary),
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: AppTheme.textPrimary,
+            ),
           ),
           const SizedBox(height: 8),
           const Text(

@@ -104,13 +104,13 @@ void main() {
     });
 
     test('loadPlans sets isLoading to true then false on success', () async {
-      when(mockRepository.getPlans(
-        filter: anyNamed('filter'),
-        page: anyNamed('page'),
-        pageSize: anyNamed('pageSize'),
-      )).thenAnswer(
-        (_) async => ([mockPlan1, mockPlan2], 2, false, 1),
-      );
+      when(
+        mockRepository.getPlans(
+          filter: anyNamed('filter'),
+          page: anyNamed('page'),
+          pageSize: anyNamed('pageSize'),
+        ),
+      ).thenAnswer((_) async => ([mockPlan1, mockPlan2], 2, false, 1));
 
       final notifier = container.read(planListViewModelProvider.notifier);
       final future = notifier.loadPlans();
@@ -125,11 +125,13 @@ void main() {
     });
 
     test('loadPlans populates plans correctly', () async {
-      when(mockRepository.getPlans(
-        filter: anyNamed('filter'),
-        page: anyNamed('page'),
-        pageSize: anyNamed('pageSize'),
-      )).thenAnswer((_) async => ([mockPlan1, mockPlan2], 2, false, 1));
+      when(
+        mockRepository.getPlans(
+          filter: anyNamed('filter'),
+          page: anyNamed('page'),
+          pageSize: anyNamed('pageSize'),
+        ),
+      ).thenAnswer((_) async => ([mockPlan1, mockPlan2], 2, false, 1));
 
       await container.read(planListViewModelProvider.notifier).loadPlans();
 
@@ -140,11 +142,13 @@ void main() {
     });
 
     test('loadPlans sets error on failure', () async {
-      when(mockRepository.getPlans(
-        filter: anyNamed('filter'),
-        page: anyNamed('page'),
-        pageSize: anyNamed('pageSize'),
-      )).thenThrow(Exception('Network error'));
+      when(
+        mockRepository.getPlans(
+          filter: anyNamed('filter'),
+          page: anyNamed('page'),
+          pageSize: anyNamed('pageSize'),
+        ),
+      ).thenThrow(Exception('Network error'));
 
       await container.read(planListViewModelProvider.notifier).loadPlans();
 
@@ -156,11 +160,13 @@ void main() {
     });
 
     test('updateFilter updates filter and triggers reload', () async {
-      when(mockRepository.getPlans(
-        filter: anyNamed('filter'),
-        page: anyNamed('page'),
-        pageSize: anyNamed('pageSize'),
-      )).thenAnswer((_) async => ([mockPlan1], 1, false, 1));
+      when(
+        mockRepository.getPlans(
+          filter: anyNamed('filter'),
+          page: anyNamed('page'),
+          pageSize: anyNamed('pageSize'),
+        ),
+      ).thenAnswer((_) async => ([mockPlan1], 1, false, 1));
 
       const newFilter = PlanFilter(category: 'city', region: 'アジア');
       await container
@@ -174,11 +180,13 @@ void main() {
     });
 
     test('resetFilter resets to default filter', () async {
-      when(mockRepository.getPlans(
-        filter: anyNamed('filter'),
-        page: anyNamed('page'),
-        pageSize: anyNamed('pageSize'),
-      )).thenAnswer((_) async => ([mockPlan1, mockPlan2], 2, false, 1));
+      when(
+        mockRepository.getPlans(
+          filter: anyNamed('filter'),
+          page: anyNamed('page'),
+          pageSize: anyNamed('pageSize'),
+        ),
+      ).thenAnswer((_) async => ([mockPlan1, mockPlan2], 2, false, 1));
 
       const customFilter = PlanFilter(category: 'city');
       await container
@@ -192,17 +200,21 @@ void main() {
     });
 
     test('loadMore appends new plans to existing list', () async {
-      when(mockRepository.getPlans(
-        filter: anyNamed('filter'),
-        page: 1,
-        pageSize: anyNamed('pageSize'),
-      )).thenAnswer((_) async => ([mockPlan1], 2, true, 2));
+      when(
+        mockRepository.getPlans(
+          filter: anyNamed('filter'),
+          page: 1,
+          pageSize: anyNamed('pageSize'),
+        ),
+      ).thenAnswer((_) async => ([mockPlan1], 2, true, 2));
 
-      when(mockRepository.getPlans(
-        filter: anyNamed('filter'),
-        page: 2,
-        pageSize: anyNamed('pageSize'),
-      )).thenAnswer((_) async => ([mockPlan2], 2, false, 2));
+      when(
+        mockRepository.getPlans(
+          filter: anyNamed('filter'),
+          page: 2,
+          pageSize: anyNamed('pageSize'),
+        ),
+      ).thenAnswer((_) async => ([mockPlan2], 2, false, 2));
 
       await container.read(planListViewModelProvider.notifier).loadPlans();
       await container.read(planListViewModelProvider.notifier).loadMore();
@@ -216,11 +228,13 @@ void main() {
     });
 
     test('loadMore does not load when hasNextPage is false', () async {
-      when(mockRepository.getPlans(
-        filter: anyNamed('filter'),
-        page: anyNamed('page'),
-        pageSize: anyNamed('pageSize'),
-      )).thenAnswer((_) async => ([mockPlan1, mockPlan2], 2, false, 1));
+      when(
+        mockRepository.getPlans(
+          filter: anyNamed('filter'),
+          page: anyNamed('page'),
+          pageSize: anyNamed('pageSize'),
+        ),
+      ).thenAnswer((_) async => ([mockPlan1, mockPlan2], 2, false, 1));
 
       await container.read(planListViewModelProvider.notifier).loadPlans();
 
@@ -228,19 +242,23 @@ void main() {
 
       await container.read(planListViewModelProvider.notifier).loadMore();
 
-      verify(mockRepository.getPlans(
-        filter: anyNamed('filter'),
-        page: anyNamed('page'),
-        pageSize: anyNamed('pageSize'),
-      )).called(1);
+      verify(
+        mockRepository.getPlans(
+          filter: anyNamed('filter'),
+          page: anyNamed('page'),
+          pageSize: anyNamed('pageSize'),
+        ),
+      ).called(1);
     });
 
     test('updateKeyword updates filter keyword and reloads', () async {
-      when(mockRepository.getPlans(
-        filter: anyNamed('filter'),
-        page: anyNamed('page'),
-        pageSize: anyNamed('pageSize'),
-      )).thenAnswer((_) async => ([mockPlan1], 1, false, 1));
+      when(
+        mockRepository.getPlans(
+          filter: anyNamed('filter'),
+          page: anyNamed('page'),
+          pageSize: anyNamed('pageSize'),
+        ),
+      ).thenAnswer((_) async => ([mockPlan1], 1, false, 1));
 
       await container
           .read(planListViewModelProvider.notifier)
@@ -251,11 +269,13 @@ void main() {
     });
 
     test('clearError clears the error state', () async {
-      when(mockRepository.getPlans(
-        filter: anyNamed('filter'),
-        page: anyNamed('page'),
-        pageSize: anyNamed('pageSize'),
-      )).thenThrow(Exception('error'));
+      when(
+        mockRepository.getPlans(
+          filter: anyNamed('filter'),
+          page: anyNamed('page'),
+          pageSize: anyNamed('pageSize'),
+        ),
+      ).thenThrow(Exception('error'));
 
       await container.read(planListViewModelProvider.notifier).loadPlans();
       expect(container.read(planListViewModelProvider).error, isNotNull);

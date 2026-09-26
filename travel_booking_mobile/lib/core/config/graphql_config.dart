@@ -1,19 +1,19 @@
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:http/http.dart' as http;
 
 class GraphQLHttpClient {
   final String _baseUrl;
   final http.Client? _httpClient;
 
-  GraphQLHttpClient({
-    String? baseUrl,
-    http.Client? client,
-  })  : _baseUrl = baseUrl ??
-            (Platform.isAndroid
-                ? 'http://10.0.2.2:4000/graphql'
-                : 'http://localhost:4000/graphql'),
-        _httpClient = client;
+  GraphQLHttpClient({String? baseUrl, http.Client? client})
+    : _baseUrl =
+          baseUrl ??
+          (Platform.isAndroid
+              ? 'http://10.0.2.2:4000/graphql'
+              : 'http://localhost:4000/graphql'),
+      _httpClient = client;
 
   Future<Map<String, dynamic>> query({
     required String document,
@@ -61,9 +61,9 @@ class GraphQLHttpClient {
       final body = jsonDecode(responseBody) as Map<String, dynamic>;
       if (body['errors'] != null) {
         final errors = body['errors'] as List<dynamic>;
-        throw Exception(errors
-            .map((e) => (e as Map<String, dynamic>)['message'])
-            .join(', '));
+        throw Exception(
+          errors.map((e) => (e as Map<String, dynamic>)['message']).join(', '),
+        );
       }
 
       return body['data'] as Map<String, dynamic>? ?? {};

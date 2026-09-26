@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../core/error/app_error.dart';
 import '../../core/theme/app_theme.dart';
 
@@ -6,11 +7,7 @@ class AppErrorWidget extends StatelessWidget {
   final AppError error;
   final VoidCallback? onRetry;
 
-  const AppErrorWidget({
-    super.key,
-    required this.error,
-    this.onRetry,
-  });
+  const AppErrorWidget({super.key, required this.error, this.onRetry});
 
   @override
   Widget build(BuildContext context) {
@@ -32,16 +29,18 @@ class AppErrorWidget extends StatelessWidget {
             Text(
               title,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: AppTheme.textPrimary,
-                    fontWeight: FontWeight.w600,
-                  ),
+                color: AppTheme.textPrimary,
+                fontWeight: FontWeight.w600,
+              ),
             ),
             const SizedBox(height: 8),
             Text(
               error.message,
               textAlign: TextAlign.center,
-              style:
-                  const TextStyle(color: AppTheme.textSecondary, fontSize: 13),
+              style: const TextStyle(
+                color: AppTheme.textSecondary,
+                fontSize: 13,
+              ),
             ),
             if (onRetry != null) ...[
               const SizedBox(height: 24),

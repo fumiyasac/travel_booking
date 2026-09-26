@@ -92,14 +92,14 @@ class PlanFilter {
 
   @override
   int get hashCode => Object.hash(
-        keyword,
-        category,
-        region,
-        minPrice,
-        maxPrice,
-        maxDuration,
-        difficulty,
-        sortBy,
-        sortOrder,
-      );
+    keyword,
+    category,
+    region,
+    minPrice,
+    maxPrice,
+    maxDuration,
+    difficulty,
+    sortBy,
+    sortOrder,
+  );
 }

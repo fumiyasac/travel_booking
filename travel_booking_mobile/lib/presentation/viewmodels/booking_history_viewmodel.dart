@@ -1,4 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+
 import '../../core/error/app_error.dart';
 import '../../data/models/booking.dart';
 import 'plan_list_viewmodel.dart';
@@ -55,10 +56,7 @@ class BookingHistoryViewModel extends _$BookingHistoryViewModel {
       final repo = ref.read(travelPlanRepositoryProvider);
       final bookings = await repo.fetchBookings(customerEmail.trim());
 
-      state = state.copyWith(
-        bookings: bookings,
-        isLoading: false,
-      );
+      state = state.copyWith(bookings: bookings, isLoading: false);
     } catch (e) {
       state = state.copyWith(
         isLoading: false,

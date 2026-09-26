@@ -7,17 +7,12 @@ import '../../presentation/widgets/app_error_widget.dart';
 
 @widgetbook.UseCase(name: 'NetworkError（再試行あり）', type: AppErrorWidget)
 Widget buildAppErrorWidgetNetwork(BuildContext context) {
-  return AppErrorWidget(
-    error: const NetworkError(),
-    onRetry: () {},
-  );
+  return AppErrorWidget(error: const NetworkError(), onRetry: () {});
 }
 
 @widgetbook.UseCase(name: 'GraphQLError', type: AppErrorWidget)
 Widget buildAppErrorWidgetGraphQL(BuildContext context) {
-  return const AppErrorWidget(
-    error: GraphQLError('サーバーとの通信中にエラーが発生しました。'),
-  );
+  return const AppErrorWidget(error: GraphQLError('サーバーとの通信中にエラーが発生しました。'));
 }
 
 @widgetbook.UseCase(name: 'ValidationError', type: AppErrorWidget)
@@ -29,7 +24,5 @@ Widget buildAppErrorWidgetValidation(BuildContext context) {
 
 @widgetbook.UseCase(name: 'UnknownError', type: AppErrorWidget)
 Widget buildAppErrorWidgetUnknown(BuildContext context) {
-  return const AppErrorWidget(
-    error: UnknownError(),
-  );
+  return const AppErrorWidget(error: UnknownError());
 }

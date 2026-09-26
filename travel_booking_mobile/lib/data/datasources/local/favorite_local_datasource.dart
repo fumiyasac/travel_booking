@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import '../../../core/database/app_database.dart';
 import '../../models/favorite_plan.dart';
 import '../../models/travel_plan.dart';

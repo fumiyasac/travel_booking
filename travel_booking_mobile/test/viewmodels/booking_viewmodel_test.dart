@@ -99,16 +99,20 @@ void main() {
       container
           .read(bookingViewModelProvider.notifier)
           .updateCustomerEmail('test@example.com');
-      expect(container.read(bookingViewModelProvider).customerEmail,
-          'test@example.com');
+      expect(
+        container.read(bookingViewModelProvider).customerEmail,
+        'test@example.com',
+      );
     });
 
     test('updateCustomerPhone updates state', () {
       container
           .read(bookingViewModelProvider.notifier)
           .updateCustomerPhone('090-1234-5678');
-      expect(container.read(bookingViewModelProvider).customerPhone,
-          '090-1234-5678');
+      expect(
+        container.read(bookingViewModelProvider).customerPhone,
+        '090-1234-5678',
+      );
     });
 
     test('updateNumberOfPeople updates state and rejects invalid values', () {
@@ -158,50 +162,54 @@ void main() {
 
       expect(result, isFalse);
       expect(
-          container
-              .read(bookingViewModelProvider)
-              .validationErrors['customerEmail'],
-          isNotNull);
+        container
+            .read(bookingViewModelProvider)
+            .validationErrors['customerEmail'],
+        isNotNull,
+      );
     });
 
     test(
-        'submitBooking returns false when numberOfPeople exceeds availableSpots',
-        () async {
-      container
-          .read(bookingViewModelProvider.notifier)
-          .updateCustomerName('山田 太郎');
-      container
-          .read(bookingViewModelProvider.notifier)
-          .updateCustomerEmail('test@example.com');
-      container
-          .read(bookingViewModelProvider.notifier)
-          .updateCustomerPhone('090-1234-5678');
-      container
-          .read(bookingViewModelProvider.notifier)
-          .updateNumberOfPeople(10);
-      container
-          .read(bookingViewModelProvider.notifier)
-          .updateTravelDate(DateTime.now().add(const Duration(days: 30)));
+      'submitBooking returns false when numberOfPeople exceeds availableSpots',
+      () async {
+        container
+            .read(bookingViewModelProvider.notifier)
+            .updateCustomerName('山田 太郎');
+        container
+            .read(bookingViewModelProvider.notifier)
+            .updateCustomerEmail('test@example.com');
+        container
+            .read(bookingViewModelProvider.notifier)
+            .updateCustomerPhone('090-1234-5678');
+        container
+            .read(bookingViewModelProvider.notifier)
+            .updateNumberOfPeople(10);
+        container
+            .read(bookingViewModelProvider.notifier)
+            .updateTravelDate(DateTime.now().add(const Duration(days: 30)));
 
-      final result = await container
-          .read(bookingViewModelProvider.notifier)
-          .submitBooking('plan-1', 5);
+        final result = await container
+            .read(bookingViewModelProvider.notifier)
+            .submitBooking('plan-1', 5);
 
-      expect(result, isFalse);
-      expect(container.read(bookingViewModelProvider).error, isNotNull);
-    });
+        expect(result, isFalse);
+        expect(container.read(bookingViewModelProvider).error, isNotNull);
+      },
+    );
 
     test('submitBooking succeeds with valid data', () async {
-      when(mockRepository.createBooking(
-        planId: anyNamed('planId'),
-        customerName: anyNamed('customerName'),
-        customerEmail: anyNamed('customerEmail'),
-        customerPhone: anyNamed('customerPhone'),
-        numberOfPeople: anyNamed('numberOfPeople'),
-        travelDate: anyNamed('travelDate'),
-        specialRequests: anyNamed('specialRequests'),
-        paymentMethod: anyNamed('paymentMethod'),
-      )).thenAnswer((_) async => mockBooking);
+      when(
+        mockRepository.createBooking(
+          planId: anyNamed('planId'),
+          customerName: anyNamed('customerName'),
+          customerEmail: anyNamed('customerEmail'),
+          customerPhone: anyNamed('customerPhone'),
+          numberOfPeople: anyNamed('numberOfPeople'),
+          travelDate: anyNamed('travelDate'),
+          specialRequests: anyNamed('specialRequests'),
+          paymentMethod: anyNamed('paymentMethod'),
+        ),
+      ).thenAnswer((_) async => mockBooking);
 
       container
           .read(bookingViewModelProvider.notifier)
@@ -230,16 +238,18 @@ void main() {
     });
 
     test('submitBooking sets error on repository failure', () async {
-      when(mockRepository.createBooking(
-        planId: anyNamed('planId'),
-        customerName: anyNamed('customerName'),
-        customerEmail: anyNamed('customerEmail'),
-        customerPhone: anyNamed('customerPhone'),
-        numberOfPeople: anyNamed('numberOfPeople'),
-        travelDate: anyNamed('travelDate'),
-        specialRequests: anyNamed('specialRequests'),
-        paymentMethod: anyNamed('paymentMethod'),
-      )).thenThrow(Exception('予約に失敗しました'));
+      when(
+        mockRepository.createBooking(
+          planId: anyNamed('planId'),
+          customerName: anyNamed('customerName'),
+          customerEmail: anyNamed('customerEmail'),
+          customerPhone: anyNamed('customerPhone'),
+          numberOfPeople: anyNamed('numberOfPeople'),
+          travelDate: anyNamed('travelDate'),
+          specialRequests: anyNamed('specialRequests'),
+          paymentMethod: anyNamed('paymentMethod'),
+        ),
+      ).thenThrow(Exception('予約に失敗しました'));
 
       container
           .read(bookingViewModelProvider.notifier)

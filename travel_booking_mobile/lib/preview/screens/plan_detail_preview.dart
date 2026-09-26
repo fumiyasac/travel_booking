@@ -13,10 +13,7 @@ import '../mock_providers.dart';
 // Preview 専用 GoRouter（予約画面への遷移先なし・クラッシュ回避）
 final _previewRouter = GoRouter(
   routes: [
-    GoRoute(
-      path: '/',
-      builder: (context, state) => const SizedBox.shrink(),
-    ),
+    GoRoute(path: '/', builder: (context, state) => const SizedBox.shrink()),
   ],
 );
 
@@ -27,24 +24,23 @@ Widget _wrap({
   bool throwError = false,
   bool loading = false,
   String planId = 'mock_detail',
-}) =>
-    ProviderScope(
-      overrides: previewOverridesWith(
-        plan: plan,
-        throwError: throwError,
-        loading: loading,
-      ),
-      child: MaterialApp.router(
-        routerConfig: _previewRouter,
-        localizationsDelegates: const [
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        supportedLocales: const [Locale('ja', 'JP')],
-        builder: (context, _) => PlanDetailScreen(planId: planId),
-      ),
-    );
+}) => ProviderScope(
+  overrides: previewOverridesWith(
+    plan: plan,
+    throwError: throwError,
+    loading: loading,
+  ),
+  child: MaterialApp.router(
+    routerConfig: _previewRouter,
+    localizationsDelegates: const [
+      GlobalMaterialLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate,
+    ],
+    supportedLocales: const [Locale('ja', 'JP')],
+    builder: (context, _) => PlanDetailScreen(planId: planId),
+  ),
+);
 
 // ── シナリオ 1: 正常表示（集合場所・ハイライトあり） ─────────────────────────
 @widgetbook.UseCase(name: '正常表示', type: PlanDetailScreen)

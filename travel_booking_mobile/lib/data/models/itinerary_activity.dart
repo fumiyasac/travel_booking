@@ -27,13 +27,13 @@ class ItineraryActivity {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'name': name,
-        'startTime': startTime,
-        'duration': duration,
-        'description': description,
-        'location': location,
-      };
+    'id': id,
+    'name': name,
+    'startTime': startTime,
+    'duration': duration,
+    'description': description,
+    'location': location,
+  };
 
   ItineraryActivity copyWith({
     String? id,
