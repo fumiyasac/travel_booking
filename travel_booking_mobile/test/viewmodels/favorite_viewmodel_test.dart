@@ -66,7 +66,7 @@ void main() {
     });
 
     test('favorites list updates when stream emits', () async {
-      final sub = container.listen(favoriteViewModelProvider, (_, __) {});
+      final sub = container.listen(favoriteViewModelProvider, (_, _) {});
 
       final fav1 = createFavoritePlan('plan-1', '東京エクスプローラー');
       final fav2 = createFavoritePlan('plan-2', '京都伝統文化');
@@ -83,7 +83,7 @@ void main() {
     });
 
     test('isEmpty returns true when no favorites', () async {
-      final sub = container.listen(favoriteViewModelProvider, (_, __) {});
+      final sub = container.listen(favoriteViewModelProvider, (_, _) {});
       favoritesController.add([]);
       await Future.delayed(Duration.zero);
 
@@ -93,7 +93,7 @@ void main() {
     });
 
     test('isEmpty returns false when favorites exist', () async {
-      final sub = container.listen(favoriteViewModelProvider, (_, __) {});
+      final sub = container.listen(favoriteViewModelProvider, (_, _) {});
       favoritesController.add([createFavoritePlan('plan-1', 'テスト')]);
       await Future.delayed(Duration.zero);
 
@@ -105,7 +105,7 @@ void main() {
     test('removeFavorite calls repository', () async {
       when(mockRepository.removeFavorite(any)).thenAnswer((_) async {});
 
-      final sub = container.listen(favoriteViewModelProvider, (_, __) {});
+      final sub = container.listen(favoriteViewModelProvider, (_, _) {});
       favoritesController.add([createFavoritePlan('plan-1', 'テスト')]);
       await Future.delayed(Duration.zero);
 
@@ -120,7 +120,7 @@ void main() {
     test('removeFavorite sets error on failure', () async {
       when(mockRepository.removeFavorite(any)).thenThrow(Exception('DB error'));
 
-      final sub = container.listen(favoriteViewModelProvider, (_, __) {});
+      final sub = container.listen(favoriteViewModelProvider, (_, _) {});
       favoritesController.add([]);
       await Future.delayed(Duration.zero);
 
@@ -136,7 +136,7 @@ void main() {
     test('clearAll calls clearFavorites on repository', () async {
       when(mockRepository.clearFavorites()).thenAnswer((_) async {});
 
-      final sub = container.listen(favoriteViewModelProvider, (_, __) {});
+      final sub = container.listen(favoriteViewModelProvider, (_, _) {});
       favoritesController.add([]);
       await Future.delayed(Duration.zero);
 
@@ -149,7 +149,7 @@ void main() {
     test('clearAll sets error on failure', () async {
       when(mockRepository.clearFavorites()).thenThrow(Exception('DB error'));
 
-      final sub = container.listen(favoriteViewModelProvider, (_, __) {});
+      final sub = container.listen(favoriteViewModelProvider, (_, _) {});
       favoritesController.add([]);
       await Future.delayed(Duration.zero);
 
@@ -163,7 +163,7 @@ void main() {
     test('clearError clears error state', () async {
       when(mockRepository.removeFavorite(any)).thenThrow(Exception('error'));
 
-      final sub = container.listen(favoriteViewModelProvider, (_, __) {});
+      final sub = container.listen(favoriteViewModelProvider, (_, _) {});
       favoritesController.add([]);
       await Future.delayed(Duration.zero);
 
@@ -178,7 +178,7 @@ void main() {
     });
 
     test('favorites list updates reactively when stream changes', () async {
-      final sub = container.listen(favoriteViewModelProvider, (_, __) {});
+      final sub = container.listen(favoriteViewModelProvider, (_, _) {});
 
       favoritesController.add([createFavoritePlan('plan-1', 'テスト1')]);
       await Future.delayed(Duration.zero);

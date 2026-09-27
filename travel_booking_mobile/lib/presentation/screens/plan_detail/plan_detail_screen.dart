@@ -905,7 +905,7 @@ class _ReviewCard extends StatelessWidget {
               const Spacer(),
               RatingBarIndicator(
                 rating: review.rating,
-                itemBuilder: (_, __) =>
+                itemBuilder: (_, _) =>
                     const Icon(Icons.star, color: AppTheme.starColor),
                 itemCount: 5,
                 itemSize: 14,
