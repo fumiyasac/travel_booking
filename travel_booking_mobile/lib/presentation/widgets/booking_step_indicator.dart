@@ -3,25 +3,32 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
 
 class BookingStepIndicator extends StatelessWidget {
-  static const _labels = ['旅行者情報', '日程・人数', '入力確認'];
+  static const _defaultLabels = ['旅行者情報', '日程・人数', '入力確認'];
 
   final int currentStep;
+  final int totalSteps;
+  final List<String> stepLabels;
 
-  const BookingStepIndicator({super.key, required this.currentStep});
+  const BookingStepIndicator({
+    super.key,
+    required this.currentStep,
+    this.totalSteps = 3,
+    this.stepLabels = _defaultLabels,
+  }) : assert(stepLabels.length == totalSteps);
 
   @override
   Widget build(BuildContext context) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        for (int i = 0; i < _labels.length; i++) ...[
+        for (int i = 0; i < totalSteps; i++) ...[
           _StepItem(
             index: i,
-            label: _labels[i],
+            label: stepLabels[i],
             isActive: i == currentStep,
             isCompleted: i < currentStep,
           ),
-          if (i < _labels.length - 1)
+          if (i < totalSteps - 1)
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.only(top: 15),
