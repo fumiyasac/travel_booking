@@ -34,10 +34,7 @@ class GraphQLHttpClient {
     Map<String, dynamic>? variables,
   }) async {
     final uri = Uri.parse(_baseUrl);
-    final bodyJson = jsonEncode({
-      'query': document,
-      if (variables != null) 'variables': variables,
-    });
+    final bodyJson = jsonEncode({'query': document, 'variables': ?variables});
     final bodyBytes = utf8.encode(bodyJson);
 
     // Use dart:io HttpClient directly to avoid IOClient keep-alive issues on iOS

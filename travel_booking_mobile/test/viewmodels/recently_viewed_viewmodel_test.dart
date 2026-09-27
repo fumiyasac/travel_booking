@@ -115,7 +115,7 @@ void main() {
       when(mockRepository.getRecentlyViewedPlans())
           .thenAnswer((_) async => [mockPlan1, mockPlan2]);
 
-      final sub = container.listen(recentlyViewedViewModelProvider, (_, __) {});
+      final sub = container.listen(recentlyViewedViewModelProvider, (_, _) {});
 
       idsController.add(['plan-1', 'plan-2']);
       await Future.delayed(Duration.zero);
@@ -132,7 +132,7 @@ void main() {
     test('isEmpty returns true when stream emits empty list', () async {
       when(mockRepository.getRecentlyViewedPlans()).thenAnswer((_) async => []);
 
-      final sub = container.listen(recentlyViewedViewModelProvider, (_, __) {});
+      final sub = container.listen(recentlyViewedViewModelProvider, (_, _) {});
 
       idsController.add([]);
       await Future.delayed(Duration.zero);
@@ -149,7 +149,7 @@ void main() {
       when(mockRepository.getRecentlyViewedPlans())
           .thenThrow(Exception('Network error'));
 
-      final sub = container.listen(recentlyViewedViewModelProvider, (_, __) {});
+      final sub = container.listen(recentlyViewedViewModelProvider, (_, _) {});
 
       idsController.add(['plan-1']);
       await Future.delayed(Duration.zero);
@@ -171,7 +171,7 @@ void main() {
 
         final sub = container.listen(
           recentlyViewedViewModelProvider,
-          (_, __) {},
+          (_, _) {},
         );
 
         // Populate plans
@@ -203,7 +203,7 @@ void main() {
     test('clearHistory sets error on failure', () async {
       when(mockRepository.clearHistory()).thenThrow(Exception('DB error'));
 
-      final sub = container.listen(recentlyViewedViewModelProvider, (_, __) {});
+      final sub = container.listen(recentlyViewedViewModelProvider, (_, _) {});
       idsController.add([]);
       await Future.delayed(Duration.zero);
       await Future.delayed(Duration.zero);
@@ -220,7 +220,7 @@ void main() {
     test('clearError removes error state', () async {
       when(mockRepository.clearHistory()).thenThrow(Exception('error'));
 
-      final sub = container.listen(recentlyViewedViewModelProvider, (_, __) {});
+      final sub = container.listen(recentlyViewedViewModelProvider, (_, _) {});
       idsController.add([]);
       await Future.delayed(Duration.zero);
       await Future.delayed(Duration.zero);
@@ -243,7 +243,7 @@ void main() {
 
         final sub = container.listen(
           recentlyViewedViewModelProvider,
-          (_, __) {},
+          (_, _) {},
         );
 
         idsController.add(['plan-1']);
