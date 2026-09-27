@@ -294,5 +294,174 @@ void main() {
       expect(state.numberOfPeople, 1);
       expect(state.travelDate, isNull);
     });
+
+    // ─── ウィザードナビゲーション ────────────────────────────────────────────────
+
+    test('initial state has currentStep = 0', () {
+      expect(container.read(bookingViewModelProvider).currentStep, 0);
+    });
+
+    test('nextStep stays on step 0 and sets errors when fields are empty', () {
+      final result = container
+          .read(bookingViewModelProvider.notifier)
+          .nextStep();
+
+      expect(result, isFalse);
+      final state = container.read(bookingViewModelProvider);
+      expect(state.currentStep, 0);
+      expect(state.validationErrors['customerName'], isNotNull);
+      expect(state.validationErrors['customerEmail'], isNotNull);
+      expect(state.validationErrors['customerPhone'], isNotNull);
+    });
+
+    test('nextStep advances to step 1 when step 0 is valid', () {
+      final notifier = container.read(bookingViewModelProvider.notifier);
+      notifier.updateCustomerName('山田 太郎');
+      notifier.updateCustomerEmail('yamada@example.com');
+      notifier.updateCustomerPhone('090-1234-5678');
+
+      final result = notifier.nextStep();
+
+      expect(result, isTrue);
+      expect(container.read(bookingViewModelProvider).currentStep, 1);
+      expect(
+        container.read(bookingViewModelProvider).validationErrors,
+        isEmpty,
+      );
+    });
+
+    test(
+      'nextStep stays on step 1 and sets errors when travelDate is null',
+      () {
+        // まず step 1 まで進める
+        final notifier = container.read(bookingViewModelProvider.notifier);
+        notifier.updateCustomerName('山田 太郎');
+        notifier.updateCustomerEmail('yamada@example.com');
+        notifier.updateCustomerPhone('090-1234-5678');
+        notifier.nextStep();
+
+        final result = notifier.nextStep();
+
+        expect(result, isFalse);
+        expect(container.read(bookingViewModelProvider).currentStep, 1);
+        expect(
+          container
+              .read(bookingViewModelProvider)
+              .validationErrors['travelDate'],
+          isNotNull,
+        );
+      },
+    );
+
+    test('nextStep advances to step 2 when step 1 is valid', () {
+      final notifier = container.read(bookingViewModelProvider.notifier);
+      notifier.updateCustomerName('山田 太郎');
+      notifier.updateCustomerEmail('yamada@example.com');
+      notifier.updateCustomerPhone('090-1234-5678');
+      notifier.nextStep();
+      notifier.updateTravelDate(DateTime.now().add(const Duration(days: 30)));
+
+      final result = notifier.nextStep();
+
+      expect(result, isTrue);
+      expect(container.read(bookingViewModelProvider).currentStep, 2);
+    });
+
+    test('prevStep goes back to previous step and clears errors', () {
+      final notifier = container.read(bookingViewModelProvider.notifier);
+      notifier.updateCustomerName('山田 太郎');
+      notifier.updateCustomerEmail('yamada@example.com');
+      notifier.updateCustomerPhone('090-1234-5678');
+      notifier.nextStep();
+      expect(container.read(bookingViewModelProvider).currentStep, 1);
+
+      notifier.prevStep();
+      expect(container.read(bookingViewModelProvider).currentStep, 0);
+      expect(
+        container.read(bookingViewModelProvider).validationErrors,
+        isEmpty,
+      );
+    });
+
+    test('prevStep does nothing when already on step 0', () {
+      container.read(bookingViewModelProvider.notifier).prevStep();
+      expect(container.read(bookingViewModelProvider).currentStep, 0);
+    });
+
+    test('goToStep jumps to specified step without validation', () {
+      container.read(bookingViewModelProvider.notifier).goToStep(2);
+      expect(container.read(bookingViewModelProvider).currentStep, 2);
+    });
+
+    test('phone regex rejects invalid format', () async {
+      final notifier = container.read(bookingViewModelProvider.notifier);
+      notifier.updateCustomerName('山田 太郎');
+      notifier.updateCustomerEmail('yamada@example.com');
+      notifier.updateCustomerPhone('abc'); // 無効形式
+
+      final result = notifier.nextStep();
+      expect(result, isFalse);
+      expect(
+        container
+            .read(bookingViewModelProvider)
+            .validationErrors['customerPhone'],
+        isNotNull,
+      );
+    });
+
+    test('email regex rejects address without dot in domain', () async {
+      final notifier = container.read(bookingViewModelProvider.notifier);
+      notifier.updateCustomerName('山田 太郎');
+      notifier.updateCustomerEmail('user@nodot');
+      notifier.updateCustomerPhone('090-1234-5678');
+
+      final result = notifier.nextStep();
+      expect(result, isFalse);
+      expect(
+        container
+            .read(bookingViewModelProvider)
+            .validationErrors['customerEmail'],
+        isNotNull,
+      );
+    });
+
+    test('full wizard flow: step 0→1→2 → submitBooking succeeds', () async {
+      when(
+        mockRepository.createBooking(
+          planId: anyNamed('planId'),
+          customerName: anyNamed('customerName'),
+          customerEmail: anyNamed('customerEmail'),
+          customerPhone: anyNamed('customerPhone'),
+          numberOfPeople: anyNamed('numberOfPeople'),
+          travelDate: anyNamed('travelDate'),
+          specialRequests: anyNamed('specialRequests'),
+          paymentMethod: anyNamed('paymentMethod'),
+        ),
+      ).thenAnswer((_) async => mockBooking);
+
+      final notifier = container.read(bookingViewModelProvider.notifier);
+
+      // Step 0: 旅行者情報入力 → nextStep
+      notifier.updateCustomerName('山田 太郎');
+      notifier.updateCustomerEmail('yamada@example.com');
+      notifier.updateCustomerPhone('090-1234-5678');
+      expect(notifier.nextStep(), isTrue);
+      expect(container.read(bookingViewModelProvider).currentStep, 1);
+
+      // Step 1: 日程・人数入力 → nextStep
+      notifier.updateTravelDate(DateTime.now().add(const Duration(days: 30)));
+      notifier.updateNumberOfPeople(2);
+      expect(notifier.nextStep(), isTrue);
+      expect(container.read(bookingViewModelProvider).currentStep, 2);
+
+      // Step 2: 確定
+      final success = await notifier.submitBooking('plan-1', 8);
+      expect(success, isTrue);
+      final state = container.read(bookingViewModelProvider);
+      expect(state.completedBooking, isNotNull);
+      expect(state.completedBooking!.id, 'booking-123');
+      expect(state.error, isNull);
+      expect(state.isSubmitting, isFalse);
+    });
   });
 }
