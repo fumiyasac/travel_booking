@@ -7,6 +7,7 @@ import '../../../../core/error/app_error.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../data/models/travel_plan.dart';
 import '../../../viewmodels/booking_viewmodel.dart';
+import '../../../widgets/app_error_widget.dart';
 
 /// Step 3: 入力内容確認 + 予約確定
 class ConfirmationStep extends ConsumerWidget {
@@ -79,39 +80,13 @@ class ConfirmationStep extends ConsumerWidget {
         _PriceSummary(plan: plan, bookingState: bookingState),
         const Gap(16),
 
-        // ─── エラー表示 ────────────────────────────────────────────────────────
+        // ─── エラー表示（NetworkError はリトライ付き AppErrorWidget）────────────
         if (bookingState.error != null)
-          Container(
-            padding: const EdgeInsets.all(12),
-            margin: const EdgeInsets.only(bottom: 16),
-            decoration: BoxDecoration(
-              color: AppTheme.errorColor.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(
-                  switch (bookingState.error!) {
-                    NetworkError() => Icons.wifi_off,
-                    GraphQLError() => Icons.error_outline,
-                    ValidationError() => Icons.warning_amber_rounded,
-                    UnknownError() => Icons.help_outline,
-                  },
-                  color: AppTheme.errorColor,
-                  size: 16,
-                ),
-                const Gap(6),
-                Expanded(
-                  child: Text(
-                    bookingState.error!.message,
-                    style: const TextStyle(
-                      color: AppTheme.errorColor,
-                      fontSize: 13,
-                    ),
-                  ),
-                ),
-              ],
+          Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: AppErrorWidget(
+              error: bookingState.error!,
+              onRetry: bookingState.error is NetworkError ? onSubmit : null,
             ),
           ),
 
