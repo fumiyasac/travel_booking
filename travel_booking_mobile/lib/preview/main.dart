@@ -23,9 +23,7 @@ class WidgetbookPreviewApp extends StatelessWidget {
       directories: directories,
       addons: [
         MaterialThemeAddon(
-          themes: [
-            WidgetbookTheme(name: 'Light', data: AppTheme.lightTheme),
-          ],
+          themes: [WidgetbookTheme(name: 'Light', data: AppTheme.lightTheme)],
         ),
         ViewportAddon([
           IosViewports.iPhone13,

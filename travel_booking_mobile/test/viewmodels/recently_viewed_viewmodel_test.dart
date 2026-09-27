@@ -115,7 +115,7 @@ void main() {
       when(mockRepository.getRecentlyViewedPlans())
           .thenAnswer((_) async => [mockPlan1, mockPlan2]);
 
-      final sub = container.listen(recentlyViewedViewModelProvider, (_, __) {});
+      final sub = container.listen(recentlyViewedViewModelProvider, (_, _) {});
 
       idsController.add(['plan-1', 'plan-2']);
       await Future.delayed(Duration.zero);
@@ -132,7 +132,7 @@ void main() {
     test('isEmpty returns true when stream emits empty list', () async {
       when(mockRepository.getRecentlyViewedPlans()).thenAnswer((_) async => []);
 
-      final sub = container.listen(recentlyViewedViewModelProvider, (_, __) {});
+      final sub = container.listen(recentlyViewedViewModelProvider, (_, _) {});
 
       idsController.add([]);
       await Future.delayed(Duration.zero);
@@ -149,7 +149,7 @@ void main() {
       when(mockRepository.getRecentlyViewedPlans())
           .thenThrow(Exception('Network error'));
 
-      final sub = container.listen(recentlyViewedViewModelProvider, (_, __) {});
+      final sub = container.listen(recentlyViewedViewModelProvider, (_, _) {});
 
       idsController.add(['plan-1']);
       await Future.delayed(Duration.zero);
@@ -162,42 +162,48 @@ void main() {
       sub.close();
     });
 
-    test('clearHistory calls repository and clears plans after stream updates',
-        () async {
-      when(mockRepository.getRecentlyViewedPlans())
-          .thenAnswer((_) async => [mockPlan1]);
-      when(mockRepository.clearHistory()).thenAnswer((_) async {});
+    test(
+      'clearHistory calls repository and clears plans after stream updates',
+      () async {
+        when(mockRepository.getRecentlyViewedPlans())
+            .thenAnswer((_) async => [mockPlan1]);
+        when(mockRepository.clearHistory()).thenAnswer((_) async {});
 
-      final sub = container.listen(recentlyViewedViewModelProvider, (_, __) {});
+        final sub = container.listen(
+          recentlyViewedViewModelProvider,
+          (_, _) {},
+        );
 
-      // Populate plans
-      idsController.add(['plan-1']);
-      await Future.delayed(Duration.zero);
-      await Future.delayed(Duration.zero);
-      expect(container.read(recentlyViewedViewModelProvider).plans.length, 1);
+        // Populate plans
+        idsController.add(['plan-1']);
+        await Future.delayed(Duration.zero);
+        await Future.delayed(Duration.zero);
+        expect(container.read(recentlyViewedViewModelProvider).plans.length, 1);
 
-      // Clear history
-      await container
-          .read(recentlyViewedViewModelProvider.notifier)
-          .clearHistory();
+        // Clear history
+        await container
+            .read(recentlyViewedViewModelProvider.notifier)
+            .clearHistory();
 
-      verify(mockRepository.clearHistory()).called(1);
+        verify(mockRepository.clearHistory()).called(1);
 
-      // Simulate stream emitting empty after clear
-      when(mockRepository.getRecentlyViewedPlans()).thenAnswer((_) async => []);
-      idsController.add([]);
-      await Future.delayed(Duration.zero);
-      await Future.delayed(Duration.zero);
+        // Simulate stream emitting empty after clear
+        when(mockRepository.getRecentlyViewedPlans())
+            .thenAnswer((_) async => []);
+        idsController.add([]);
+        await Future.delayed(Duration.zero);
+        await Future.delayed(Duration.zero);
 
-      final state = container.read(recentlyViewedViewModelProvider);
-      expect(state.plans, isEmpty);
-      sub.close();
-    });
+        final state = container.read(recentlyViewedViewModelProvider);
+        expect(state.plans, isEmpty);
+        sub.close();
+      },
+    );
 
     test('clearHistory sets error on failure', () async {
       when(mockRepository.clearHistory()).thenThrow(Exception('DB error'));
 
-      final sub = container.listen(recentlyViewedViewModelProvider, (_, __) {});
+      final sub = container.listen(recentlyViewedViewModelProvider, (_, _) {});
       idsController.add([]);
       await Future.delayed(Duration.zero);
       await Future.delayed(Duration.zero);
@@ -214,7 +220,7 @@ void main() {
     test('clearError removes error state', () async {
       when(mockRepository.clearHistory()).thenThrow(Exception('error'));
 
-      final sub = container.listen(recentlyViewedViewModelProvider, (_, __) {});
+      final sub = container.listen(recentlyViewedViewModelProvider, (_, _) {});
       idsController.add([]);
       await Future.delayed(Duration.zero);
       await Future.delayed(Duration.zero);
@@ -229,27 +235,34 @@ void main() {
       sub.close();
     });
 
-    test('plans list updates reactively on multiple stream emissions',
-        () async {
-      when(mockRepository.getRecentlyViewedPlans())
-          .thenAnswer((_) async => [mockPlan1]);
+    test(
+      'plans list updates reactively on multiple stream emissions',
+      () async {
+        when(mockRepository.getRecentlyViewedPlans())
+            .thenAnswer((_) async => [mockPlan1]);
 
-      final sub = container.listen(recentlyViewedViewModelProvider, (_, __) {});
+        final sub = container.listen(
+          recentlyViewedViewModelProvider,
+          (_, _) {},
+        );
 
-      idsController.add(['plan-1']);
-      await Future.delayed(Duration.zero);
-      await Future.delayed(Duration.zero);
-      expect(container.read(recentlyViewedViewModelProvider).plans.length, 1);
+        idsController.add(['plan-1']);
+        await Future.delayed(Duration.zero);
+        await Future.delayed(Duration.zero);
+        expect(container.read(recentlyViewedViewModelProvider).plans.length, 1);
 
-      when(mockRepository.getRecentlyViewedPlans())
-          .thenAnswer((_) async => [mockPlan2, mockPlan1]);
-      idsController.add(['plan-2', 'plan-1']);
-      await Future.delayed(Duration.zero);
-      await Future.delayed(Duration.zero);
-      expect(container.read(recentlyViewedViewModelProvider).plans.length, 2);
-      expect(container.read(recentlyViewedViewModelProvider).plans[0].id,
-          'plan-2');
-      sub.close();
-    });
+        when(mockRepository.getRecentlyViewedPlans())
+            .thenAnswer((_) async => [mockPlan2, mockPlan1]);
+        idsController.add(['plan-2', 'plan-1']);
+        await Future.delayed(Duration.zero);
+        await Future.delayed(Duration.zero);
+        expect(container.read(recentlyViewedViewModelProvider).plans.length, 2);
+        expect(
+          container.read(recentlyViewedViewModelProvider).plans[0].id,
+          'plan-2',
+        );
+        sub.close();
+      },
+    );
   });
 }

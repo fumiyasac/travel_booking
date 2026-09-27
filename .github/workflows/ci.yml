@@ -24,6 +24,7 @@ jobs:
       - name: Setup Flutter (stable)
         uses: subosito/flutter-action@v2.23.0
         with:
+          flutter-version: '3.47.5'
           channel: stable
           cache: true
 
@@ -41,6 +42,10 @@ jobs:
 
       - name: Generate code (build_runner)
         run: melos run build_runner
+
+      - name: Format generated code
+        working-directory: travel_booking_mobile
+        run: dart format lib/ test/
 
       - name: Static analysis
         run: melos run analyze

@@ -146,7 +146,7 @@ class TravelPlanRemoteDataSource {
           'travelDate': travelDate.toIso8601String(),
           if (specialRequests != null && specialRequests.isNotEmpty)
             'specialRequests': specialRequests,
-          if (paymentMethod != null) 'paymentMethod': paymentMethod,
+          'paymentMethod': ?paymentMethod,
         },
       },
     );

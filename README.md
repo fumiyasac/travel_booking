@@ -38,8 +38,8 @@ Flutter モバイルアプリ（iOS / Android）と Node.js / GraphQL バック�
 
 | ツール | 推奨バージョン | 確認コマンド |
 |---|---|---|
-| Flutter | 3.x 以上 | `flutter --version` |
-| Dart | 3.x 以上（Flutter に同梱） | `dart --version` |
+| Flutter | 3.47.5 以上 | `flutter --version` |
+| Dart | 3.13.x 以上（Flutter に同梱） | `dart --version` |
 | Node.js | 20 以上 | `node --version` |
 | Docker Desktop | 最新安定版 | `docker --version` |
 | Xcode | 15 以上（iOS 開発時） | `xcode-select -p` |
@@ -66,12 +66,12 @@ source ~/.zshrc
 
 ```bash
 # リポジトリルートで実行
-# .mise.toml に定義されたバージョン（flutter 3.38.5 / node 20）が自動でインストールされます
+# .mise.toml に定義されたバージョン（flutter 3.47.5 / node 20）が自動でインストールされます
 mise install
 ```
 
 > **mise を使わない場合も手動インストールで開発できます。**  
-> `.mise.toml` のバージョン表記（`flutter = "3.38.5"` / `node = "20"`）を参考に、各ツールの公式サイトからインストールしてください。
+> `.mise.toml` のバージョン表記（`flutter = "3.47.5"` / `node = "20"`）を参考に、各ツールの公式サイトからインストールしてください。
 
 ---
 
@@ -515,7 +515,7 @@ flutter run -d <AndroidデバイスID>
 ```mermaid
 graph TD
   subgraph Mise["バージョン管理（mise）"]
-    FL["Flutter 3.38.5"]
+    FL["Flutter 3.47.5"]
     ND["Node.js 20"]
   end
   subgraph Melos["タスクランナー（melos）"]
@@ -719,18 +719,22 @@ Presentation は Riverpod Provider 経由で Data 層を参照し、Backend に�
 
 | 技術 | バージョン | 用途 |
 |---|---|---|
-| Flutter | 3.x | UI フレームワーク |
+| Flutter | 3.47.5 | UI フレームワーク |
 | Riverpod | 3.x | 状態管理 |
-| riverpod_generator | 3.x | `@riverpod` コード生成 |
-| go_router | 14.x | ナビゲーション |
+| riverpod_generator | 4.x | `@riverpod` コード生成 |
+| go_router | 18.x | ナビゲーション |
 | SharedPreferences | 2.x | お気に入りのローカル保存 |
 | http | 1.x | GraphQL HTTP クライアント |
-| shimmer | 3.x | ローディングアニメーション |
+| shimmer | 4.x | ローディングアニメーション |
 | mockito | 5.x | テスト用モック生成 |
 | widgetbook | 3.23.x | ウィジェット Preview 環境（開発用） |
 
 > **Freezed 不使用**: モデルクラスは `copyWith` / `fromJson` / `toJson` を手動実装  
 > **graphql_flutter 不使用**: native build hooks によるビルドエラーを回避するため `http` パッケージで実装
+
+> **Flutter 3.47 以降の注意事項**: Flutter 3.47 では `flutter/material.dart` をそのまま使用できます。  
+> `material_ui` / `cupertino_ui` への移行は任意であり、このリポジトリでは現時点では移行していません。  
+> 将来のバージョンで段階的な移行を検討してください。
 
 #### バックエンド
 

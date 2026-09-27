@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../core/theme/app_theme.dart';
 
 class LoadingIndicator extends StatelessWidget {
@@ -17,8 +18,10 @@ class LoadingIndicator extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               message!,
-              style:
-                  const TextStyle(color: AppTheme.textSecondary, fontSize: 14),
+              style: const TextStyle(
+                color: AppTheme.textSecondary,
+                fontSize: 14,
+              ),
             ),
           ],
         ],

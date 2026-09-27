@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+
 import '../../../core/error/app_error.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../data/models/booking.dart';
@@ -51,8 +52,8 @@ class _BookingHistoryScreenState extends ConsumerState<BookingHistoryScreen> {
         error: state.error!,
         onRetry: state.error is NetworkError
             ? () => ref
-                .read(bookingHistoryViewModelProvider.notifier)
-                .loadBookings(_kCustomerEmail)
+                  .read(bookingHistoryViewModelProvider.notifier)
+                  .loadBookings(_kCustomerEmail)
             : null,
       );
     }
@@ -143,13 +144,18 @@ class _BookingCard extends StatelessWidget {
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    const Icon(Icons.location_on_outlined,
-                        size: 14, color: AppTheme.textSecondary),
+                    const Icon(
+                      Icons.location_on_outlined,
+                      size: 14,
+                      color: AppTheme.textSecondary,
+                    ),
                     const SizedBox(width: 4),
                     Text(
                       booking.planTitle ?? '',
                       style: const TextStyle(
-                          color: AppTheme.textSecondary, fontSize: 13),
+                        color: AppTheme.textSecondary,
+                        fontSize: 13,
+                      ),
                     ),
                   ],
                 ),
@@ -207,9 +213,10 @@ class _InfoRow extends StatelessWidget {
         Text(
           value,
           style: const TextStyle(
-              color: AppTheme.textPrimary,
-              fontSize: 13,
-              fontWeight: FontWeight.w500),
+            color: AppTheme.textPrimary,
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+          ),
         ),
       ],
     );

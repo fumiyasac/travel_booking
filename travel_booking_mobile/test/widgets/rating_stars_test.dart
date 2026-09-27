@@ -6,8 +6,9 @@ import 'package:travel_booking_mobile/presentation/widgets/rating_stars.dart';
 void main() {
   Widget wrap(Widget child) => MaterialApp(home: Scaffold(body: child));
 
-  testWidgets('RatingBarIndicator と rating テキスト "5.0" が表示されること',
-      (tester) async {
+  testWidgets('RatingBarIndicator と rating テキスト "5.0" が表示されること', (
+    tester,
+  ) async {
     await tester.pumpWidget(wrap(const RatingStars(rating: 5.0)));
 
     expect(find.byType(RatingBarIndicator), findsOneWidget);
@@ -42,15 +43,17 @@ void main() {
     expect(find.text('(128)'), findsNothing);
   });
 
-  testWidgets('rating が負の値 (-1.0) でもクラッシュせず RatingBarIndicator が表示されること',
-      (tester) async {
+  testWidgets('rating が負の値 (-1.0) でもクラッシュせず RatingBarIndicator が表示されること', (
+    tester,
+  ) async {
     await tester.pumpWidget(wrap(const RatingStars(rating: -1.0)));
 
     expect(find.byType(RatingBarIndicator), findsOneWidget);
   });
 
-  testWidgets('rating が上限超え (6.0) でもクラッシュせず RatingBarIndicator が表示されること',
-      (tester) async {
+  testWidgets('rating が上限超え (6.0) でもクラッシュせず RatingBarIndicator が表示されること', (
+    tester,
+  ) async {
     await tester.pumpWidget(wrap(const RatingStars(rating: 6.0)));
 
     expect(find.byType(RatingBarIndicator), findsOneWidget);

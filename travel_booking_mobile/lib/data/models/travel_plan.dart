@@ -80,10 +80,7 @@ class TravelPlan {
   String get primaryImageUrl {
     if (images.isEmpty) return '';
     return images
-        .firstWhere(
-          (img) => img.isPrimary,
-          orElse: () => images.first,
-        )
+        .firstWhere((img) => img.isPrimary, orElse: () => images.first)
         .url;
   }
 
@@ -101,13 +98,15 @@ class TravelPlan {
       discountPrice: json['discountPrice'] != null
           ? (json['discountPrice'] as num).toDouble()
           : null,
-      effectivePrice: (json['effectivePrice'] as num?)?.toDouble() ??
+      effectivePrice:
+          (json['effectivePrice'] as num?)?.toDouble() ??
           (json['discountPrice'] as num?)?.toDouble() ??
           (json['price'] as num).toDouble(),
       durationDays: json['durationDays'] as int,
       maxParticipants: json['maxParticipants'] as int,
       currentBookings: json['currentBookings'] as int? ?? 0,
-      availableSpots: json['availableSpots'] as int? ??
+      availableSpots:
+          json['availableSpots'] as int? ??
           ((json['maxParticipants'] as int) -
               (json['currentBookings'] as int? ?? 0)),
       category: json['category'] as String,
@@ -127,73 +126,81 @@ class TravelPlan {
       minimumAge: json['minimumAge'] as int?,
       tags:
           (json['tags'] as List<dynamic>?)?.map((t) => t as String).toList() ??
-              [],
-      images: (json['images'] as List<dynamic>?)
-              ?.map((img) =>
-                  TravelPlanImage.fromJson(img as Map<String, dynamic>))
+          [],
+      images:
+          (json['images'] as List<dynamic>?)
+              ?.map(
+                (img) => TravelPlanImage.fromJson(img as Map<String, dynamic>),
+              )
               .toList() ??
           [],
-      highlights: (json['highlights'] as List<dynamic>?)
+      highlights:
+          (json['highlights'] as List<dynamic>?)
               ?.map((h) => (h as Map<String, dynamic>)['text'] as String)
               .toList() ??
           [],
-      itinerary: (json['itinerary'] as List<dynamic>?)
+      itinerary:
+          (json['itinerary'] as List<dynamic>?)
               ?.map((d) => ItineraryDay.fromJson(d as Map<String, dynamic>))
               .toList() ??
           [],
-      includedItems: (json['includedItems'] as List<dynamic>?)
+      includedItems:
+          (json['includedItems'] as List<dynamic>?)
               ?.map((item) => (item as Map<String, dynamic>)['item'] as String)
               .toList() ??
           [],
-      excludedItems: (json['excludedItems'] as List<dynamic>?)
+      excludedItems:
+          (json['excludedItems'] as List<dynamic>?)
               ?.map((item) => (item as Map<String, dynamic>)['item'] as String)
               .toList() ??
           [],
-      reviews: (json['reviews'] as List<dynamic>?)
+      reviews:
+          (json['reviews'] as List<dynamic>?)
               ?.map((r) => Review.fromJson(r as Map<String, dynamic>))
               .toList() ??
           [],
-      createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ??
+      createdAt:
+          DateTime.tryParse(json['createdAt'] as String? ?? '') ??
           DateTime.now(),
     );
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'title': title,
-        'description': description,
-        'destination': destination,
-        'country': country,
-        'region': region,
-        'latitude': latitude,
-        'longitude': longitude,
-        'price': price,
-        'discountPrice': discountPrice,
-        'effectivePrice': effectivePrice,
-        'durationDays': durationDays,
-        'maxParticipants': maxParticipants,
-        'currentBookings': currentBookings,
-        'availableSpots': availableSpots,
-        'category': category,
-        'difficulty': difficulty,
-        'rating': rating,
-        'reviewCount': reviewCount,
-        'isAvailable': isAvailable,
-        'availableFrom': availableFrom?.toIso8601String(),
-        'availableTo': availableTo?.toIso8601String(),
-        'language': language,
-        'meetingPoint': meetingPoint,
-        'cancellationPolicy': cancellationPolicy,
-        'minimumAge': minimumAge,
-        'tags': tags,
-        'images': images.map((img) => img.toJson()).toList(),
-        'highlights': highlights.map((h) => {'text': h}).toList(),
-        'itinerary': itinerary.map((d) => d.toJson()).toList(),
-        'includedItems': includedItems.map((item) => {'item': item}).toList(),
-        'excludedItems': excludedItems.map((item) => {'item': item}).toList(),
-        'reviews': reviews.map((r) => r.toJson()).toList(),
-        'createdAt': createdAt.toIso8601String(),
-      };
+    'id': id,
+    'title': title,
+    'description': description,
+    'destination': destination,
+    'country': country,
+    'region': region,
+    'latitude': latitude,
+    'longitude': longitude,
+    'price': price,
+    'discountPrice': discountPrice,
+    'effectivePrice': effectivePrice,
+    'durationDays': durationDays,
+    'maxParticipants': maxParticipants,
+    'currentBookings': currentBookings,
+    'availableSpots': availableSpots,
+    'category': category,
+    'difficulty': difficulty,
+    'rating': rating,
+    'reviewCount': reviewCount,
+    'isAvailable': isAvailable,
+    'availableFrom': availableFrom?.toIso8601String(),
+    'availableTo': availableTo?.toIso8601String(),
+    'language': language,
+    'meetingPoint': meetingPoint,
+    'cancellationPolicy': cancellationPolicy,
+    'minimumAge': minimumAge,
+    'tags': tags,
+    'images': images.map((img) => img.toJson()).toList(),
+    'highlights': highlights.map((h) => {'text': h}).toList(),
+    'itinerary': itinerary.map((d) => d.toJson()).toList(),
+    'includedItems': includedItems.map((item) => {'item': item}).toList(),
+    'excludedItems': excludedItems.map((item) => {'item': item}).toList(),
+    'reviews': reviews.map((r) => r.toJson()).toList(),
+    'createdAt': createdAt.toIso8601String(),
+  };
 
   TravelPlan copyWith({
     String? id,

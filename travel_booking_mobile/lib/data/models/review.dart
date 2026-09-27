@@ -27,13 +27,13 @@ class Review {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'reviewerName': reviewerName,
-        'rating': rating,
-        'comment': comment,
-        'travelDate': travelDate.toIso8601String(),
-        'createdAt': createdAt.toIso8601String(),
-      };
+    'id': id,
+    'reviewerName': reviewerName,
+    'rating': rating,
+    'comment': comment,
+    'travelDate': travelDate.toIso8601String(),
+    'createdAt': createdAt.toIso8601String(),
+  };
 
   Review copyWith({
     String? id,

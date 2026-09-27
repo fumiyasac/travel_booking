@@ -1,4 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+
 import '../../core/error/app_error.dart';
 import '../../data/models/favorite_plan.dart';
 import 'plan_list_viewmodel.dart';
@@ -64,8 +65,9 @@ class FavoriteViewModel extends _$FavoriteViewModel {
       final repo = ref.read(favoriteRepositoryProvider);
       await repo.removeFavorite(planId);
     } catch (e) {
-      state =
-          state.copyWith(error: e is AppError ? e : UnknownError(e.toString()));
+      state = state.copyWith(
+        error: e is AppError ? e : UnknownError(e.toString()),
+      );
     }
   }
 
@@ -75,8 +77,9 @@ class FavoriteViewModel extends _$FavoriteViewModel {
       final repo = ref.read(favoriteRepositoryProvider);
       await repo.clearFavorites();
     } catch (e) {
-      state =
-          state.copyWith(error: e is AppError ? e : UnknownError(e.toString()));
+      state = state.copyWith(
+        error: e is AppError ? e : UnknownError(e.toString()),
+      );
     }
   }
 

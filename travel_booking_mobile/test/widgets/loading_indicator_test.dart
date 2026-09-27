@@ -4,7 +4,9 @@ import 'package:travel_booking_mobile/presentation/widgets/loading_indicator.dar
 
 void main() {
   Widget wrap(Widget child) => MaterialApp(
-      debugShowCheckedModeBanner: false, home: Scaffold(body: child));
+    debugShowCheckedModeBanner: false,
+    home: Scaffold(body: child),
+  );
 
   testWidgets('CircularProgressIndicator が常に表示されること', (tester) async {
     await tester.pumpWidget(wrap(const LoadingIndicator()));

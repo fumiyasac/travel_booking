@@ -1,4 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+
 import '../../core/error/app_error.dart';
 import '../../data/models/travel_plan.dart';
 import 'plan_list_viewmodel.dart';
@@ -64,11 +65,7 @@ class PlanDetailViewModel extends _$PlanDetailViewModel {
       final plan = results[0] as TravelPlan;
       final isFav = results[1] as bool;
 
-      state = state.copyWith(
-        plan: plan,
-        isLoading: false,
-        isFavorite: isFav,
-      );
+      state = state.copyWith(plan: plan, isLoading: false, isFavorite: isFav);
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
@@ -87,11 +84,7 @@ class PlanDetailViewModel extends _$PlanDetailViewModel {
       final plan = await repo.getPlan(id);
       final isFav = await favRepo.isFavorite(id);
 
-      state = state.copyWith(
-        plan: plan,
-        isLoading: false,
-        isFavorite: isFav,
-      );
+      state = state.copyWith(plan: plan, isLoading: false, isFavorite: isFav);
     } catch (e) {
       state = state.copyWith(
         isLoading: false,

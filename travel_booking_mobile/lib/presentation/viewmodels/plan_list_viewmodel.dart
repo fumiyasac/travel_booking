@@ -1,4 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+
 import '../../core/config/graphql_config.dart';
 import '../../core/database/app_database.dart';
 import '../../core/database/recently_viewed_storage.dart';
@@ -41,7 +42,8 @@ TravelPlanRemoteDataSource travelPlanRemoteDataSource(Ref ref) {
 @riverpod
 TravelPlanRepository travelPlanRepository(Ref ref) {
   return TravelPlanRepositoryImpl(
-      ref.watch(travelPlanRemoteDataSourceProvider));
+    ref.watch(travelPlanRemoteDataSourceProvider),
+  );
 }
 
 @Riverpod(keepAlive: true)
@@ -66,7 +68,8 @@ RecentlyViewedStorage recentlyViewedStorage(Ref ref) {
 @Riverpod(keepAlive: true)
 RecentlyViewedLocalDataSource recentlyViewedLocalDataSource(Ref ref) {
   return RecentlyViewedLocalDataSource(
-      ref.watch(recentlyViewedStorageProvider));
+    ref.watch(recentlyViewedStorageProvider),
+  );
 }
 
 @Riverpod(keepAlive: true)
@@ -81,9 +84,9 @@ RecentlyViewedRepository recentlyViewedRepository(Ref ref) {
 @riverpod
 Stream<bool> planIsFavorite(Ref ref, String planId) {
   final dataSource = ref.watch(favoriteLocalDataSourceProvider);
-  return dataSource
-      .watchFavorites()
-      .map((favorites) => favorites.any((f) => f.planId == planId));
+  return dataSource.watchFavorites().map(
+    (favorites) => favorites.any((f) => f.planId == planId),
+  );
 }
 
 // --- State ---
@@ -192,12 +195,8 @@ class PlanListViewModel extends _$PlanListViewModel {
     try {
       final repo = ref.read(travelPlanRepositoryProvider);
       final nextPage = state.currentPage + 1;
-      final (newPlans, totalCount, hasNextPage, totalPages) =
-          await repo.getPlans(
-        filter: state.filter,
-        page: nextPage,
-        pageSize: _pageSize,
-      );
+      final (newPlans, totalCount, hasNextPage, totalPages) = await repo
+          .getPlans(filter: state.filter, page: nextPage, pageSize: _pageSize);
 
       state = state.copyWith(
         plans: [...state.plans, ...newPlans],

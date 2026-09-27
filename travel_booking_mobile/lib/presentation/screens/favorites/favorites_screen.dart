@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../core/theme/app_theme.dart';
 import '../../../data/models/favorite_plan.dart';
 import '../../../presentation/viewmodels/favorite_viewmodel.dart';
@@ -22,8 +23,10 @@ class FavoritesScreen extends ConsumerWidget {
           if (state.favorites.isNotEmpty)
             TextButton(
               onPressed: () => _showClearConfirmation(context, ref),
-              child:
-                  const Text('全て削除', style: TextStyle(color: Colors.white70)),
+              child: const Text(
+                '全て削除',
+                style: TextStyle(color: Colors.white70),
+              ),
             ),
         ],
       ),
@@ -72,9 +75,10 @@ class FavoritesScreen extends ConsumerWidget {
           const Text(
             'お気に入りがありません',
             style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: AppTheme.textPrimary),
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: AppTheme.textPrimary,
+            ),
           ),
           const Gap(8),
           const Text(
@@ -93,7 +97,9 @@ class FavoritesScreen extends ConsumerWidget {
   }
 
   Future<void> _showClearConfirmation(
-      BuildContext context, WidgetRef ref) async {
+    BuildContext context,
+    WidgetRef ref,
+  ) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -106,8 +112,10 @@ class FavoritesScreen extends ConsumerWidget {
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child:
-                const Text('削除', style: TextStyle(color: AppTheme.errorColor)),
+            child: const Text(
+              '削除',
+              style: TextStyle(color: AppTheme.errorColor),
+            ),
           ),
         ],
       ),
@@ -149,15 +157,21 @@ class _FavoritePlanCard extends StatelessWidget {
                           width: double.infinity,
                           errorBuilder: (context, error, stack) => Container(
                             color: AppTheme.dividerColor,
-                            child: const Icon(Icons.image_not_supported,
-                                color: AppTheme.textHint, size: 36),
+                            child: const Icon(
+                              Icons.image_not_supported,
+                              color: AppTheme.textHint,
+                              size: 36,
+                            ),
                           ),
                         )
                       : Container(
                           color: AppTheme.dividerColor,
                           child: const Center(
-                            child: Icon(Icons.travel_explore,
-                                color: AppTheme.textHint, size: 36),
+                            child: Icon(
+                              Icons.travel_explore,
+                              color: AppTheme.textHint,
+                              size: 36,
+                            ),
                           ),
                         ),
                 ),
@@ -179,13 +193,18 @@ class _FavoritePlanCard extends StatelessWidget {
                       const Gap(4),
                       Row(
                         children: [
-                          const Icon(Icons.location_on_outlined,
-                              size: 11, color: AppTheme.textSecondary),
+                          const Icon(
+                            Icons.location_on_outlined,
+                            size: 11,
+                            color: AppTheme.textSecondary,
+                          ),
                           Expanded(
                             child: Text(
                               favPlan.destination,
                               style: const TextStyle(
-                                  fontSize: 11, color: AppTheme.textSecondary),
+                                fontSize: 11,
+                                color: AppTheme.textSecondary,
+                              ),
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
@@ -193,7 +212,10 @@ class _FavoritePlanCard extends StatelessWidget {
                       ),
                       const Gap(4),
                       RatingStars(
-                          rating: favPlan.rating, size: 12, showCount: false),
+                        rating: favPlan.rating,
+                        size: 12,
+                        showCount: false,
+                      ),
                       const Gap(4),
                       Text(
                         '¥${_formatPrice(favPlan.effectivePrice.toInt())}〜',
@@ -219,8 +241,11 @@ class _FavoritePlanCard extends StatelessWidget {
                     color: Colors.white,
                     shape: BoxShape.circle,
                   ),
-                  child:
-                      const Icon(Icons.favorite, color: Colors.red, size: 18),
+                  child: const Icon(
+                    Icons.favorite,
+                    color: Colors.red,
+                    size: 18,
+                  ),
                 ),
               ),
             ),
@@ -232,8 +257,8 @@ class _FavoritePlanCard extends StatelessWidget {
 
   String _formatPrice(int price) {
     return price.toString().replaceAllMapped(
-          RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
-          (m) => '${m[1]},',
-        );
+      RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
+      (m) => '${m[1]},',
+    );
   }
 }

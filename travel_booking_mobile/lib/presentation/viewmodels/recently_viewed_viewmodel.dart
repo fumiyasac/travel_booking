@@ -1,4 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+
 import '../../core/error/app_error.dart';
 import '../../data/models/travel_plan.dart';
 import 'plan_list_viewmodel.dart';
@@ -70,8 +71,9 @@ class RecentlyViewedViewModel extends _$RecentlyViewedViewModel {
       final repo = ref.read(recentlyViewedRepositoryProvider);
       await repo.clearHistory();
     } catch (e) {
-      state =
-          state.copyWith(error: e is AppError ? e : UnknownError(e.toString()));
+      state = state.copyWith(
+        error: e is AppError ? e : UnknownError(e.toString()),
+      );
     }
   }
 

@@ -30,23 +30,25 @@ class ItineraryDay {
       description: json['description'] as String,
       accommodation: json['accommodation'] as String?,
       meals: json['meals'] as String? ?? '',
-      activities: (json['activities'] as List<dynamic>?)
+      activities:
+          (json['activities'] as List<dynamic>?)
               ?.map(
-                  (a) => ItineraryActivity.fromJson(a as Map<String, dynamic>))
+                (a) => ItineraryActivity.fromJson(a as Map<String, dynamic>),
+              )
               .toList() ??
           [],
     );
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'dayNumber': dayNumber,
-        'title': title,
-        'description': description,
-        'accommodation': accommodation,
-        'meals': meals,
-        'activities': activities.map((a) => a.toJson()).toList(),
-      };
+    'id': id,
+    'dayNumber': dayNumber,
+    'title': title,
+    'description': description,
+    'accommodation': accommodation,
+    'meals': meals,
+    'activities': activities.map((a) => a.toJson()).toList(),
+  };
 
   ItineraryDay copyWith({
     String? id,

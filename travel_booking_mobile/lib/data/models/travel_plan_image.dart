@@ -24,12 +24,12 @@ class TravelPlanImage {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'url': url,
-        'caption': caption,
-        'isPrimary': isPrimary,
-        'displayOrder': displayOrder,
-      };
+    'id': id,
+    'url': url,
+    'caption': caption,
+    'isPrimary': isPrimary,
+    'displayOrder': displayOrder,
+  };
 
   TravelPlanImage copyWith({
     String? id,

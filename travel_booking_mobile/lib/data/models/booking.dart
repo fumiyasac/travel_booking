@@ -67,20 +67,20 @@ class Booking {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'planId': planId,
-        'customerName': customerName,
-        'customerEmail': customerEmail,
-        'customerPhone': customerPhone,
-        'numberOfPeople': numberOfPeople,
-        'travelDate': travelDate.toIso8601String(),
-        'specialRequests': specialRequests,
-        'totalPrice': totalPrice,
-        'status': status,
-        'paymentMethod': paymentMethod,
-        'createdAt': createdAt.toIso8601String(),
-        'updatedAt': updatedAt.toIso8601String(),
-      };
+    'id': id,
+    'planId': planId,
+    'customerName': customerName,
+    'customerEmail': customerEmail,
+    'customerPhone': customerPhone,
+    'numberOfPeople': numberOfPeople,
+    'travelDate': travelDate.toIso8601String(),
+    'specialRequests': specialRequests,
+    'totalPrice': totalPrice,
+    'status': status,
+    'paymentMethod': paymentMethod,
+    'createdAt': createdAt.toIso8601String(),
+    'updatedAt': updatedAt.toIso8601String(),
+  };
 
   Booking copyWith({
     String? id,

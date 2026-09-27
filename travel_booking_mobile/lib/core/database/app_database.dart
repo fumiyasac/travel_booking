@@ -1,5 +1,7 @@
 import 'dart:convert';
+
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../../data/models/favorite_plan.dart';
 import '../../data/models/plan_filter.dart';
 
@@ -19,7 +21,8 @@ class FavoritesStorage {
     final jsonList = prefs.getStringList(_key) ?? [];
     return jsonList
         .map(
-            (s) => FavoritePlan.fromJson(jsonDecode(s) as Map<String, dynamic>))
+          (s) => FavoritePlan.fromJson(jsonDecode(s) as Map<String, dynamic>),
+        )
         .toList();
   }
 

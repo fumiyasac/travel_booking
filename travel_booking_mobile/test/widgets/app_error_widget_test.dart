@@ -5,10 +5,10 @@ import 'package:travel_booking_mobile/presentation/widgets/app_error_widget.dart
 
 void main() {
   Widget wrap({required AppError error, VoidCallback? onRetry}) => MaterialApp(
-        home: Scaffold(
-          body: AppErrorWidget(error: error, onRetry: onRetry),
-        ),
-      );
+    home: Scaffold(
+      body: AppErrorWidget(error: error, onRetry: onRetry),
+    ),
+  );
 
   // ── NetworkError ──────────────────────────────────────────────────
   group('NetworkError', () {
@@ -26,8 +26,9 @@ void main() {
     });
 
     testWidgets('onRetry あり → "再試行" ラベルと refresh アイコンが表示されること', (tester) async {
-      await tester
-          .pumpWidget(wrap(error: const NetworkError(), onRetry: () {}));
+      await tester.pumpWidget(
+        wrap(error: const NetworkError(), onRetry: () {}),
+      );
 
       expect(find.text('再試行'), findsOneWidget);
       expect(find.byIcon(Icons.refresh), findsOneWidget);
@@ -68,8 +69,9 @@ void main() {
 
   // ── ValidationError ───────────────────────────────────────────────
   group('ValidationError', () {
-    testWidgets('warning_amber_rounded アイコンと "入力エラー" タイトルが表示されること',
-        (tester) async {
+    testWidgets('warning_amber_rounded アイコンと "入力エラー" タイトルが表示されること', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         wrap(error: const ValidationError('メールアドレスが不正です', field: 'email')),
       );

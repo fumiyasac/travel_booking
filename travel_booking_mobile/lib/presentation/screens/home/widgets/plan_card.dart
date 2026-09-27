@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../../core/theme/app_theme.dart';
 import '../../../../data/models/travel_plan.dart';
 import '../../../viewmodels/plan_list_viewmodel.dart';
@@ -20,10 +21,7 @@ class PlanCard extends ConsumerWidget {
         clipBehavior: Clip.antiAlias,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildImage(context, ref),
-            _buildContent(context),
-          ],
+          children: [_buildImage(context, ref), _buildContent(context)],
         ),
       ),
     );
@@ -42,8 +40,11 @@ class PlanCard extends ConsumerWidget {
                   width: double.infinity,
                   errorBuilder: (context, error, stack) => Container(
                     color: AppTheme.dividerColor,
-                    child: const Icon(Icons.image_not_supported,
-                        color: AppTheme.textHint, size: 48),
+                    child: const Icon(
+                      Icons.image_not_supported,
+                      color: AppTheme.textHint,
+                      size: 48,
+                    ),
                   ),
                   loadingBuilder: (context, child, progress) {
                     if (progress == null) return child;
@@ -52,8 +53,11 @@ class PlanCard extends ConsumerWidget {
                 )
               : Container(
                   color: AppTheme.dividerColor,
-                  child: const Icon(Icons.travel_explore,
-                      color: AppTheme.textHint, size: 48),
+                  child: const Icon(
+                    Icons.travel_explore,
+                    color: AppTheme.textHint,
+                    size: 48,
+                  ),
                 ),
         ),
         Positioned(
@@ -61,11 +65,7 @@ class PlanCard extends ConsumerWidget {
           left: 8,
           child: _CategoryChip(category: plan.category),
         ),
-        Positioned(
-          top: 8,
-          right: 8,
-          child: _FavoriteButton(plan: plan),
-        ),
+        Positioned(top: 8, right: 8, child: _FavoriteButton(plan: plan)),
         if (plan.hasDiscount)
           Positioned(
             bottom: 8,
@@ -109,14 +109,19 @@ class PlanCard extends ConsumerWidget {
           const SizedBox(height: 4),
           Row(
             children: [
-              const Icon(Icons.location_on_outlined,
-                  size: 14, color: AppTheme.textSecondary),
+              const Icon(
+                Icons.location_on_outlined,
+                size: 14,
+                color: AppTheme.textSecondary,
+              ),
               const SizedBox(width: 2),
               Expanded(
                 child: Text(
                   '${plan.destination}・${plan.country}',
                   style: const TextStyle(
-                      fontSize: 13, color: AppTheme.textSecondary),
+                    fontSize: 13,
+                    color: AppTheme.textSecondary,
+                  ),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -160,8 +165,10 @@ class PlanCard extends ConsumerWidget {
                   ),
                   const Text(
                     '/人',
-                    style:
-                        TextStyle(fontSize: 11, color: AppTheme.textSecondary),
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: AppTheme.textSecondary,
+                    ),
                   ),
                 ],
               ),
@@ -174,9 +181,9 @@ class PlanCard extends ConsumerWidget {
 
   String _formatPrice(int price) {
     return price.toString().replaceAllMapped(
-          RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
-          (m) => '${m[1]},',
-        );
+      RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
+      (m) => '${m[1]},',
+    );
   }
 
   String _difficultyLabel(String difficulty) {
@@ -222,7 +229,10 @@ class _CategoryChip extends StatelessWidget {
       child: Text(
         _categoryLabel(category),
         style: const TextStyle(
-            color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600),
+          color: Colors.white,
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }
@@ -272,10 +282,9 @@ class _FavoriteButton extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // planIsFavoriteProvider はストリームを監視するため、
     // お気に入りの追加・削除が起きると自動的に再描画される
-    final isFav = ref.watch(planIsFavoriteProvider(plan.id)).maybeWhen(
-          data: (v) => v,
-          orElse: () => false,
-        );
+    final isFav = ref
+        .watch(planIsFavoriteProvider(plan.id))
+        .maybeWhen(data: (v) => v, orElse: () => false);
 
     return GestureDetector(
       onTap: () async {

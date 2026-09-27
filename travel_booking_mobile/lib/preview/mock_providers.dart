@@ -13,7 +13,7 @@ class FakeInMemoryFavoritesStorage extends FavoritesStorage {
   final List<FavoritePlan> _favorites;
 
   FakeInMemoryFavoritesStorage({List<FavoritePlan>? initialFavorites})
-      : _favorites = initialFavorites != null ? List.of(initialFavorites) : [];
+    : _favorites = initialFavorites != null ? List.of(initialFavorites) : [];
 
   @override
   Future<List<FavoritePlan>> getAll() async => List.of(_favorites);
@@ -68,8 +68,7 @@ class FakeTravelPlanRepository implements TravelPlanRepository {
     PlanFilter? filter,
     int page = 1,
     int pageSize = 20,
-  }) async =>
-      (const <TravelPlan>[], 0, false, 1);
+  }) async => (const <TravelPlan>[], 0, false, 1);
 
   @override
   Future<Booking> createBooking({
@@ -94,19 +93,18 @@ class FakeTravelPlanRepository implements TravelPlanRepository {
 
 /// PlanDetailScreen / PlanListScreen などの Screen Preview 用 override リスト。
 /// [plan] を省略すると mockPlanTokyo を返す。
-// ignore: always_declare_return_types
+// ignore: strict_top_level_inference, always_declare_return_types
 previewOverridesWith({
   TravelPlan? plan,
   bool throwError = false,
   bool loading = false,
-}) =>
-    [
-      ...previewProviderOverrides,
-      travelPlanRepositoryProvider.overrideWithValue(
-        FakeTravelPlanRepository(
-          plan: plan,
-          throwError: throwError,
-          loading: loading,
-        ),
-      ),
-    ];
+}) => [
+  ...previewProviderOverrides,
+  travelPlanRepositoryProvider.overrideWithValue(
+    FakeTravelPlanRepository(
+      plan: plan,
+      throwError: throwError,
+      loading: loading,
+    ),
+  ),
+];

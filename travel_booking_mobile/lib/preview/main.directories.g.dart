@@ -10,6 +10,7 @@
 // **************************************************************************
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
+
 import 'package:travel_booking_mobile/preview/components/app_error_widget_preview.dart'
     as _travel_booking_mobile_preview_components_app_error_widget_preview;
 import 'package:travel_booking_mobile/preview/components/loading_indicator_preview.dart'
@@ -57,9 +58,9 @@ final directories = <_widgetbook.WidgetbookNode>[
                                 .buildPlanCardDefault,
                       ),
                     ],
-                  )
+                  ),
                 ],
-              )
+              ),
             ],
           ),
           _widgetbook.WidgetbookFolder(
@@ -93,7 +94,7 @@ final directories = <_widgetbook.WidgetbookNode>[
                             .buildPlanDetailNormal,
                   ),
                 ],
-              )
+              ),
             ],
           ),
         ],
@@ -173,5 +174,5 @@ final directories = <_widgetbook.WidgetbookNode>[
         ],
       ),
     ],
-  )
+  ),
 ];
