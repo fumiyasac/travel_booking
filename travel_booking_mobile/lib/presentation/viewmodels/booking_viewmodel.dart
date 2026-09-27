@@ -20,6 +20,8 @@ class BookingFormState {
   final AppError? error;
   final Booking? completedBooking;
   final Map<String, String> validationErrors;
+  // 0=旅行者情報 / 1=日程・人数 / 2=入力確認
+  final int currentStep;
 
   const BookingFormState({
     this.customerName = '',
@@ -32,6 +34,7 @@ class BookingFormState {
     this.error,
     this.completedBooking,
     this.validationErrors = const {},
+    this.currentStep = 0,
   });
 
   bool get isValid =>
@@ -59,6 +62,7 @@ class BookingFormState {
     Map<String, String>? validationErrors,
     bool clearError = false,
     bool clearBooking = false,
+    int? currentStep,
   }) {
     return BookingFormState(
       customerName: customerName ?? this.customerName,
@@ -73,6 +77,7 @@ class BookingFormState {
           ? null
           : (completedBooking ?? this.completedBooking),
       validationErrors: validationErrors ?? this.validationErrors,
+      currentStep: currentStep ?? this.currentStep,
     );
   }
 }
@@ -83,6 +88,8 @@ class BookingViewModel extends _$BookingViewModel {
   BookingFormState build() {
     return const BookingFormState();
   }
+
+  // ─── フィールド更新 ──────────────────────────────────────────────────────────
 
   void updateCustomerName(String value) {
     state = state.copyWith(
@@ -124,28 +131,76 @@ class BookingViewModel extends _$BookingViewModel {
     state = state.copyWith(specialRequests: value);
   }
 
-  Map<String, String> _validate() {
+  // ─── ウィザードナビゲーション ────────────────────────────────────────────────
+
+  /// 現ステップをバリデーションして合格すれば次ステップへ進む。
+  /// エラーがあれば state に反映して false を返す。
+  bool nextStep() {
+    final errors = _validateStep(state.currentStep);
+    if (errors.isNotEmpty) {
+      state = state.copyWith(validationErrors: errors);
+      return false;
+    }
+    state = state.copyWith(
+      currentStep: state.currentStep + 1,
+      validationErrors: {},
+    );
+    return true;
+  }
+
+  /// 前ステップへ戻る（バリデーションなし・エラーもクリア）。
+  void prevStep() {
+    if (state.currentStep <= 0) return;
+    state = state.copyWith(
+      currentStep: state.currentStep - 1,
+      validationErrors: {},
+    );
+  }
+
+  /// 確認ステップから特定ステップへ編集で戻る。
+  void goToStep(int step) {
+    state = state.copyWith(currentStep: step, validationErrors: {});
+  }
+
+  // ─── バリデーション ──────────────────────────────────────────────────────────
+
+  /// ステップ別バリデーション。エラーキーと日本語メッセージの Map を返す。
+  Map<String, String> _validateStep(int step) {
     final errors = <String, String>{};
-    if (state.customerName.trim().isEmpty) {
-      errors['customerName'] = 'お名前を入力してください';
-    }
-    if (state.customerEmail.trim().isEmpty) {
-      errors['customerEmail'] = 'メールアドレスを入力してください';
-    } else if (!state.customerEmail.contains('@')) {
-      errors['customerEmail'] = '有効なメールアドレスを入力してください';
-    }
-    if (state.customerPhone.trim().isEmpty) {
-      errors['customerPhone'] = '電話番号を入力してください';
-    }
-    if (state.numberOfPeople < 1) {
-      errors['numberOfPeople'] = '参加人数は1名以上を指定してください';
-    }
-    if (state.travelDate == null) {
-      errors['travelDate'] = '旅行日を選択してください';
-    } else if (state.travelDate!.isBefore(DateTime.now())) {
-      errors['travelDate'] = '旅行日は本日以降の日付を選択してください';
+    if (step == 0) {
+      // Step 1: 旅行者情報
+      if (state.customerName.trim().isEmpty) {
+        errors['customerName'] = 'お名前を入力してください';
+      }
+      final email = state.customerEmail.trim();
+      if (email.isEmpty) {
+        errors['customerEmail'] = 'メールアドレスを入力してください';
+      } else if (!RegExp(r'^[^@]+@[^@]+\.[^@]+$').hasMatch(email)) {
+        errors['customerEmail'] = '有効なメールアドレスを入力してください';
+      }
+      final phone = state.customerPhone.trim();
+      if (phone.isEmpty) {
+        errors['customerPhone'] = '電話番号を入力してください';
+      } else if (!RegExp(r'^[\d\-\+\(\)\s]{10,15}$').hasMatch(phone)) {
+        errors['customerPhone'] = '有効な電話番号を入力してください（10〜15桁）';
+      }
+    } else if (step == 1) {
+      // Step 2: 日程・人数
+      if (state.travelDate == null) {
+        errors['travelDate'] = '旅行日を選択してください';
+      } else if (state.travelDate!.isBefore(DateTime.now())) {
+        errors['travelDate'] = '旅行日は本日以降の日付を選択してください';
+      }
+      if (state.numberOfPeople < 1) {
+        errors['numberOfPeople'] = '参加人数は1名以上を指定してください';
+      }
     }
     return errors;
+  }
+
+  /// submitBooking 用の全フィールドバリデーション。
+  Map<String, String> _validate() {
+    return {..._validateStep(0), ..._validateStep(1)};
   }
 
   Map<String, String> _removeError(String key) {
@@ -153,6 +208,8 @@ class BookingViewModel extends _$BookingViewModel {
     errors.remove(key);
     return errors;
   }
+
+  // ─── 予約送信 ────────────────────────────────────────────────────────────────
 
   Future<bool> submitBooking(String planId, int availableSpots) async {
     final errors = _validate();

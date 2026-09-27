@@ -2,14 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
-import '../../../core/error/app_error.dart';
-import '../../../core/theme/app_theme.dart';
 import '../../../data/models/travel_plan.dart';
 import '../../../presentation/viewmodels/booking_viewmodel.dart';
 import '../../../presentation/viewmodels/plan_detail_viewmodel.dart';
+import '../../../presentation/widgets/booking_step_indicator.dart';
 import '../../../presentation/widgets/loading_indicator.dart';
+import 'steps/confirmation_step.dart';
+import 'steps/date_guests_step.dart';
+import 'steps/traveler_info_step.dart';
 
 class BookingScreen extends ConsumerStatefulWidget {
   final String planId;
@@ -21,8 +22,6 @@ class BookingScreen extends ConsumerStatefulWidget {
 }
 
 class _BookingScreenState extends ConsumerState<BookingScreen> {
-  final _formKey = GlobalKey<FormState>();
-
   @override
   void initState() {
     super.initState();
@@ -39,7 +38,9 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final bookingState = ref.watch(bookingViewModelProvider);
+    final currentStep = ref.watch(
+      bookingViewModelProvider.select((s) => s.currentStep),
+    );
     final detailState = ref.watch(planDetailViewModelProvider(widget.planId));
     final plan = detailState.plan;
 
@@ -47,140 +48,55 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
       return const Scaffold(body: LoadingIndicator(message: 'プランを読み込んでいます...'));
     }
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('予約する')),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(20),
+    return PopScope(
+      // Step 0 では OS の戻るで画面を閉じる。Step 1/2 では前ステップへ戻る。
+      canPop: currentStep == 0,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) {
+          ref.read(bookingViewModelProvider.notifier).prevStep();
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('予約する'),
+          leading: currentStep > 0
+              ? IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: () =>
+                      ref.read(bookingViewModelProvider.notifier).prevStep(),
+                )
+              : null,
+        ),
+        body: Column(
           children: [
-            _buildPlanSummary(plan, bookingState),
-            const Gap(24),
-            _buildSectionTitle('お客様情報'),
-            const Gap(12),
-            _buildTextField(
-              label: 'お名前（代表者）',
-              hint: '山田 太郎',
-              icon: Icons.person_outline,
-              onChanged: ref
-                  .read(bookingViewModelProvider.notifier)
-                  .updateCustomerName,
-              errorText: bookingState.validationErrors['customerName'],
+            _PlanSummaryBar(plan: plan),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+              child: BookingStepIndicator(currentStep: currentStep),
             ),
-            const Gap(12),
-            _buildTextField(
-              label: 'メールアドレス',
-              hint: 'example@email.com',
-              icon: Icons.email_outlined,
-              keyboardType: TextInputType.emailAddress,
-              onChanged: ref
-                  .read(bookingViewModelProvider.notifier)
-                  .updateCustomerEmail,
-              errorText: bookingState.validationErrors['customerEmail'],
-            ),
-            const Gap(12),
-            _buildTextField(
-              label: '電話番号',
-              hint: '090-1234-5678',
-              icon: Icons.phone_outlined,
-              keyboardType: TextInputType.phone,
-              onChanged: ref
-                  .read(bookingViewModelProvider.notifier)
-                  .updateCustomerPhone,
-              errorText: bookingState.validationErrors['customerPhone'],
-            ),
-            const Gap(24),
-            _buildSectionTitle('予約内容'),
-            const Gap(12),
-            _buildNumberOfPeopleSelector(bookingState, plan.availableSpots),
-            const Gap(12),
-            _buildDatePicker(bookingState),
-            const Gap(12),
-            _buildTextField(
-              label: '特別なご要望（任意）',
-              hint: 'アレルギー、車椅子対応など',
-              icon: Icons.notes_outlined,
-              maxLines: 3,
-              onChanged: ref
-                  .read(bookingViewModelProvider.notifier)
-                  .updateSpecialRequests,
-            ),
-            const Gap(24),
-            _buildPriceBreakdown(plan, bookingState),
-            const Gap(16),
-            if (bookingState.error != null)
-              Container(
-                padding: const EdgeInsets.all(12),
-                margin: const EdgeInsets.only(bottom: 16),
-                decoration: BoxDecoration(
-                  color: AppTheme.errorColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Icon(
-                      switch (bookingState.error!) {
-                        NetworkError() => Icons.wifi_off,
-                        GraphQLError() => Icons.error_outline,
-                        ValidationError() => Icons.warning_amber_rounded,
-                        UnknownError() => Icons.help_outline,
-                      },
-                      color: AppTheme.errorColor,
-                      size: 16,
-                    ),
-                    const Gap(6),
-                    Expanded(
-                      child: Text(
-                        bookingState.error!.message,
-                        style: const TextStyle(
-                          color: AppTheme.errorColor,
-                          fontSize: 13,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            SizedBox(
-              height: 52,
-              child: ElevatedButton(
-                onPressed: bookingState.isSubmitting
-                    ? null
-                    : () => _submitBooking(
-                        plan.id,
-                        plan.availableSpots,
-                        plan.title,
-                        plan.effectivePrice,
-                      ),
-                child: bookingState.isSubmitting
-                    ? const SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
-                          strokeWidth: 2,
-                        ),
-                      )
-                    : const Text('予約を確定する', style: TextStyle(fontSize: 16)),
+            Expanded(
+              child: IndexedStack(
+                index: currentStep,
+                children: [
+                  const TravelerInfoStep(),
+                  DateGuestsStep(plan: plan),
+                  ConfirmationStep(plan: plan, onSubmit: _submitBooking),
+                ],
               ),
             ),
-            const Gap(32),
           ],
         ),
       ),
     );
   }
 
-  Future<void> _submitBooking(
-    String planId,
-    int availableSpots,
-    String planTitle,
-    double pricePerPerson,
-  ) async {
+  Future<void> _submitBooking() async {
+    final plan = ref.read(planDetailViewModelProvider(widget.planId)).plan;
+    if (plan == null) return;
+
     final success = await ref
         .read(bookingViewModelProvider.notifier)
-        .submitBooking(planId, availableSpots);
+        .submitBooking(plan.id, plan.availableSpots);
 
     if (success && mounted) {
       final completedBooking = ref
@@ -190,7 +106,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
         context.go(
           '/booking/confirmation/${completedBooking.id}',
           extra: {
-            'planTitle': planTitle,
+            'planTitle': plan.title,
             'totalPrice': completedBooking.totalPrice,
             'travelDate': completedBooking.travelDate,
             'numberOfPeople': completedBooking.numberOfPeople,
@@ -199,22 +115,25 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
       }
     }
   }
+}
 
-  Widget _buildPlanSummary(TravelPlan plan, BookingFormState bookingState) {
+class _PlanSummaryBar extends StatelessWidget {
+  final TravelPlan plan;
+
+  const _PlanSummaryBar({required this.plan});
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppTheme.primaryColor.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(12),
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+      decoration: const BoxDecoration(
+        color: Color(0xFFEAF4F8),
+        border: Border(bottom: BorderSide(color: Color(0xFFD0E6EF))),
       ),
       child: Row(
         children: [
-          const Icon(
-            Icons.travel_explore,
-            color: AppTheme.primaryColor,
-            size: 28,
-          ),
-          const Gap(12),
+          const Icon(Icons.travel_explore, color: Color(0xFF1A6B8A), size: 22),
+          const Gap(10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -223,16 +142,16 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                   plan.title,
                   style: const TextStyle(
                     fontWeight: FontWeight.w700,
-                    fontSize: 14,
+                    fontSize: 13,
                   ),
-                  maxLines: 2,
+                  maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
                   '${plan.destination}・${plan.durationDays}日間',
                   style: const TextStyle(
-                    fontSize: 12,
-                    color: AppTheme.textSecondary,
+                    fontSize: 11,
+                    color: Color(0xFF6B7A8D),
                   ),
                 ),
               ],
@@ -240,225 +159,6 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildSectionTitle(String title) {
-    return Text(
-      title,
-      style: const TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.w700,
-        color: AppTheme.textPrimary,
-      ),
-    );
-  }
-
-  Widget _buildTextField({
-    required String label,
-    required String hint,
-    required IconData icon,
-    TextInputType keyboardType = TextInputType.text,
-    int maxLines = 1,
-    required void Function(String) onChanged,
-    String? errorText,
-  }) {
-    return TextFormField(
-      decoration: InputDecoration(
-        labelText: label,
-        hintText: hint,
-        prefixIcon: Icon(icon, color: AppTheme.primaryColor),
-        errorText: errorText,
-      ),
-      keyboardType: keyboardType,
-      maxLines: maxLines,
-      onChanged: onChanged,
-    );
-  }
-
-  Widget _buildNumberOfPeopleSelector(BookingFormState state, int maxSpots) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        border: Border.all(color: AppTheme.dividerColor),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.people_outline, color: AppTheme.primaryColor),
-          const Gap(12),
-          const Text(
-            '参加人数',
-            style: TextStyle(fontSize: 14, color: AppTheme.textPrimary),
-          ),
-          if (state.validationErrors['numberOfPeople'] != null)
-            Padding(
-              padding: const EdgeInsets.only(left: 8),
-              child: Text(
-                state.validationErrors['numberOfPeople']!,
-                style: const TextStyle(
-                  color: AppTheme.errorColor,
-                  fontSize: 12,
-                ),
-              ),
-            ),
-          const Spacer(),
-          IconButton(
-            onPressed: state.numberOfPeople > 1
-                ? () => ref
-                      .read(bookingViewModelProvider.notifier)
-                      .updateNumberOfPeople(state.numberOfPeople - 1)
-                : null,
-            icon: const Icon(Icons.remove_circle_outline),
-            color: AppTheme.primaryColor,
-          ),
-          Text(
-            '${state.numberOfPeople}名',
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-          ),
-          IconButton(
-            onPressed: state.numberOfPeople < maxSpots
-                ? () => ref
-                      .read(bookingViewModelProvider.notifier)
-                      .updateNumberOfPeople(state.numberOfPeople + 1)
-                : null,
-            icon: const Icon(Icons.add_circle_outline),
-            color: AppTheme.primaryColor,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDatePicker(BookingFormState state) {
-    return InkWell(
-      onTap: () async {
-        final date = await showDatePicker(
-          context: context,
-          initialDate: DateTime.now().add(const Duration(days: 30)),
-          firstDate: DateTime.now().add(const Duration(days: 1)),
-          lastDate: DateTime.now().add(const Duration(days: 365)),
-          locale: const Locale('ja'),
-        );
-        if (date != null) {
-          ref.read(bookingViewModelProvider.notifier).updateTravelDate(date);
-        }
-      },
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: state.validationErrors['travelDate'] != null
-                ? AppTheme.errorColor
-                : AppTheme.dividerColor,
-          ),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          children: [
-            const Icon(
-              Icons.calendar_month_outlined,
-              color: AppTheme.primaryColor,
-            ),
-            const Gap(12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    '旅行日',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppTheme.textSecondary,
-                    ),
-                  ),
-                  Text(
-                    state.travelDate != null
-                        ? DateFormat('yyyy年M月d日').format(state.travelDate!)
-                        : '旅行日を選択してください',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: state.travelDate != null
-                          ? AppTheme.textPrimary
-                          : AppTheme.textHint,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const Icon(Icons.chevron_right, color: AppTheme.textHint),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPriceBreakdown(TravelPlan plan, BookingFormState state) {
-    final total = state.calculateTotal(plan);
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppTheme.surfaceColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppTheme.dividerColor),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            '料金内訳',
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
-          ),
-          const Gap(12),
-          Row(
-            children: [
-              Text(
-                '¥${_formatPrice(plan.effectivePrice.toInt())} × ${state.numberOfPeople}名',
-              ),
-              const Spacer(),
-              Text('¥${_formatPrice(total.toInt())}'),
-            ],
-          ),
-          if (plan.hasDiscount) ...[
-            const Gap(4),
-            Row(
-              children: [
-                const Text('割引', style: TextStyle(color: AppTheme.accentColor)),
-                const Spacer(),
-                Text(
-                  '-¥${_formatPrice(((plan.price - plan.effectivePrice) * state.numberOfPeople).toInt())}',
-                  style: const TextStyle(color: AppTheme.accentColor),
-                ),
-              ],
-            ),
-          ],
-          const Divider(height: 16),
-          Row(
-            children: [
-              const Text(
-                '合計金額',
-                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
-              ),
-              const Spacer(),
-              Text(
-                '¥${_formatPrice(total.toInt())}',
-                style: const TextStyle(
-                  fontWeight: FontWeight.w800,
-                  fontSize: 18,
-                  color: AppTheme.primaryColor,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  String _formatPrice(int price) {
-    return price.toString().replaceAllMapped(
-      RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
-      (m) => '${m[1]},',
     );
   }
 }
