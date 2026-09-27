@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -15,8 +17,10 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_17.toString()
+    kotlin {
+        compilerOptions {
+            jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
+        }
     }
 
     defaultConfig {
@@ -29,19 +33,15 @@ android {
         versionCode = flutter.versionCode
         versionName = flutter.versionName
         // Google Maps API Key の解決順:
-        //   1. --dart-define=GOOGLE_MAPS_API_KEY=xxx (Flutter が DART_DEFINES 経由で伝達)
+        //   1. local.properties の googleMapsApiKey (ローカル開発)
         //   2. 環境変数 GOOGLE_MAPS_API_KEY (CI/CD 向け)
         //   3. 未設定時は空文字（地図は表示されないがクラッシュしない）
-        val dartDefinesKey = (System.getenv("DART_DEFINES") ?: "")
-            .split(",")
-            .filter { it.isNotEmpty() }
-            .map { String(java.util.Base64.getDecoder().decode(it), Charsets.UTF_8) }
-            .firstOrNull { it.startsWith("GOOGLE_MAPS_API_KEY=") }
-            ?.substringAfter("=")
+        val localProps = Properties()
+        val localPropsFile = rootProject.file("local.properties")
+        if (localPropsFile.exists()) localPropsFile.inputStream().use { localProps.load(it) }
+        val googleMapsApiKey = localProps.getProperty("googleMapsApiKey")
+            ?: System.getenv("GOOGLE_MAPS_API_KEY")
             ?: ""
-        val googleMapsApiKey = dartDefinesKey.ifEmpty {
-            System.getenv("GOOGLE_MAPS_API_KEY") ?: ""
-        }
         manifestPlaceholders["googleMapsApiKey"] = googleMapsApiKey
     }
 

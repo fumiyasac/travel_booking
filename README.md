@@ -300,10 +300,27 @@ ifconfig | grep "inet " | grep -v 127.0.0.1
 > **Maps SDK for iOS** / **Maps SDK for Android** を有効化し、API キーを取得してください。  
 > API キーはリポジトリにコミットせず、以下の方法で設定します：
 >
-> | プラットフォーム | 設定方法 |
-> |---|---|
-> | iOS | Xcode > Build Settings > User-Defined に `GOOGLE_MAPS_API_KEY` を追加 |
-> | Android | 環境変数 `GOOGLE_MAPS_API_KEY` を設定（`build.gradle.kts` 経由で `AndroidManifest.xml` に注入） |
+> **iOS / Android 共通（推奨）**
+> ```bash
+> flutter run --dart-define=GOOGLE_MAPS_API_KEY=<YOUR_KEY>
+> ```
+> iOS は MethodChannel 経由で `GMSServices.provideAPIKey()` を呼び出します。
+>
+> **Android のみ: `local.properties` を使う方法（git 管理外）**
+> ```properties
+> # travel_booking_mobile/android/local.properties（コミット不可・.gitignore 済み）
+> googleMapsApiKey=<YOUR_KEY>
+> ```
+>
+> **CI/CD: 環境変数を使う方法**
+> ```bash
+> GOOGLE_MAPS_API_KEY=<YOUR_KEY> flutter build apk
+> ```
+>
+> | プラットフォーム | `--dart-define` | `local.properties` | 環境変数 |
+> |---|:---:|:---:|:---:|
+> | iOS | ✅ | — | — |
+> | Android | ✅ | ✅ | ✅ |
 >
 > **未設定の場合でも地図以外の機能は正常に動作します。**
 
