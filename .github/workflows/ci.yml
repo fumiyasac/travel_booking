@@ -43,6 +43,10 @@ jobs:
       - name: Generate code (build_runner)
         run: melos run build_runner
 
+      - name: Format generated code
+        working-directory: travel_booking_mobile
+        run: dart format lib/ test/
+
       - name: Static analysis
         run: melos run analyze
 
