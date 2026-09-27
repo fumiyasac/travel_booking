@@ -424,5 +424,44 @@ void main() {
         isNotNull,
       );
     });
+
+    test('full wizard flow: step 0→1→2 → submitBooking succeeds', () async {
+      when(
+        mockRepository.createBooking(
+          planId: anyNamed('planId'),
+          customerName: anyNamed('customerName'),
+          customerEmail: anyNamed('customerEmail'),
+          customerPhone: anyNamed('customerPhone'),
+          numberOfPeople: anyNamed('numberOfPeople'),
+          travelDate: anyNamed('travelDate'),
+          specialRequests: anyNamed('specialRequests'),
+          paymentMethod: anyNamed('paymentMethod'),
+        ),
+      ).thenAnswer((_) async => mockBooking);
+
+      final notifier = container.read(bookingViewModelProvider.notifier);
+
+      // Step 0: 旅行者情報入力 → nextStep
+      notifier.updateCustomerName('山田 太郎');
+      notifier.updateCustomerEmail('yamada@example.com');
+      notifier.updateCustomerPhone('090-1234-5678');
+      expect(notifier.nextStep(), isTrue);
+      expect(container.read(bookingViewModelProvider).currentStep, 1);
+
+      // Step 1: 日程・人数入力 → nextStep
+      notifier.updateTravelDate(DateTime.now().add(const Duration(days: 30)));
+      notifier.updateNumberOfPeople(2);
+      expect(notifier.nextStep(), isTrue);
+      expect(container.read(bookingViewModelProvider).currentStep, 2);
+
+      // Step 2: 確定
+      final success = await notifier.submitBooking('plan-1', 8);
+      expect(success, isTrue);
+      final state = container.read(bookingViewModelProvider);
+      expect(state.completedBooking, isNotNull);
+      expect(state.completedBooking!.id, 'booking-123');
+      expect(state.error, isNull);
+      expect(state.isSubmitting, isFalse);
+    });
   });
 }

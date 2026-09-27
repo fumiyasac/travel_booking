@@ -14,7 +14,7 @@ class BookingStepIndicator extends StatelessWidget {
     required this.currentStep,
     this.totalSteps = 3,
     this.stepLabels = _defaultLabels,
-  }) : assert(stepLabels.length == totalSteps);
+  });
 
   @override
   Widget build(BuildContext context) {

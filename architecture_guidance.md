@@ -195,6 +195,7 @@ flowchart TD
 |---|---|---|
 | `TravelPlanRepository` | `TravelPlanRepositoryImpl` | `getPlans`, `getPlan`, `createBooking`, `cancelBooking` |
 | `FavoriteRepository` | `FavoriteRepositoryImpl` | `watchFavorites`, `isFavorite`, `addFavorite`, `removeFavorite`, `clearFavorites` |
+| `RecentlyViewedRepository` | `RecentlyViewedRepositoryImpl` | `watchRecentlyViewed`, `addViewedPlan`, `getRecentlyViewedPlans`, `clearHistory` |
 
 ---
 
@@ -352,7 +353,7 @@ flowchart TD
 
 ### 2-7. ナビゲーション（go_router 14.x）
 
-`StatefulShellRoute.indexedStack` でボトムナビ 2 タブを実装しています。
+`StatefulShellRoute.indexedStack` でボトムナビ 3 タブを実装しています。
 
 ```mermaid
 graph TD
@@ -760,6 +761,19 @@ test/viewmodels/
 ├── recently_viewed_viewmodel_test.dart         # RecentlyViewedViewModel（Stream 制御）
 └── recently_viewed_viewmodel_test.mocks.dart   # 自動生成（@GenerateMocks）
 ```
+
+### Widget テスト（test/widgets/）
+
+```
+test/widgets/
+├── rating_stars_test.dart               # RatingStars
+├── loading_indicator_test.dart          # LoadingIndicator
+├── plan_map_view_test.dart              # PlanMapView
+├── app_error_widget_test.dart           # AppErrorWidget
+└── booking_step_indicator_test.dart     # BookingStepIndicator
+```
+
+---
 
 ### テストの基本構造
 
