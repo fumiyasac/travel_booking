@@ -28,8 +28,21 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
-        // Google Maps API Key: GOOGLE_MAPS_API_KEY 環境変数で設定。未設定時は空文字
-        manifestPlaceholders["googleMapsApiKey"] = System.getenv("GOOGLE_MAPS_API_KEY") ?: ""
+        // Google Maps API Key の解決順:
+        //   1. --dart-define=GOOGLE_MAPS_API_KEY=xxx (Flutter が DART_DEFINES 経由で伝達)
+        //   2. 環境変数 GOOGLE_MAPS_API_KEY (CI/CD 向け)
+        //   3. 未設定時は空文字（地図は表示されないがクラッシュしない）
+        val dartDefinesKey = (System.getenv("DART_DEFINES") ?: "")
+            .split(",")
+            .filter { it.isNotEmpty() }
+            .map { String(java.util.Base64.getDecoder().decode(it), Charsets.UTF_8) }
+            .firstOrNull { it.startsWith("GOOGLE_MAPS_API_KEY=") }
+            ?.substringAfter("=")
+            ?: ""
+        val googleMapsApiKey = dartDefinesKey.ifEmpty {
+            System.getenv("GOOGLE_MAPS_API_KEY") ?: ""
+        }
+        manifestPlaceholders["googleMapsApiKey"] = googleMapsApiKey
     }
 
     buildTypes {
