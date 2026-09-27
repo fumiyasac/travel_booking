@@ -8,15 +8,32 @@ import UIKit
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
-    // TODO: 本番運用時は Google Cloud Console で Maps SDK for iOS を有効化し、
-    //       API キーを取得して Xcode の Build Settings > User-Defined に
-    //       GOOGLE_MAPS_API_KEY を追加してください。
-    //       開発時は空文字のままでも地図以外の機能は動作します。
-    let apiKey = Bundle.main.object(forInfoDictionaryKey: "GOOGLE_MAPS_API_KEY") as? String ?? ""
-    if !apiKey.isEmpty {
-      GMSServices.provideAPIKey(apiKey)
-    }
     GeneratedPluginRegistrant.register(with: self)
-    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+    let result = super.application(application, didFinishLaunchingWithOptions: launchOptions)
+
+    // GMSServices.provideAPIKey() は Dart 側から --dart-define で渡されたキーで
+    // MethodChannel 経由で初期化する。
+    // runApp() 前に main.dart から invokeMethod('initialize') が呼ばれる。
+    guard let controller = window?.rootViewController as? FlutterViewController else {
+      return result
+    }
+    let channel = FlutterMethodChannel(
+      name: "travel_booking/google_maps",
+      binaryMessenger: controller.binaryMessenger
+    )
+    channel.setMethodCallHandler { call, result in
+      guard call.method == "initialize",
+            let args = call.arguments as? [String: Any],
+            let apiKey = args["apiKey"] as? String,
+            !apiKey.isEmpty
+      else {
+        result(FlutterMethodNotImplemented)
+        return
+      }
+      GMSServices.provideAPIKey(apiKey)
+      result(nil)
+    }
+
+    return result
   }
 }
