@@ -3,7 +3,9 @@ import 'dart:io';
 
 import 'package:http/http.dart' as http;
 
-class GraphQLHttpClient {
+import 'graphql_client_interface.dart';
+
+class GraphQLHttpClient implements GraphQLClientInterface {
   final String _baseUrl;
   final http.Client? _httpClient;
 
@@ -15,6 +17,7 @@ class GraphQLHttpClient {
               : 'http://localhost:4000/graphql'),
       _httpClient = client;
 
+  @override
   Future<Map<String, dynamic>> query({
     required String document,
     Map<String, dynamic>? variables,
@@ -22,6 +25,7 @@ class GraphQLHttpClient {
     return _send(document: document, variables: variables);
   }
 
+  @override
   Future<Map<String, dynamic>> mutate({
     required String document,
     Map<String, dynamic>? variables,

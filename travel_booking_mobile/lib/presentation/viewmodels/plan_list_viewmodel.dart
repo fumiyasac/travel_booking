@@ -1,5 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../core/config/graphql_client_interface.dart';
 import '../../core/config/graphql_config.dart';
 import '../../core/database/app_database.dart';
 import '../../core/database/recently_viewed_storage.dart';
@@ -28,7 +29,7 @@ FavoritesStorage favoritesStorage(Ref ref) {
 }
 
 @riverpod
-GraphQLHttpClient graphQLHttpClient(Ref ref) {
+GraphQLClientInterface graphQLHttpClient(Ref ref) {
   final client = GraphQLHttpClient();
   ref.onDispose(client.dispose);
   return client;

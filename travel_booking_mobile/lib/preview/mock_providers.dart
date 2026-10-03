@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import '../core/config/mock_graphql_client.dart';
 import '../core/database/app_database.dart';
 import '../data/models/booking.dart';
 import '../data/models/favorite_plan.dart';
@@ -41,6 +42,7 @@ final previewProviderOverrides = [
   favoritesStorageProvider.overrideWith(
     (ref) => FakeInMemoryFavoritesStorage(),
   ),
+  graphQLHttpClientProvider.overrideWithValue(const MockGraphQLClient()),
 ];
 
 // ── FakeTravelPlanRepository ─────────────────────────────────────────────────

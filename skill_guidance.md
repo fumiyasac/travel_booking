@@ -171,7 +171,7 @@ metadata:
 | frontmatter | 使用スキル | 理由 |
 |---|---|---|
 | `disable-model-invocation: true` | `backend-up`・`db-reset`・`fix-endpoint` | 副作用・破壊的操作のため手動専用 |
-| `context: fork` | `graphql-check`・`state-audit`・`perf-audit` | 読み取り専用の分析タスクで本会話を汚さない |
+| `context: fork` | `graphql-check`・`state-audit`・`perf-audit`・`test-fix`・`doc-sync`・`impact-analysis` | 読み取り専用の分析タスクまたは修復タスクで本会話を汚さない |
 
 ---
 
