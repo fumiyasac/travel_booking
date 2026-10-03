@@ -186,19 +186,24 @@ travel_booking_mysql       Up (healthy)    0.0.0.0:3306->3306/tcp
 # マイグレーション実行（「Enter a name for the new migration:」と聞かれたら任意の名前を入力）
 docker compose exec backend npm run db:migrate
 
-# シードデータ投入（旅行プラン 10 件、予約サンプルデータが入ります）
+# シードデータ投入（旅行プラン 30 件、予約サンプルデータが入ります）
 docker compose exec backend npm run db:seed
 ```
 
 #### 動作確認
 
-ブラウザまたは curl で GraphQL エンドポイントにアクセスして確認します:
+ブラウザまたは curl で各エンドポイントにアクセスして確認します:
 
 ```bash
+# ヘルスチェック
+curl http://localhost:4000/health
+# 期待される出力: {"status":"ok","timestamp":"...","uptime":...}
+
+# GraphQL エンドポイント
 curl -X POST http://localhost:4000/graphql \
   -H "Content-Type: application/json" \
   -d '{"query":"{ travelPlans { totalCount } }"}'
-# 期待される出力: {"data":{"travelPlans":{"totalCount":10}}}
+# 期待される出力: {"data":{"travelPlans":{"totalCount":30}}}
 ```
 
 ---
@@ -659,6 +664,12 @@ travel_booking_backend/
 │   └── seed.ts                    # サンプルデータ
 └── src/
     ├── index.ts                   # Apollo Server エントリーポイント (port 4000)
+    ├── middleware/
+    │   ├── healthCheck.ts         # GET /health — DB 接続確認付きヘルスチェック
+    │   ├── rateLimit.ts           # レート制限（15分 / 100リクエスト）
+    │   └── requestLogger.ts      # Apollo プラグイン — 構造化ログ（pino）
+    ├── utils/
+    │   └── logger.ts              # pino ロガー（開発: pino-pretty / 本番: JSON）
     └── graphql/
         ├── typeDefs.ts            # GraphQL スキーマ定義
         └── resolvers/

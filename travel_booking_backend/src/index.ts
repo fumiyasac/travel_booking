@@ -7,6 +7,7 @@ import { typeDefs } from './graphql/typeDefs';
 import { resolvers } from './graphql/resolvers';
 import { healthCheck } from './middleware/healthCheck';
 import { graphqlRateLimiter } from './middleware/rateLimit';
+import { requestLoggerPlugin } from './middleware/requestLogger';
 
 dotenv.config();
 
@@ -25,6 +26,7 @@ async function main() {
   const server = new ApolloServer<Context>({
     typeDefs,
     resolvers,
+    plugins: [requestLoggerPlugin],
     formatError: (formattedError, error) => {
       console.error('GraphQL Error:', error);
       return {

@@ -115,3 +115,31 @@ jobs:
       - name: Run tests
         working-directory: travel_booking_backend
         run: npm test
+
+      - name: Build for smoke test
+        working-directory: travel_booking_backend
+        run: npm run build
+
+      - name: Start server for smoke test
+        run: |
+          cd travel_booking_backend
+          npm start &
+          sleep 5
+        env:
+          DATABASE_URL: mysql://root:password@127.0.0.1:3306/travel_booking
+          NODE_ENV: test
+
+      - name: Health check smoke test
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:4000/health)
+          if [ "$STATUS" != "200" ]; then
+            echo "Health check failed with status $STATUS"
+            exit 1
+          fi
+
+      - name: GraphQL smoke test
+        run: |
+          RESPONSE=$(curl -s -X POST http://localhost:4000/graphql \
+            -H "Content-Type: application/json" \
+            -d '{"query":"{ travelPlans { totalCount } }"}')
+          echo "$RESPONSE" | grep -q "totalCount" || exit 1
