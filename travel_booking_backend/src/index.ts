@@ -1,9 +1,12 @@
 import { ApolloServer } from '@apollo/server';
-import { startStandaloneServer } from '@apollo/server/standalone';
+import { expressMiddleware } from '@apollo/server/express4';
+import express from 'express';
 import { PrismaClient } from '@prisma/client';
 import dotenv from 'dotenv';
 import { typeDefs } from './graphql/typeDefs';
 import { resolvers } from './graphql/resolvers';
+import { healthCheck } from './middleware/healthCheck';
+import { graphqlRateLimiter } from './middleware/rateLimit';
 
 dotenv.config();
 
@@ -16,6 +19,9 @@ export interface Context {
 }
 
 async function main() {
+  const app = express();
+  app.use(express.json());
+
   const server = new ApolloServer<Context>({
     typeDefs,
     resolvers,
@@ -32,17 +38,24 @@ async function main() {
     },
   });
 
-  const port = parseInt(process.env.PORT ?? '4000', 10);
+  await server.start();
 
-  const { url } = await startStandaloneServer(server, {
-    listen: { port },
-    context: async (): Promise<Context> => ({
-      prisma,
+  app.get('/health', healthCheck);
+
+  app.use(
+    '/graphql',
+    graphqlRateLimiter,
+    expressMiddleware(server, {
+      context: async (): Promise<Context> => ({ prisma }),
     }),
-  });
+  );
 
-  console.log(`🚀 Travel Booking GraphQL Server ready at: ${url}`);
-  console.log(`📊 Environment: ${process.env.NODE_ENV ?? 'development'}`);
+  const port = parseInt(process.env.PORT ?? '4000', 10);
+  app.listen(port, () => {
+    console.log(`🚀 Travel Booking GraphQL Server ready at: http://localhost:${port}/graphql`);
+    console.log(`🏥 Health check: http://localhost:${port}/health`);
+    console.log(`📊 Environment: ${process.env.NODE_ENV ?? 'development'}`);
+  });
 }
 
 main()
