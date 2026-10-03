@@ -1,10 +1,10 @@
-import '../../../core/config/graphql_config.dart';
+import '../../../core/config/graphql_client_interface.dart';
 import '../../models/travel_plan.dart';
 import '../../models/booking.dart';
 import '../../models/plan_filter.dart';
 
 class TravelPlanRemoteDataSource {
-  final GraphQLHttpClient _client;
+  final GraphQLClientInterface _client;
 
   TravelPlanRemoteDataSource(this._client);
 
