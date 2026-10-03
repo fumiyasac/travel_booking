@@ -427,7 +427,7 @@ DB マイグレーションも Flutter 側も変更しないため、API の追�
 - 「typeDefs にエンドポイントを追加して」
 - 「バックエンドだけ変更したい」
 
-#### オプション
+#### オプション（Resolver モード）
 
 | オプション | 説明 |
 |---|---|
@@ -435,7 +435,26 @@ DB マイグレーションも Flutter 側も変更しないため、API の追�
 | `--mutation` | Mutation のみ生成 |
 | `--both` | Query と Mutation を両方生成 |
 
-#### 実行ステップ
+#### `--middleware` モード
+
+Express ミドルウェアや Apollo Server プラグインの雛形を生成する。
+
+```
+/backend-resolver --middleware healthCheck
+/backend-resolver --middleware rateLimit
+/backend-resolver --middleware requestLogger
+```
+
+または「ヘルスチェックを追加して」「レート制限を追加したい」「リクエストのログを取りたい」などの自然文で自動起動。
+
+| ミドルウェア種別 | Express 移行 | テンプレート |
+|---|:---:|---|
+| `healthCheck` / `rateLimit` | 必要 | `startStandaloneServer` → `expressMiddleware` |
+| `requestLogger` / `structuredLogger` / `auth` | 不要 | Apollo `plugins: [...]` に追加 |
+
+> **注意**: Express ミドルウェアを追加する場合、`src/index.ts` を `expressMiddleware` 構成に移行する必要がある（`express` / `@types/express` のインストールも必要）。
+
+#### 実行ステップ（Resolver モード）
 
 | ステップ | 内容 |
 |---|---|
@@ -450,14 +469,17 @@ DB マイグレーションも Flutter 側も変更しないため、API の追�
 | やりたいこと | 使うスキル |
 |---|---|
 | バックエンド TS のみ変更（DB・Flutter は触らない） | `/backend-resolver` |
+| ミドルウェア追加（ヘルスチェック・レート制限・ロガー） | `/backend-resolver --middleware <名前>` |
 | DB スキーマ変更〜Flutter まで全レイヤー反映 | `/schema-update` |
 
-（Resolver テンプレートコード: `.claude/skills/backend-resolver/references/resolver-template.md`）
+（Resolver テンプレートコード: `.claude/skills/backend-resolver/references/resolver-template.md`）  
+（ミドルウェアテンプレートコード: `.claude/skills/backend-resolver/references/middleware-template.md`）
 
 #### こんな時に使う
 - 既存モデルに新しいクエリ条件を追加したいとき
 - 管理操作用の Mutation を追加したいとき
 - Flutter 側の変更は不要で API だけ先に実装するとき
+- ヘルスチェック・レート制限・ログ収集などのミドルウェアを追加したいとき
 
 ---
 

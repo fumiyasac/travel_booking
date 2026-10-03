@@ -478,6 +478,12 @@ context: async (): Promise<Context> => ({ prisma })
 ```
 src/
 ├── index.ts                            # Apollo Server エントリポイント（port 4000）
+├── middleware/
+│   ├── healthCheck.ts                  # GET /health — DB 接続確認（status/timestamp/uptime）
+│   ├── rateLimit.ts                    # レート制限（15分/100リクエスト、standardHeaders: true）
+│   └── requestLogger.ts               # Apollo プラグイン — オペレーション名・実行時間ログ
+├── utils/
+│   └── logger.ts                       # pino ロガー（開発: pino-pretty / 本番: JSON）
 └── graphql/
     ├── typeDefs.ts                     # GraphQL スキーマ定義（SDL）
     └── resolvers/
@@ -490,6 +496,17 @@ prisma/
 ├── seed.ts                             # 初期データ投入スクリプト
 └── migrations/                         # マイグレーション履歴
 ```
+
+#### ミドルウェア構成
+
+| レイヤー | ファイル | 登録方法 | 適用範囲 |
+|---|---|---|---|
+| ヘルスチェック | `middleware/healthCheck.ts` | `app.get('/health', ...)` | `/health` のみ |
+| レート制限 | `middleware/rateLimit.ts` | `app.use('/graphql', ...)` | GraphQL エンドポイント |
+| 構造化ログ | `middleware/requestLogger.ts` | `ApolloServer plugins: [...]` | 全 GraphQL オペレーション |
+
+Express ミドルウェアの追加には `expressMiddleware`（`@apollo/server/express4`）構成が必要。
+新しい Express ミドルウェアを追加する場合は `src/index.ts` の `await server.start()` の後に登録する。
 
 ---
 
