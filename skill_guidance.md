@@ -361,6 +361,25 @@ lib/presentation/
 
 （MVVM パターン詳細・テンプレートコード: `.claude/skills/add-feature/references/mvvm-pattern.md`）
 
+#### Screen 生成（Step 6）の注意点
+
+loading / error / data の3状態分岐は `AsyncStateBuilder<T>` ウィジェットを使う。
+`AppErrorWidget` / `LoadingIndicator` を直接 if 文で分岐させない。
+
+```dart
+body: AsyncStateBuilder<List<{Feature}Model>>(
+  isLoading: state.isLoading,
+  error: state.error,
+  data: state.items.isNotEmpty ? state.items : null,  // List は isNotEmpty で null 変換
+  onRetry: () => ref.read({feature}ViewModelProvider.notifier).load(),
+  emptyBuilder: () => _buildEmptyState(),
+  builder: (items) => ListView.builder(
+    itemCount: items.length,
+    itemBuilder: (context, index) => _buildItem(items[index]),
+  ),
+),
+```
+
 #### こんな時に使う
 - 全く新しい画面・機能を追加するとき
 - アーキテクチャパターンを統一したいとき
