@@ -85,11 +85,28 @@ travel_booking_mobile/lib/
 
 ### Step 6: Screen 生成
 
-既存の `home_screen.dart` を参考に生成する：
+既存の `booking_history_screen.dart` / `recently_viewed_screen.dart` を参考に生成する：
 - `ConsumerStatefulWidget` として生成
-- ローディング状態（Shimmer）
-- エラー状態（`AppErrorWidget`）
-- データ表示のスケルトン
+- loading / error / data の3状態分岐は `AsyncStateBuilder<T>` を使う
+  （`lib/presentation/widgets/async_state_builder.dart`）
+- データが List の場合: `data: state.items.isNotEmpty ? state.items : null`
+  + `emptyBuilder: () => _buildEmptyState()` でリスト空状態を表示
+- `AppErrorWidget` / `LoadingIndicator` の直接使用は不要
+- `onRetry` には ViewModel の `load()` メソッドを渡す
+
+```dart
+body: AsyncStateBuilder<List<{Feature}Model>>(
+  isLoading: state.isLoading,
+  error: state.error,
+  data: state.items.isNotEmpty ? state.items : null,
+  onRetry: () => ref.read({feature}ViewModelProvider.notifier).load(),
+  emptyBuilder: () => _buildEmptyState(),
+  builder: (items) => ListView.builder(
+    itemCount: items.length,
+    itemBuilder: (context, index) => _buildItem(items[index]),
+  ),
+),
+```
 
 ## 生成後の処理
 
