@@ -5,14 +5,13 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
-import '../../../core/error/app_error.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../data/models/itinerary_day.dart';
 import '../../../data/models/review.dart';
 import '../../../data/models/travel_plan.dart';
 import '../../../presentation/viewmodels/plan_detail_viewmodel.dart';
 import '../../../presentation/viewmodels/plan_list_viewmodel.dart';
-import '../../../presentation/widgets/app_error_widget.dart';
+import '../../../presentation/widgets/async_state_builder.dart';
 import '../../../presentation/widgets/loading_indicator.dart';
 import '../../../presentation/widgets/plan_map_view.dart';
 import '../../../presentation/widgets/rating_stars.dart';
@@ -46,27 +45,25 @@ class _PlanDetailScreenState extends ConsumerState<PlanDetailScreen> {
   Widget build(BuildContext context) {
     final state = ref.watch(planDetailViewModelProvider(widget.planId));
 
-    if (state.isLoading && state.plan == null) {
-      return const Scaffold(body: LoadingIndicator(message: 'プランを読み込んでいます...'));
-    }
-
-    if (state.error != null && state.plan == null) {
+    // data がない間（loading/error）はナビゲーション用 AppBar 付き Scaffold で共通表示
+    if (state.plan == null) {
       return Scaffold(
         appBar: AppBar(title: const Text('プラン詳細')),
-        body: AppErrorWidget(
-          error: state.error!,
-          onRetry: state.error is NetworkError
-              ? () => ref
-                    .read(planDetailViewModelProvider(widget.planId).notifier)
-                    .loadPlanById(widget.planId)
-              : null,
+        body: AsyncStateBuilder<TravelPlan>(
+          isLoading: state.isLoading,
+          error: state.error,
+          data: state.plan,
+          loadingWidget: const LoadingIndicator(message: 'プランを読み込んでいます...'),
+          onRetry: () => ref
+              .read(planDetailViewModelProvider(widget.planId).notifier)
+              .loadPlanById(widget.planId),
+          // data は常に null（plan != null の分岐は上で処理済み）
+          builder: (_) => const SizedBox.shrink(),
         ),
       );
     }
 
-    final plan = state.plan;
-    if (plan == null) return const Scaffold(body: LoadingIndicator());
-
+    final plan = state.plan!;
     return Scaffold(
       body: CustomScrollView(
         slivers: [

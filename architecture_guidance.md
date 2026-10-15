@@ -787,6 +787,7 @@ test/widgets/
 ├── loading_indicator_test.dart          # LoadingIndicator
 ├── plan_map_view_test.dart              # PlanMapView
 ├── app_error_widget_test.dart           # AppErrorWidget
+├── async_state_builder_test.dart        # AsyncStateBuilder
 └── booking_step_indicator_test.dart     # BookingStepIndicator
 ```
 

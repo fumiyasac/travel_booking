@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/error/app_error.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../data/models/travel_plan.dart';
 import '../../../presentation/viewmodels/recently_viewed_viewmodel.dart';
-import '../../../presentation/widgets/app_error_widget.dart';
+import '../../../presentation/widgets/async_state_builder.dart';
 import '../../../presentation/widgets/loading_indicator.dart';
 import '../home/widgets/plan_card.dart';
 
@@ -41,30 +41,20 @@ class _RecentlyViewedScreenState extends ConsumerState<RecentlyViewedScreen> {
   }
 
   Widget _buildBody(RecentlyViewedState state) {
-    if (state.isLoading) {
-      return const LoadingIndicator(message: '履歴を読み込んでいます...');
-    }
-
-    if (state.error != null) {
-      return AppErrorWidget(
-        error: state.error!,
-        onRetry: state.error is NetworkError
-            ? () => ref.invalidate(recentlyViewedViewModelProvider)
-            : null,
-      );
-    }
-
-    if (state.isEmpty) {
-      return _buildEmptyState();
-    }
-
-    return ListView.builder(
-      padding: const EdgeInsets.only(top: 8, bottom: 24),
-      itemCount: state.plans.length,
-      itemBuilder: (context, index) => PlanCard(
-        plan: state.plans[index],
-        onTap: () =>
-            context.push('/recently-viewed/plan/${state.plans[index].id}'),
+    return AsyncStateBuilder<List<TravelPlan>>(
+      isLoading: state.isLoading,
+      error: state.error,
+      data: state.plans.isNotEmpty ? state.plans : null,
+      loadingWidget: const LoadingIndicator(message: '履歴を読み込んでいます...'),
+      onRetry: () => ref.invalidate(recentlyViewedViewModelProvider),
+      emptyBuilder: _buildEmptyState,
+      builder: (plans) => ListView.builder(
+        padding: const EdgeInsets.only(top: 8, bottom: 24),
+        itemCount: plans.length,
+        itemBuilder: (context, index) => PlanCard(
+          plan: plans[index],
+          onTap: () => context.push('/recently-viewed/plan/${plans[index].id}'),
+        ),
       ),
     );
   }

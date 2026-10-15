@@ -960,6 +960,7 @@ flutter test
 | `loading_indicator_test.dart` | CircularProgressIndicator 常時表示・message テキスト有無 |
 | `plan_map_view_test.dart` | 座標 0 で SizedBox.shrink・API キー未設定時のフォールバック UI・meetingPoint テキスト表示 |
 | `app_error_widget_test.dart` | NetworkError/GraphQLError/ValidationError/UnknownError の各型でアイコン・タイトル・message 表示を検証。onRetry コールバック動作・リトライボタン非表示を確認 |
+| `async_state_builder_test.dart` | ローディング表示・NetworkError/ValidationError エラー表示・コンテンツ描画・emptyBuilder・isLoading+data 同時有効時の既存データ表示・カスタムローディングウィジェット |
 | `booking_step_indicator_test.dart` | totalSteps=3 でステップ 3 つ表示・カスタムラベル表示・currentStep 進行に応じた番号／チェックアイコン切り替え・totalSteps=2 の動作を確認 |
 
 ### テストでのモック再生成
