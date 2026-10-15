@@ -3,11 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
-import '../../../core/error/app_error.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../data/models/booking.dart';
 import '../../viewmodels/booking_history_viewmodel.dart';
-import '../../widgets/app_error_widget.dart';
+import '../../widgets/async_state_builder.dart';
 import '../../widgets/loading_indicator.dart';
 
 // TODO: 認証導入後にログイン中ユーザーのメールアドレスを動的取得に変更
@@ -43,34 +42,25 @@ class _BookingHistoryScreenState extends ConsumerState<BookingHistoryScreen> {
   }
 
   Widget _buildBody(BookingHistoryState state) {
-    if (state.isLoading) {
-      return const LoadingIndicator(message: '予約履歴を読み込み中...');
-    }
-
-    if (state.error != null) {
-      return AppErrorWidget(
-        error: state.error!,
-        onRetry: state.error is NetworkError
-            ? () => ref
-                  .read(bookingHistoryViewModelProvider.notifier)
-                  .loadBookings(_kCustomerEmail)
-            : null,
-      );
-    }
-
-    if (state.bookings.isEmpty) {
-      return const _EmptyState();
-    }
-
-    return RefreshIndicator(
-      onRefresh: () => ref
+    return AsyncStateBuilder<List<Booking>>(
+      isLoading: state.isLoading,
+      error: state.error,
+      data: state.bookings.isNotEmpty ? state.bookings : null,
+      loadingWidget: const LoadingIndicator(message: '予約履歴を読み込み中...'),
+      onRetry: () => ref
           .read(bookingHistoryViewModelProvider.notifier)
           .loadBookings(_kCustomerEmail),
-      child: ListView.builder(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        itemCount: state.bookings.length,
-        itemBuilder: (context, index) =>
-            _BookingCard(booking: state.bookings[index]),
+      emptyBuilder: () => const _EmptyState(),
+      builder: (bookings) => RefreshIndicator(
+        onRefresh: () => ref
+            .read(bookingHistoryViewModelProvider.notifier)
+            .loadBookings(_kCustomerEmail),
+        child: ListView.builder(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          itemCount: bookings.length,
+          itemBuilder: (context, index) =>
+              _BookingCard(booking: bookings[index]),
+        ),
       ),
     );
   }

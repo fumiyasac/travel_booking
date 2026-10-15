@@ -30,7 +30,7 @@ Screen (ConsumerWidget)
 | Repository I/F | `lib/data/repositories/travel_plan_repository.dart` |
 | RepositoryImpl | `lib/data/repositories/travel_plan_repository_impl.dart` |
 | ViewModel | `lib/presentation/viewmodels/plan_list_viewmodel.dart` |
-| Screen | `lib/presentation/screens/home/home_screen.dart` |
+| Screen | `lib/presentation/screens/booking_history/booking_history_screen.dart` |
 
 ## State クラスのパターン
 
@@ -38,7 +38,7 @@ Screen (ConsumerWidget)
 class {Feature}State {
   final List<{Feature}Model> items;  // データ
   final bool isLoading;
-  final String? error;
+  final AppError? error;  // AppError 型（NetworkError / GraphQLError / UnknownError）
 
   const {Feature}State({
     this.items = const [],
@@ -49,7 +49,7 @@ class {Feature}State {
   {Feature}State copyWith({
     List<{Feature}Model>? items,
     bool? isLoading,
-    String? error,
+    AppError? error,
     bool clearError = false,  // nullable フィールドのクリアには専用フラグ
   }) {
     return {Feature}State(
@@ -78,7 +78,10 @@ class {Feature}ViewModel extends _{Feature}ViewModel {
       final data = await repo.getItems();
       state = state.copyWith(items: data, isLoading: false);
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(
+        isLoading: false,
+        error: e is AppError ? e : UnknownError(e.toString()),
+      );
     }
   }
 }
@@ -98,6 +101,60 @@ class {Feature}ViewModel extends _{Feature}ViewModel {
 @riverpod
 {Feature}RemoteDataSource {feature}RemoteDataSource(Ref ref) {
   return {Feature}RemoteDataSource(ref.watch(graphQLHttpClientProvider));
+}
+```
+
+## Screen のパターン
+
+loading / error / data の3状態分岐は `AsyncStateBuilder<T>` を使う。
+`AppErrorWidget` / `LoadingIndicator` を直接 if 文で分岐させない。
+
+```dart
+import '../../widgets/async_state_builder.dart';
+
+class {Feature}Screen extends ConsumerStatefulWidget {
+  const {Feature}Screen({super.key});
+
+  @override
+  ConsumerState<{Feature}Screen> createState() => _{Feature}ScreenState();
+}
+
+class _{Feature}ScreenState extends ConsumerState<{Feature}Screen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read({feature}ViewModelProvider.notifier).load();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final state = ref.watch({feature}ViewModelProvider);
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('{Feature}')),
+      body: AsyncStateBuilder<List<{Feature}Model>>(
+        isLoading: state.isLoading,
+        error: state.error,
+        data: state.items.isNotEmpty ? state.items : null,
+        onRetry: () => ref.read({feature}ViewModelProvider.notifier).load(),
+        emptyBuilder: () => _buildEmptyState(),
+        builder: (items) => ListView.builder(
+          itemCount: items.length,
+          itemBuilder: (context, index) => _buildItem(items[index]),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return const Center(child: Text('データがありません'));
+  }
+
+  Widget _buildItem({Feature}Model item) {
+    return ListTile(title: Text(item.toString()));
+  }
 }
 ```
 
