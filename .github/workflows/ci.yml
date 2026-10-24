@@ -88,7 +88,7 @@ jobs:
       - name: Setup Node.js 20
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
           cache-dependency-path: travel_booking_backend/package-lock.json
 
@@ -107,6 +107,11 @@ jobs:
         env:
           DATABASE_URL: mysql://root:password@127.0.0.1:3306/travel_booking
         run: npm run db:seed
+
+      - name: Security audit
+        run: |
+          cd travel_booking_backend
+          npm audit --audit-level=high
 
       - name: TypeScript type check
         working-directory: travel_booking_backend
