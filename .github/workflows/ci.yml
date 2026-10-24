@@ -108,6 +108,11 @@ jobs:
           DATABASE_URL: mysql://root:password@127.0.0.1:3306/travel_booking
         run: npm run db:seed
 
+      - name: Security audit
+        run: |
+          cd travel_booking_backend
+          npm audit --audit-level=high
+
       - name: TypeScript type check
         working-directory: travel_booking_backend
         run: npx tsc --noEmit

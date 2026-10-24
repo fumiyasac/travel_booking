@@ -581,6 +581,7 @@ npm run db:push          # スキーマ変更を即反映（プロトタイプ�
 npm run db:reset         # DB 完全リセット（全データ削除 → 再マイグレーション）
 npm run build            # TypeScript ビルド
 npm run start            # 本番サーバー起動
+npm audit                # セキュリティ脆弱性チェック（CI でも自動実行）
 ```
 
 ---
