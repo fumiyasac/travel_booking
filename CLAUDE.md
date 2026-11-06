@@ -48,6 +48,12 @@ lib/
 ```
 src/
 ├── index.ts                          # Apollo Server エントリポイント (port 4000)
+├── middleware/
+│   ├── healthCheck.ts                # GET /health — DB 接続確認付きヘルスチェック
+│   ├── rateLimit.ts                  # レート制限（15分 / 100リクエスト）
+│   └── requestLogger.ts             # Apollo プラグイン — 構造化ログ（pino）
+├── utils/
+│   └── logger.ts                     # pino ロガー（開発: pino-pretty / 本番: JSON）
 └── graphql/
     ├── typeDefs.ts                   # GraphQL スキーマ定義
     └── resolvers/
@@ -137,7 +143,7 @@ npm run db:reset      # DB 完全リセット（開発環境のみ）
 ## テスト戦略
 
 ### ViewModel テスト（既存パターン）
-テストは `test/viewmodels/` 以下に配置。5つの ViewModel テストが存在する。
+テストは `test/viewmodels/` 以下に配置。6つの ViewModel テストが存在する。
 
 ```
 test/viewmodels/
@@ -150,7 +156,9 @@ test/viewmodels/
 ├── favorite_viewmodel_test.dart
 ├── favorite_viewmodel_test.mocks.dart
 ├── booking_history_viewmodel_test.dart         # BookingHistoryViewModel
-└── booking_history_viewmodel_test.mocks.dart   # 自動生成モック
+├── booking_history_viewmodel_test.mocks.dart   # 自動生成モック
+├── recently_viewed_viewmodel_test.dart         # RecentlyViewedViewModel
+└── recently_viewed_viewmodel_test.mocks.dart   # 自動生成モック
 ```
 
 **テストの書き方（plan_list_viewmodel_test.dart を参照）:**

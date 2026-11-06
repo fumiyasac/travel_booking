@@ -40,7 +40,7 @@ Flutter モバイルアプリ（iOS / Android）と Node.js / GraphQL バック�
 |---|---|---|
 | Flutter | 3.47.5 以上 | `flutter --version` |
 | Dart | 3.13.x 以上（Flutter に同梱） | `dart --version` |
-| Node.js | 20 以上 | `node --version` |
+| Node.js | 22 以上 | `node --version` |
 | Docker Desktop | 最新安定版 | `docker --version` |
 | Xcode | 15 以上（iOS 開発時） | `xcode-select -p` |
 | Android Studio | 最新版（Android 開発時） | — |
@@ -66,12 +66,12 @@ source ~/.zshrc
 
 ```bash
 # リポジトリルートで実行
-# .mise.toml に定義されたバージョン（flutter 3.47.5 / node 20）が自動でインストールされます
+# .mise.toml に定義されたバージョン（flutter 3.47.5 / node 22）が自動でインストールされます
 mise install
 ```
 
 > **mise を使わない場合も手動インストールで開発できます。**  
-> `.mise.toml` のバージョン表記（`flutter = "3.47.5"` / `node = "20"`）を参考に、各ツールの公式サイトからインストールしてください。
+> `.mise.toml` のバージョン表記（`flutter = "3.47.5"` / `node = "22"`）を参考に、各ツールの公式サイトからインストールしてください。
 
 ---
 
@@ -538,7 +538,7 @@ flutter run -d <AndroidデバイスID>
 graph TD
   subgraph Mise["バージョン管理（mise）"]
     FL["Flutter 3.47.5"]
-    ND["Node.js 20"]
+    ND["Node.js 22"]
   end
   subgraph Melos["タスクランナー（melos）"]
     BR["build_runner"]
@@ -644,6 +644,10 @@ travel_booking/
 ├── .github/
 │   └── workflows/
 │       └── ci.yml                 # GitHub Actions CI（Flutter + Node.js）
+├── docs/
+│   └── adr/                       # Architecture Decision Records
+│       ├── README.md              # ADR 運用ガイド
+│       └── 007-mvvm-repository-pattern.md
 ├── pubspec.yaml                   # ルートワークスペース（melos インストール用）
 ├── melos.yaml                     # モノレポパッケージ管理
 ├── CLAUDE.md                      # Claude Code 向けプロジェクト仕様
@@ -657,7 +661,8 @@ travel_booking/
 ```
 travel_booking_backend/
 ├── docker-compose.yml
-├── Dockerfile
+├── Dockerfile                     # node:22-alpine ベース
+├── .nvmrc                         # Node.js バージョン固定（22.23.4）
 ├── .env.example
 ├── package.json
 ├── prisma/
@@ -696,7 +701,7 @@ lib/
 ├── presentation/
 │   ├── viewmodels/                  # @riverpod AsyncNotifier（.g.dart は自動生成）
 │   ├── screens/                     # home / plan_detail / booking / favorites / booking_history / recently_viewed
-│   └── widgets/                     # 共通ウィジェット
+│   └── widgets/                     # 共通ウィジェット（async_state_builder / app_error_widget / loading_indicator / rating_stars 等）
 └── preview/                         # Widgetbook Preview 環境（開発用）
     ├── main.dart                    # Widgetbook エントリポイント
     ├── mock_data.dart               # プレビュー用モックプラン
@@ -769,9 +774,9 @@ Presentation は Riverpod Provider 経由で Data 層を参照し、Backend に�
 
 | 技術 | バージョン | 用途 |
 |---|---|---|
-| Node.js | 20+ | ランタイム |
+| Node.js | 22+ | ランタイム |
 | TypeScript | 5.x | 言語 |
-| Apollo Server | 4.x | GraphQL サーバー |
+| Apollo Server | 5.x | GraphQL サーバー |
 | Prisma | 5.x | ORM |
 | MySQL | 8.0 | データベース |
 | Docker Compose | — | コンテナ管理 |
@@ -1188,5 +1193,5 @@ mise install
 
 | ツール | バージョン | 公式ページ |
 |---|---|---|
-| Flutter | 3.38.5 | https://docs.flutter.dev/get-started/install |
-| Node.js | 20 | https://nodejs.org/ |
+| Flutter | 3.47.5 | https://docs.flutter.dev/get-started/install |
+| Node.js | 22 | https://nodejs.org/ |
