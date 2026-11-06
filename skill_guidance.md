@@ -584,6 +584,7 @@ Express ミドルウェアや Apollo Server プラグインの雛形を生成す
 | `booking` | あり → 未テストメソッドを追加 |
 | `favorite` | あり → 未テストメソッドを追加 |
 | `booking_history` | あり → 未テストメソッドを追加 |
+| `recently_viewed` | あり → 未テストメソッドを追加 |
 | 新規機能名 | なし → テンプレートから新規作成 |
 
 （テストコードテンプレート: `.claude/skills/add-viewmodel-test/references/test-pattern.md`）
