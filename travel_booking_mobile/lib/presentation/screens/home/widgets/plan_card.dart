@@ -10,8 +10,14 @@ import '../../../widgets/rating_stars.dart';
 class PlanCard extends ConsumerWidget {
   final TravelPlan plan;
   final VoidCallback? onTap;
+  final VoidCallback? onToggleFavorite;
 
-  const PlanCard({super.key, required this.plan, this.onTap});
+  const PlanCard({
+    super.key,
+    required this.plan,
+    this.onTap,
+    this.onToggleFavorite,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -65,7 +71,14 @@ class PlanCard extends ConsumerWidget {
           left: 8,
           child: _CategoryChip(category: plan.category),
         ),
-        Positioned(top: 8, right: 8, child: _FavoriteButton(plan: plan)),
+        Positioned(
+          top: 8,
+          right: 8,
+          child: _FavoriteButton(
+            planId: plan.id,
+            onToggleFavorite: onToggleFavorite,
+          ),
+        ),
         if (plan.hasDiscount)
           Positioned(
             bottom: 8,
@@ -274,27 +287,21 @@ class _InfoBadge extends StatelessWidget {
 }
 
 class _FavoriteButton extends ConsumerWidget {
-  final TravelPlan plan;
+  final String planId;
+  final VoidCallback? onToggleFavorite;
 
-  const _FavoriteButton({required this.plan});
+  const _FavoriteButton({required this.planId, this.onToggleFavorite});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // planIsFavoriteProvider はストリームを監視するため、
     // お気に入りの追加・削除が起きると自動的に再描画される
     final isFav = ref
-        .watch(planIsFavoriteProvider(plan.id))
+        .watch(planIsFavoriteProvider(planId))
         .maybeWhen(data: (v) => v, orElse: () => false);
 
     return GestureDetector(
-      onTap: () async {
-        final repo = ref.read(favoriteRepositoryProvider);
-        if (isFav) {
-          await repo.removeFavorite(plan.id);
-        } else {
-          await repo.addFavorite(plan);
-        }
-      },
+      onTap: onToggleFavorite,
       child: Container(
         padding: const EdgeInsets.all(6),
         decoration: const BoxDecoration(

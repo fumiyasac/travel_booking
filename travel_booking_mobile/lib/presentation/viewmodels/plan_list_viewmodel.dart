@@ -231,6 +231,22 @@ class PlanListViewModel extends _$PlanListViewModel {
     await updateFilter(const PlanFilter());
   }
 
+  Future<void> toggleFavorite(TravelPlan plan) async {
+    try {
+      final favRepo = ref.read(favoriteRepositoryProvider);
+      final isFav = await favRepo.isFavorite(plan.id);
+      if (isFav) {
+        await favRepo.removeFavorite(plan.id);
+      } else {
+        await favRepo.addFavorite(plan);
+      }
+    } catch (e) {
+      state = state.copyWith(
+        error: e is AppError ? e : UnknownError(e.toString()),
+      );
+    }
+  }
+
   void clearError() {
     state = state.copyWith(clearError: true);
   }

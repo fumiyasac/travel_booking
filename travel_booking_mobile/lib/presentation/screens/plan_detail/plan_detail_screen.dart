@@ -10,7 +10,6 @@ import '../../../data/models/itinerary_day.dart';
 import '../../../data/models/review.dart';
 import '../../../data/models/travel_plan.dart';
 import '../../../presentation/viewmodels/plan_detail_viewmodel.dart';
-import '../../../presentation/viewmodels/plan_list_viewmodel.dart';
 import '../../../presentation/widgets/async_state_builder.dart';
 import '../../../presentation/widgets/loading_indicator.dart';
 import '../../../presentation/widgets/plan_map_view.dart';
@@ -30,14 +29,11 @@ class _PlanDetailScreenState extends ConsumerState<PlanDetailScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref
-          .read(planDetailViewModelProvider(widget.planId).notifier)
-          .loadPlanById(widget.planId);
-      // 閲覧履歴を記録（エラーは画面表示に影響させない）
-      ref
-          .read(recentlyViewedRepositoryProvider)
-          .addViewedPlan(widget.planId)
-          .catchError((_) {});
+      final notifier = ref.read(
+        planDetailViewModelProvider(widget.planId).notifier,
+      );
+      notifier.loadPlanById(widget.planId);
+      notifier.recordView(widget.planId);
     });
   }
 
