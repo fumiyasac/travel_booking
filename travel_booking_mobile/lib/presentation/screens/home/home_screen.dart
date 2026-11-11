@@ -178,7 +178,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ),
                 );
               }
-              return PlanCard(plan: state.plans[index]);
+              final plan = state.plans[index];
+              return PlanCard(
+                plan: plan,
+                onToggleFavorite: () => ref
+                    .read(planListViewModelProvider.notifier)
+                    .toggleFavorite(plan),
+              );
             },
           ),
         ),

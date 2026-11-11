@@ -93,6 +93,15 @@ class PlanDetailViewModel extends _$PlanDetailViewModel {
     }
   }
 
+  Future<void> recordView(String planId) async {
+    try {
+      final repo = ref.read(recentlyViewedRepositoryProvider);
+      await repo.addViewedPlan(planId);
+    } catch (_) {
+      // 閲覧履歴エラーは画面表示に影響させない
+    }
+  }
+
   Future<void> toggleFavorite() async {
     final plan = state.plan;
     if (plan == null || state.isFavoriteLoading) return;
