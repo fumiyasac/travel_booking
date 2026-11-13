@@ -9,6 +9,9 @@ analyzer:
     - ios/**
   errors:
     invalid_annotation_target: ignore
+    # flutter/material.dart は Flutter 3.50.0 で deprecated（material_ui への移行推奨）
+    # 移行は別途対応予定のため、ここで一時抑制
+    deprecated_member_use: ignore
 
 linter:
   rules:
