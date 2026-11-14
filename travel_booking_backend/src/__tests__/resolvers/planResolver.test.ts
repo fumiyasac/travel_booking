@@ -42,7 +42,7 @@ const mockPlan = {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const ctx = { prisma: prismaMock as any };
+const ctx = { prisma: prismaMock as any, currentUser: null };
 
 // ── テスト ────────────────────────────────────────────────────────
 describe('planResolvers', () => {

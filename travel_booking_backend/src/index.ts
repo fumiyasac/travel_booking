@@ -17,6 +17,7 @@ export const prisma = new PrismaClient({
 
 export interface Context {
   prisma: PrismaClient;
+  currentUser: { id: string; email: string; name: string } | null;
 }
 
 async function main() {
@@ -48,7 +49,7 @@ async function main() {
     '/graphql',
     graphqlRateLimiter,
     expressMiddleware(server, {
-      context: async (): Promise<Context> => ({ prisma }),
+      context: async (): Promise<Context> => ({ prisma, currentUser: null }),
     }),
   );
 

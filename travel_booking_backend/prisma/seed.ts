@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
@@ -6,6 +7,7 @@ async function main() {
   console.log('Seeding database...');
 
   await prisma.booking.deleteMany();
+  await prisma.user.deleteMany();
   await prisma.review.deleteMany();
   await prisma.itineraryActivity.deleteMany();
   await prisma.itineraryDay.deleteMany();
@@ -14,6 +16,18 @@ async function main() {
   await prisma.travelPlanHighlight.deleteMany();
   await prisma.travelPlanImage.deleteMany();
   await prisma.travelPlan.deleteMany();
+
+  // ──────────────────────────────────────────────────────────────
+  // テストユーザー
+  // ──────────────────────────────────────────────────────────────
+  const passwordHash = await bcrypt.hash('password123', 10);
+
+  await prisma.user.createMany({
+    data: [
+      { email: 'test@example.com',  password: passwordHash, name: 'テストユーザー' },
+      { email: 'other@example.com', password: passwordHash, name: 'その他ユーザー' },
+    ],
+  });
 
   // 1. Tokyo Explorer
   const tokyo = await prisma.travelPlan.create({
@@ -1668,7 +1682,7 @@ async function main() {
   });
 
   console.log('Seeding completed successfully!');
-  console.log('Created 30 travel plans + 52 reviews + 16 bookings (CONFIRMED 8 / PENDING 4 / CANCELLED 4)');
+  console.log('Created 2 users + 30 travel plans + 52 reviews + 16 bookings (CONFIRMED 8 / PENDING 4 / CANCELLED 4)');
 }
 
 main()
