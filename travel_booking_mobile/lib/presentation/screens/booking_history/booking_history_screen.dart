@@ -130,7 +130,7 @@ class _BookingCard extends StatelessWidget {
                   _StatusBadge(status: booking.status),
                 ],
               ),
-              if (booking.planTitle != null) ...[
+              if (booking.planDestination != null) ...[
                 const SizedBox(height: 4),
                 Row(
                   children: [
@@ -141,7 +141,7 @@ class _BookingCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      booking.planTitle ?? '',
+                      booking.planDestination ?? '',
                       style: const TextStyle(
                         color: AppTheme.textSecondary,
                         fontSize: 13,

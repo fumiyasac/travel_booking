@@ -7,11 +7,15 @@ const now = new Date('2025-06-01T00:00:00Z');
 const mockPlan = {
   id: 'plan-1',
   title: '東京エクスプローラー5日間',
+  destination: '東京',
   price: 150000,
   discountPrice: null,
   maxParticipants: 10,
   currentBookings: 2,
   isAvailable: true,
+  images: [
+    { id: 'img-1', url: 'https://example.com/img1.jpg', isPrimary: true, displayOrder: 0 },
+  ],
 };
 
 const mockBooking = {
