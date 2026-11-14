@@ -1,17 +1,62 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../core/auth/auth_state.dart';
+import '../../presentation/screens/auth/login_screen.dart';
+import '../../presentation/screens/auth/register_screen.dart';
+import '../../presentation/screens/booking/booking_confirmation_screen.dart';
+import '../../presentation/screens/booking/booking_screen.dart';
+import '../../presentation/screens/booking_history/booking_history_screen.dart';
+import '../../presentation/screens/favorites/favorites_screen.dart';
 import '../../presentation/screens/home/home_screen.dart';
 import '../../presentation/screens/plan_detail/plan_detail_screen.dart';
-import '../../presentation/screens/booking/booking_screen.dart';
-import '../../presentation/screens/booking/booking_confirmation_screen.dart';
-import '../../presentation/screens/favorites/favorites_screen.dart';
-import '../../presentation/screens/booking_history/booking_history_screen.dart';
 import '../../presentation/screens/recently_viewed/recently_viewed_screen.dart';
 
-class AppRouter {
-  static final GoRouter router = GoRouter(
+part 'app_router.g.dart';
+
+// 認証が必要なルートかどうかを判定する
+bool _requiresAuth(String path) {
+  return path == '/booking-history' ||
+      RegExp(r'^/plan/[^/]+/booking$').hasMatch(path);
+}
+
+@Riverpod(keepAlive: true)
+GoRouter appRouter(Ref ref) {
+  final loginNotifier = ValueNotifier<bool>(
+    ref.read(authStateProvider).isLoggedIn,
+  );
+
+  ref.listen<AuthState>(authStateProvider, (_, next) {
+    loginNotifier.value = next.isLoggedIn;
+  });
+
+  ref.onDispose(loginNotifier.dispose);
+
+  return GoRouter(
     initialLocation: '/',
+    refreshListenable: loginNotifier,
+    redirect: (context, routerState) {
+      final isLoggedIn = loginNotifier.value;
+      final path = routerState.uri.path;
+      final isAuthPage = path == '/login' || path == '/register';
+
+      // 未ログイン → 認証必須ルート: /login?from=<元のパス> へリダイレクト
+      if (!isLoggedIn && _requiresAuth(path)) {
+        return Uri(
+          path: '/login',
+          queryParameters: {'from': routerState.uri.toString()},
+        ).toString();
+      }
+
+      // ログイン済み → 認証ページ: from パラメータがあればそこへ、なければ /
+      if (isLoggedIn && isAuthPage) {
+        final from = routerState.uri.queryParameters['from'];
+        return (from != null && from.isNotEmpty) ? from : '/';
+      }
+
+      return null;
+    },
     routes: [
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
@@ -106,6 +151,16 @@ class AppRouter {
             numberOfPeople: extra?['numberOfPeople'] as int? ?? 1,
           );
         },
+      ),
+      GoRoute(
+        path: '/login',
+        name: 'login',
+        builder: (context, state) => const LoginScreen(),
+      ),
+      GoRoute(
+        path: '/register',
+        name: 'register',
+        builder: (context, state) => const RegisterScreen(),
       ),
     ],
   );

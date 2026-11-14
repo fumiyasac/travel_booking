@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
 
+import '../../../core/auth/auth_state.dart';
 import '../../../core/database/app_database.dart';
 import '../../../core/error/app_error.dart';
 import '../../../core/theme/app_theme.dart';
@@ -57,6 +58,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(planListViewModelProvider);
+    final authState = ref.watch(authStateProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -129,6 +131,42 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             tooltip: '最近見たプラン',
             onPressed: () => context.push('/recently-viewed'),
           ),
+          if (authState.isLoggedIn)
+            PopupMenuButton<String>(
+              icon: const Icon(Icons.account_circle),
+              tooltip: authState.currentUser?.name ?? 'アカウント',
+              onSelected: (value) async {
+                if (value == 'logout') {
+                  await ref.read(authStateProvider.notifier).logout();
+                  if (context.mounted) context.go('/');
+                }
+              },
+              itemBuilder: (_) => [
+                PopupMenuItem(
+                  value: 'logout',
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.logout,
+                        color: AppTheme.textSecondary,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'ログアウト（${authState.currentUser?.name ?? ''}）',
+                        style: const TextStyle(color: AppTheme.textPrimary),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            )
+          else
+            IconButton(
+              icon: const Icon(Icons.login),
+              tooltip: 'ログイン',
+              onPressed: () => context.go('/login'),
+            ),
         ],
       ),
       body: RefreshIndicator(

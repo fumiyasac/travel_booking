@@ -29,6 +29,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   }
 
   Future<void> _submit() async {
+    final redirectTo =
+        GoRouterState.of(context).uri.queryParameters['from'] ?? '/';
     final success = await ref
         .read(authStateProvider.notifier)
         .register(
@@ -36,7 +38,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           _passwordController.text,
           _nameController.text.trim(),
         );
-    if (success && mounted) context.go('/');
+    if (success && mounted) context.go(redirectTo);
   }
 
   @override

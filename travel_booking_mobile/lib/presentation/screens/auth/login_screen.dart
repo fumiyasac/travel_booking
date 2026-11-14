@@ -27,10 +27,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   Future<void> _submit() async {
+    final redirectTo =
+        GoRouterState.of(context).uri.queryParameters['from'] ?? '/';
     final success = await ref
         .read(authStateProvider.notifier)
         .login(_emailController.text.trim(), _passwordController.text);
-    if (success && mounted) context.go('/');
+    if (success && mounted) context.go(redirectTo);
   }
 
   @override

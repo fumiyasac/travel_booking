@@ -14,7 +14,7 @@ class TravelBookingApp extends ConsumerWidget {
       title: '旅行プラン予約',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      routerConfig: AppRouter.router,
+      routerConfig: ref.watch(appRouterProvider),
       locale: const Locale('ja', 'JP'),
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,

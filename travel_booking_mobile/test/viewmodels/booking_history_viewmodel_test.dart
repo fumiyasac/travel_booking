@@ -2,6 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
+import 'package:travel_booking_mobile/core/auth/auth_state.dart';
+import 'package:travel_booking_mobile/data/models/auth_user.dart';
 import 'package:travel_booking_mobile/data/models/booking.dart';
 import 'package:travel_booking_mobile/data/repositories/travel_plan_repository.dart';
 import 'package:travel_booking_mobile/presentation/viewmodels/booking_history_viewmodel.dart';
@@ -13,6 +15,13 @@ import 'booking_history_viewmodel_test.mocks.dart';
 void main() {
   late MockTravelPlanRepository mockRepository;
   late ProviderContainer container;
+
+  // ログイン済みユーザー (email: test@example.com) を返すフェイク
+  const loggedInUser = AuthUser(
+    id: 'user-1',
+    email: 'test@example.com',
+    name: 'テスト太郎',
+  );
 
   final mockBooking1 = Booking(
     id: 'booking-1',
@@ -44,13 +53,25 @@ void main() {
     updatedAt: DateTime(2025, 4, 10),
   );
 
-  setUp(() {
-    mockRepository = MockTravelPlanRepository();
-    container = ProviderContainer(
+  // ログイン済みコンテナを返すヘルパー
+  ProviderContainer makeContainer({AuthUser? user}) {
+    return ProviderContainer(
       overrides: [
         travelPlanRepositoryProvider.overrideWithValue(mockRepository),
+        authStateProvider.overrideWith(
+          () => _FakeAuthStateNotifier(
+            user != null
+                ? AuthState(isLoggedIn: true, currentUser: user)
+                : const AuthState(),
+          ),
+        ),
       ],
     );
+  }
+
+  setUp(() {
+    mockRepository = MockTravelPlanRepository();
+    container = makeContainer(user: loggedInUser);
   });
 
   tearDown(() {
@@ -74,7 +95,7 @@ void main() {
         final notifier = container.read(
           bookingHistoryViewModelProvider.notifier,
         );
-        final future = notifier.loadBookings('test@example.com');
+        final future = notifier.loadBookings();
 
         await future;
 
@@ -91,7 +112,7 @@ void main() {
 
       await container
           .read(bookingHistoryViewModelProvider.notifier)
-          .loadBookings('test@example.com');
+          .loadBookings();
 
       final state = container.read(bookingHistoryViewModelProvider);
       expect(state.bookings[0].id, 'booking-1');
@@ -107,7 +128,7 @@ void main() {
 
       await container
           .read(bookingHistoryViewModelProvider.notifier)
-          .loadBookings('test@example.com');
+          .loadBookings();
 
       final state = container.read(bookingHistoryViewModelProvider);
       expect(state.bookings, isEmpty);
@@ -121,7 +142,7 @@ void main() {
 
       await container
           .read(bookingHistoryViewModelProvider.notifier)
-          .loadBookings('test@example.com');
+          .loadBookings();
 
       final state = container.read(bookingHistoryViewModelProvider);
       expect(state.isLoading, isFalse);
@@ -130,28 +151,18 @@ void main() {
       expect(state.error!.message, contains('Network error'));
     });
 
-    test(
-      'loadBookings with empty email sets error without calling repository',
-      () async {
-        await container
-            .read(bookingHistoryViewModelProvider.notifier)
-            .loadBookings('');
+    test('未ログイン時に空リストが返ること', () async {
+      final unauthContainer = makeContainer();
+      addTearDown(unauthContainer.dispose);
 
-        final state = container.read(bookingHistoryViewModelProvider);
-        expect(state.error, isNotNull);
-        expect(state.isLoading, isFalse);
-        verifyNever(mockRepository.fetchBookings(any));
-      },
-    );
-
-    test('loadBookings with whitespace-only email sets error', () async {
-      await container
+      await unauthContainer
           .read(bookingHistoryViewModelProvider.notifier)
-          .loadBookings('   ');
+          .loadBookings();
 
-      final state = container.read(bookingHistoryViewModelProvider);
-      expect(state.error, isNotNull);
+      final state = unauthContainer.read(bookingHistoryViewModelProvider);
+      expect(state.bookings, isEmpty);
       expect(state.isLoading, isFalse);
+      expect(state.error, isNull);
       verifyNever(mockRepository.fetchBookings(any));
     });
 
@@ -161,7 +172,7 @@ void main() {
 
       await container
           .read(bookingHistoryViewModelProvider.notifier)
-          .loadBookings('test@example.com');
+          .loadBookings();
 
       expect(container.read(bookingHistoryViewModelProvider).error, isNotNull);
 
@@ -180,19 +191,14 @@ void main() {
 
       final notifier = container.read(bookingHistoryViewModelProvider.notifier);
 
-      // Start first call without awaiting — state becomes isLoading:true synchronously
-      final f1 = notifier.loadBookings('test@example.com');
+      final f1 = notifier.loadBookings();
 
-      // Guard check: isLoading must be true before first call completes
       expect(container.read(bookingHistoryViewModelProvider).isLoading, isTrue);
 
-      // Second call while first is in flight should return immediately (guard)
-      await notifier.loadBookings('test@example.com');
+      await notifier.loadBookings();
 
-      // Complete the first call
       await f1;
 
-      // Repository must have been called exactly once
       expect(callCount, 1);
       expect(
         container.read(bookingHistoryViewModelProvider).isLoading,
@@ -200,4 +206,15 @@ void main() {
       );
     });
   });
+}
+
+// ── テスト用フェイク ──────────────────────────────────────────────────────────
+
+class _FakeAuthStateNotifier extends AuthStateNotifier {
+  final AuthState _initialState;
+
+  _FakeAuthStateNotifier([this._initialState = const AuthState()]);
+
+  @override
+  AuthState build() => _initialState;
 }
