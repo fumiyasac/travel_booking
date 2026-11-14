@@ -267,25 +267,31 @@ SharedPreferences のキー `favorite_plans` に `List<String>`（JSON シリア
 
 | Provider | keepAlive | 種別 | 用途 |
 |---|:---:|---|---|
+| `authServiceProvider` | ✓ | 関数 Provider | `AuthService`（flutter_secure_storage トークン管理） |
+| `authRemoteDataSourceProvider` | — | 関数 Provider | `AuthRemoteDataSource`（Login / Register GraphQL） |
+| `authRepositoryProvider` | ✓ | 関数 Provider | `AuthRepositoryImpl` シングルトン |
+| `authStateProvider` | ✓ | Notifier | 認証状態（isLoggedIn / currentUser / isLoading / error） |
+| `appRouterProvider` | ✓ | 関数 Provider | `GoRouter`（認証ガード付き、refreshListenable で再評価） |
 | `favoritesStorageProvider` | ✓ | 関数 Provider | `FavoritesStorage` シングルトン |
 | `favoriteLocalDataSourceProvider` | ✓ | 関数 Provider | `FavoriteLocalDataSource`（StreamController を維持） |
 | `favoriteRepositoryProvider` | ✓ | 関数 Provider | `FavoriteRepositoryImpl` シングルトン |
 | `recentlyViewedStorageProvider` | ✓ | 関数 Provider | `RecentlyViewedStorage` シングルトン |
 | `recentlyViewedLocalDataSourceProvider` | ✓ | 関数 Provider | `RecentlyViewedLocalDataSource`（StreamController を維持） |
 | `recentlyViewedRepositoryProvider` | ✓ | 関数 Provider | `RecentlyViewedRepositoryImpl` シングルトン |
-| `graphQLHttpClientProvider` | — | 関数 Provider | `GraphQLHttpClient`（autoDispose） |
+| `graphQLHttpClientProvider` | — | 関数 Provider | `GraphQLHttpClient`（authTokenGetter 経由で Bearer ヘッダー付与） |
 | `travelPlanRemoteDataSourceProvider` | — | 関数 Provider | `TravelPlanRemoteDataSource`（autoDispose） |
 | `travelPlanRepositoryProvider` | — | 関数 Provider | `TravelPlanRepositoryImpl`（autoDispose） |
 | `planListViewModelProvider` | — | Notifier | プラン一覧の状態管理 |
 | `planDetailViewModelProvider(planId)` | — | Notifier (family) | プラン詳細の状態管理 |
-| `bookingViewModelProvider` | — | Notifier | 予約フォームの状態管理 |
+| `bookingViewModelProvider` | — | Notifier | 予約フォームの状態管理（currentUser で初期値設定） |
 | `favoriteViewModelProvider` | — | Notifier | お気に入り一覧の状態管理 |
-| `bookingHistoryViewModelProvider` | — | Notifier | 予約履歴一覧の状態管理 |
+| `bookingHistoryViewModelProvider` | — | Notifier | 予約履歴一覧（currentUser.email でフィルタ） |
 | `recentlyViewedViewModelProvider` | — | Notifier | 最近閲覧プランの状態管理 |
 | `planIsFavoriteProvider(planId)` | — | Stream Provider (family) | カード単位のお気に入り boolean |
 
 **keepAlive を使う理由**
 
+認証系（`authService` / `authRepository` / `authState` / `appRouter`）を `keepAlive: true` にすることで、ログイン状態がアプリ起動中に維持されます。
 `favoritesStorage` / `favoriteLocalDataSource` / `favoriteRepository` を `keepAlive: true` にすることで、`StreamController` がアプリ起動中に破棄されず、お気に入りの変更がリアルタイムで全 Widget に伝播します。
 
 #### Provider 依存関係グラフ
@@ -293,6 +299,12 @@ SharedPreferences のキー `favorite_plans` に `List<String>`（JSON シリア
 ```mermaid
 graph TD
     subgraph keep["keepAlive: true（アプリ生存中は破棄されない）"]
+        AuthSvc["authServiceProvider"]
+        AuthRepo["authRepositoryProvider"]
+        AuthState["authStateProvider"]
+        AppRouter["appRouterProvider"]
+        AuthSvc --> AuthRepo --> AuthState
+        AuthState --> AppRouter
         FavStorage["favoritesStorageProvider"]
         FavDS["favoriteLocalDataSourceProvider"]
         FavRepo["favoriteRepositoryProvider"]
@@ -307,6 +319,7 @@ graph TD
         GQL["graphQLHttpClientProvider"]
         TPRemoteDS["travelPlanRemoteDataSourceProvider"]
         TPRepo["travelPlanRepositoryProvider"]
+        AuthSvc --> GQL
         GQL --> TPRemoteDS --> TPRepo
     end
 
@@ -324,9 +337,11 @@ graph TD
     TPRepo --> PlanDetailVM
     FavRepo --> PlanDetailVM
     TPRepo --> BookingVM
+    AuthState --> BookingVM
     FavDS --> FavVM
     FavRepo --> FavVM
     TPRepo --> BookingHistVM
+    AuthState --> BookingHistVM
     RVDS --> RVVM
     RVRepo --> RVVM
     FavDS --> PlanIsFav
@@ -469,8 +484,13 @@ graph TD
 ```typescript
 export interface Context {
   prisma: PrismaClient;
+  currentUser: { id: string; email: string; name: string } | null;
 }
-context: async (): Promise<Context> => ({ prisma })
+context: async ({ req }): Promise<Context> => {
+  if (!req.user) return { prisma, currentUser: null };
+  const user = await prisma.user.findUnique({ where: { id: req.user.userId } });
+  return { prisma, currentUser: user ? { id: user.id, email: user.email, name: user.name } : null };
+}
 ```
 
 ### 3-2. ディレクトリ構成
@@ -481,16 +501,19 @@ src/
 ├── middleware/
 │   ├── healthCheck.ts                  # GET /health — DB 接続確認（status/timestamp/uptime）
 │   ├── rateLimit.ts                    # レート制限（15分/100リクエスト、standardHeaders: true）
+│   ├── auth.ts                         # JWT 検証 Express ミドルウェア（Bearer → req.user）
 │   └── requestLogger.ts               # Apollo プラグイン — オペレーション名・実行時間ログ
 ├── utils/
-│   └── logger.ts                       # pino ロガー（開発: pino-pretty / 本番: JSON）
+│   ├── logger.ts                       # pino ロガー（開発: pino-pretty / 本番: JSON）
+│   └── auth.ts                         # generateToken / verifyToken / hashPassword / comparePassword / requireAuth
 └── graphql/
     ├── typeDefs.ts                     # GraphQL スキーマ定義（SDL）
     └── resolvers/
-        ├── index.ts                    # planResolvers + bookingResolvers をマージ
+        ├── index.ts                    # 全 Resolver をマージ
         ├── planResolver.ts             # Query: travelPlans, travelPlan
-        └── bookingResolver.ts          # Query: bookings, booking
-                                        # Mutation: createBooking, cancelBooking
+        ├── bookingResolver.ts          # Query: bookings, booking
+        │                               # Mutation: createBooking, cancelBooking
+        └── authResolver.ts             # Mutation: login, register
 prisma/
 ├── schema.prisma                       # Prisma スキーマ（MySQL）
 ├── seed.ts                             # 初期データ投入スクリプト
@@ -502,11 +525,13 @@ prisma/
 | レイヤー | ファイル | 登録方法 | 適用範囲 |
 |---|---|---|---|
 | ヘルスチェック | `middleware/healthCheck.ts` | `app.get('/health', ...)` | `/health` のみ |
-| レート制限 | `middleware/rateLimit.ts` | `app.use('/graphql', ...)` | GraphQL エンドポイント |
+| レート制限 | `middleware/rateLimit.ts` | `app.use('/graphql', rateLimit, ...)` | GraphQL エンドポイント |
+| JWT 認証 | `middleware/auth.ts` | `app.use('/graphql', rateLimit, auth, ...)` | GraphQL エンドポイント |
 | 構造化ログ | `middleware/requestLogger.ts` | `ApolloServer plugins: [...]` | 全 GraphQL オペレーション |
 
-Express ミドルウェアの追加には `expressMiddleware`（`@apollo/server/express4`）構成が必要。
-新しい Express ミドルウェアを追加する場合は `src/index.ts` の `await server.start()` の後に登録する。
+Express ミドルウェアの適用順は **rateLimit → authMiddleware → Apollo**。
+`authMiddleware` は Bearer トークンを検証し `req.user` にセットする（失敗時も `next()` を呼ぶ）。
+Resolver 側で `requireAuth(context)` を呼ぶことで認証が必要な操作を保護する。
 
 ---
 
@@ -527,6 +552,8 @@ Express ミドルウェアの追加には `expressMiddleware`（`@apollo/server/
 |---|---|---|---|
 | `createBooking` | `input: CreateBookingInput!` | `BookingResult!` | 予約作成 |
 | `cancelBooking` | `id: ID!` | `BookingResult!` | 予約キャンセル |
+| `login` | `input: LoginInput!` | `AuthResult!` | メール/パスワード認証・JWT 発行 |
+| `register` | `input: RegisterInput!` | `AuthResult!` | 新規ユーザー登録・JWT 発行 |
 
 #### 主要な型
 
