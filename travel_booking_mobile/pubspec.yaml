@@ -26,6 +26,7 @@ dependencies:
   shimmer: ^4.0.0
   gap: ^3.0.1
   google_maps_flutter: ^2.18.0
+  flutter_secure_storage: ^11.2.0
 
 dev_dependencies:
   flutter_test:

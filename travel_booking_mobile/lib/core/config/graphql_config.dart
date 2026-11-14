@@ -8,14 +8,19 @@ import 'graphql_client_interface.dart';
 class GraphQLHttpClient implements GraphQLClientInterface {
   final String _baseUrl;
   final http.Client? _httpClient;
+  final Future<String?> Function()? _tokenGetter;
 
-  GraphQLHttpClient({String? baseUrl, http.Client? client})
-    : _baseUrl =
-          baseUrl ??
-          (Platform.isAndroid
-              ? 'http://10.0.2.2:4000/graphql'
-              : 'http://localhost:4000/graphql'),
-      _httpClient = client;
+  GraphQLHttpClient({
+    String? baseUrl,
+    http.Client? client,
+    Future<String?> Function()? authTokenGetter,
+  }) : _baseUrl =
+           baseUrl ??
+           (Platform.isAndroid
+               ? 'http://10.0.2.2:4000/graphql'
+               : 'http://localhost:4000/graphql'),
+       _httpClient = client,
+       _tokenGetter = authTokenGetter;
 
   @override
   Future<Map<String, dynamic>> query({
@@ -49,6 +54,10 @@ class GraphQLHttpClient implements GraphQLClientInterface {
       ioRequest.persistentConnection = false;
       ioRequest.headers.set('Content-Type', 'application/json; charset=utf-8');
       ioRequest.headers.set('apollo-require-preflight', 'true');
+      final token = await _tokenGetter?.call();
+      if (token != null) {
+        ioRequest.headers.set('Authorization', 'Bearer $token');
+      }
       ioRequest.headers.contentLength = bodyBytes.length;
       ioRequest.add(bodyBytes);
 

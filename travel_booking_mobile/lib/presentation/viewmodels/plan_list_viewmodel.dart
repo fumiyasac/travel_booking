@@ -1,5 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../core/auth/auth_service.dart';
 import '../../core/config/graphql_client_interface.dart';
 import '../../core/config/graphql_config.dart';
 import '../../core/database/app_database.dart';
@@ -30,7 +31,8 @@ FavoritesStorage favoritesStorage(Ref ref) {
 
 @riverpod
 GraphQLClientInterface graphQLHttpClient(Ref ref) {
-  final client = GraphQLHttpClient();
+  final auth = ref.watch(authServiceProvider);
+  final client = GraphQLHttpClient(authTokenGetter: auth.getToken);
   ref.onDispose(client.dispose);
   return client;
 }
