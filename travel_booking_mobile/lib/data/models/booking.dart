@@ -2,6 +2,7 @@ class Booking {
   final String id;
   final String planId;
   final String? planTitle;
+  final String? planDestination;
   final String? planImageUrl;
   final String customerName;
   final String customerEmail;
@@ -19,6 +20,7 @@ class Booking {
     required this.id,
     required this.planId,
     this.planTitle,
+    this.planDestination,
     this.planImageUrl,
     required this.customerName,
     required this.customerEmail,
@@ -51,6 +53,7 @@ class Booking {
       id: json['id'] as String,
       planId: json['planId'] as String,
       planTitle: plan?['title'] as String?,
+      planDestination: plan?['destination'] as String?,
       planImageUrl: primaryImage?['url'] as String?,
       customerName: json['customerName'] as String,
       customerEmail: json['customerEmail'] as String,
@@ -86,6 +89,7 @@ class Booking {
     String? id,
     String? planId,
     String? planTitle,
+    String? planDestination,
     String? planImageUrl,
     String? customerName,
     String? customerEmail,
@@ -103,6 +107,7 @@ class Booking {
       id: id ?? this.id,
       planId: planId ?? this.planId,
       planTitle: planTitle ?? this.planTitle,
+      planDestination: planDestination ?? this.planDestination,
       planImageUrl: planImageUrl ?? this.planImageUrl,
       customerName: customerName ?? this.customerName,
       customerEmail: customerEmail ?? this.customerEmail,

@@ -47,7 +47,7 @@ export const bookingResolvers = {
       try {
         const bookings = await prisma.booking.findMany({
           where: args.customerEmail ? { customerEmail: args.customerEmail } : undefined,
-          include: { plan: true },
+          include: { plan: { include: { images: { orderBy: { displayOrder: 'asc' as const } } } } },
           orderBy: { createdAt: 'desc' },
         });
         return bookings.map(formatBooking);
@@ -61,7 +61,7 @@ export const bookingResolvers = {
       try {
         const booking = await prisma.booking.findUnique({
           where: { id: args.id },
-          include: { plan: true },
+          include: { plan: { include: { images: { orderBy: { displayOrder: 'asc' as const } } } } },
         });
         if (!booking) return null;
         return formatBooking(booking);
