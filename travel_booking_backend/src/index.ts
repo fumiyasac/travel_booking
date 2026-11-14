@@ -7,6 +7,7 @@ import { typeDefs } from './graphql/typeDefs';
 import { resolvers } from './graphql/resolvers';
 import { healthCheck } from './middleware/healthCheck';
 import { graphqlRateLimiter } from './middleware/rateLimit';
+import { authMiddleware } from './middleware/auth';
 import { requestLoggerPlugin } from './middleware/requestLogger';
 
 dotenv.config();
@@ -48,8 +49,18 @@ async function main() {
   app.use(
     '/graphql',
     graphqlRateLimiter,
+    authMiddleware,
     expressMiddleware(server, {
-      context: async (): Promise<Context> => ({ prisma, currentUser: null }),
+      context: async ({ req }): Promise<Context> => {
+        if (!req.user) return { prisma, currentUser: null };
+        const user = await prisma.user.findUnique({ where: { id: req.user.userId } });
+        return {
+          prisma,
+          currentUser: user
+            ? { id: user.id, email: user.email, name: user.name }
+            : null,
+        };
+      },
     }),
   );
 
