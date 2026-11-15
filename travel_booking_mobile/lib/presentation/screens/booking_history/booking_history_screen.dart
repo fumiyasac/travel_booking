@@ -9,9 +9,6 @@ import '../../viewmodels/booking_history_viewmodel.dart';
 import '../../widgets/async_state_builder.dart';
 import '../../widgets/loading_indicator.dart';
 
-// TODO: 認証導入後にログイン中ユーザーのメールアドレスを動的取得に変更
-const _kCustomerEmail = 'test@example.com';
-
 class BookingHistoryScreen extends ConsumerStatefulWidget {
   const BookingHistoryScreen({super.key});
 
@@ -25,9 +22,7 @@ class _BookingHistoryScreenState extends ConsumerState<BookingHistoryScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref
-          .read(bookingHistoryViewModelProvider.notifier)
-          .loadBookings(_kCustomerEmail);
+      ref.read(bookingHistoryViewModelProvider.notifier).loadBookings();
     });
   }
 
@@ -47,14 +42,12 @@ class _BookingHistoryScreenState extends ConsumerState<BookingHistoryScreen> {
       error: state.error,
       data: state.bookings.isNotEmpty ? state.bookings : null,
       loadingWidget: const LoadingIndicator(message: '予約履歴を読み込み中...'),
-      onRetry: () => ref
-          .read(bookingHistoryViewModelProvider.notifier)
-          .loadBookings(_kCustomerEmail),
+      onRetry: () =>
+          ref.read(bookingHistoryViewModelProvider.notifier).loadBookings(),
       emptyBuilder: () => const _EmptyState(),
       builder: (bookings) => RefreshIndicator(
-        onRefresh: () => ref
-            .read(bookingHistoryViewModelProvider.notifier)
-            .loadBookings(_kCustomerEmail),
+        onRefresh: () =>
+            ref.read(bookingHistoryViewModelProvider.notifier).loadBookings(),
         child: ListView.builder(
           padding: const EdgeInsets.symmetric(vertical: 8),
           itemCount: bookings.length,

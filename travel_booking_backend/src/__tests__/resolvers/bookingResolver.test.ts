@@ -1,3 +1,4 @@
+import { GraphQLError } from 'graphql';
 import { bookingResolvers } from '../../graphql/resolvers/bookingResolver';
 import { prismaMock, resetPrismaMocks } from '../helpers/prismaMock';
 
@@ -44,8 +45,16 @@ const baseInput = {
   travelDate: '2025-08-01',
 };
 
+// 未認証コンテキスト
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const ctx = { prisma: prismaMock as any };
+const unauthCtx = { prisma: prismaMock as any, currentUser: null };
+
+// 認証済みコンテキスト（test@example.com）
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const ctx = {
+  prisma: prismaMock as any,
+  currentUser: { id: 'user-1', email: 'test@example.com', name: 'テスト太郎' },
+};
 
 // ── テスト ────────────────────────────────────────────────────────
 describe('bookingResolvers', () => {
@@ -97,6 +106,16 @@ describe('bookingResolvers', () => {
       );
 
       expect(prismaMock.$transaction).toHaveBeenCalledTimes(1);
+    });
+
+    it('未認証: UNAUTHENTICATED エラーがスローされること', async () => {
+      await expect(
+        bookingResolvers.Mutation.createBooking(undefined, { input: baseInput }, unauthCtx),
+      ).rejects.toThrow(GraphQLError);
+
+      await expect(
+        bookingResolvers.Mutation.createBooking(undefined, { input: baseInput }, unauthCtx),
+      ).rejects.toMatchObject({ extensions: { code: 'UNAUTHENTICATED' } });
     });
 
     it('存在しないプラン id: success: false と適切なメッセージが返ること', async () => {
@@ -201,6 +220,33 @@ describe('bookingResolvers', () => {
       expect(result.booking?.status).toBe('CANCELLED');
     });
 
+    it('未認証: UNAUTHENTICATED エラーがスローされること', async () => {
+      await expect(
+        bookingResolvers.Mutation.cancelBooking(undefined, { id: 'booking-1' }, unauthCtx),
+      ).rejects.toThrow(GraphQLError);
+
+      await expect(
+        bookingResolvers.Mutation.cancelBooking(undefined, { id: 'booking-1' }, unauthCtx),
+      ).rejects.toMatchObject({ extensions: { code: 'UNAUTHENTICATED' } });
+    });
+
+    it('他人の予約: success: false と FORBIDDEN メッセージが返ること', async () => {
+      // booking の customerEmail が認証ユーザーのメールと異なる
+      tx.booking.findUnique.mockResolvedValue({
+        ...mockBooking,
+        customerEmail: 'other@example.com',
+      });
+
+      const result = await bookingResolvers.Mutation.cancelBooking(
+        undefined,
+        { id: 'booking-1' },
+        ctx, // ctx.currentUser.email = 'test@example.com'
+      );
+
+      expect(result.success).toBe(false);
+      expect(result.message).toBe('この予約をキャンセルする権限がありません');
+    });
+
     it('存在しない予約 id: success: false と適切なメッセージが返ること', async () => {
       tx.booking.findUnique.mockResolvedValue(null);
 
@@ -230,28 +276,38 @@ describe('bookingResolvers', () => {
 
   // ────────────────────────────────────────────────────────────────
   describe('Query.bookings', () => {
-    it('正常系: customerEmail で絞り込んだ予約一覧が返ること', async () => {
+    it('正常系: 認証ユーザーの予約一覧が返ること', async () => {
       prismaMock.booking.findMany.mockResolvedValue([mockBooking]);
 
       const result = await bookingResolvers.Query.bookings(
         undefined,
-        { customerEmail: 'test@example.com' },
+        {},
         ctx,
       );
 
       expect(result).toHaveLength(1);
       expect(result[0].id).toBe('booking-1');
       expect(result[0].customerEmail).toBe('test@example.com');
+      // user.email でフィルタされていること
+      expect(prismaMock.booking.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ where: { customerEmail: 'test@example.com' } }),
+      );
+    });
+
+    it('未認証: UNAUTHENTICATED エラーがスローされること', async () => {
+      await expect(
+        bookingResolvers.Query.bookings(undefined, {}, unauthCtx),
+      ).rejects.toThrow(GraphQLError);
+
+      await expect(
+        bookingResolvers.Query.bookings(undefined, {}, unauthCtx),
+      ).rejects.toMatchObject({ extensions: { code: 'UNAUTHENTICATED' } });
     });
 
     it('該当なし: 空配列が返ること', async () => {
       prismaMock.booking.findMany.mockResolvedValue([]);
 
-      const result = await bookingResolvers.Query.bookings(
-        undefined,
-        { customerEmail: 'nobody@example.com' },
-        ctx,
-      );
+      const result = await bookingResolvers.Query.bookings(undefined, {}, ctx);
 
       expect(result).toEqual([]);
     });

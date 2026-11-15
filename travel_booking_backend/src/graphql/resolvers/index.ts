@@ -1,5 +1,6 @@
 import { planResolvers } from './planResolver';
 import { bookingResolvers } from './bookingResolver';
+import { authResolvers } from './authResolver';
 
 export const resolvers = {
   Query: {
@@ -8,5 +9,6 @@ export const resolvers = {
   },
   Mutation: {
     ...bookingResolvers.Mutation,
+    ...authResolvers.Mutation,
   },
 };

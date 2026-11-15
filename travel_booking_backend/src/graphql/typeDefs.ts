@@ -9,6 +9,8 @@ export const typeDefs = `#graphql
   type Mutation {
     createBooking(input: CreateBookingInput!): BookingResult!
     cancelBooking(id: ID!): BookingResult!
+    login(input: LoginInput!): AuthPayload!
+    register(input: RegisterInput!): AuthPayload!
   }
 
   type TravelPlan {
@@ -152,5 +154,28 @@ export const typeDefs = `#graphql
     travelDate: String!
     specialRequests: String
     paymentMethod: String
+  }
+
+  type User {
+    id: ID!
+    email: String!
+    name: String!
+    createdAt: String!
+  }
+
+  type AuthPayload {
+    token: String!
+    user: User!
+  }
+
+  input LoginInput {
+    email: String!
+    password: String!
+  }
+
+  input RegisterInput {
+    email: String!
+    password: String!
+    name: String!
   }
 `;

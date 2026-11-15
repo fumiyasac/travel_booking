@@ -1,5 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../core/auth/auth_state.dart';
 import '../../core/error/app_error.dart';
 import '../../data/models/booking.dart';
 import 'plan_list_viewmodel.dart';
@@ -40,13 +41,12 @@ class BookingHistoryViewModel extends _$BookingHistoryViewModel {
     return const BookingHistoryState();
   }
 
-  Future<void> loadBookings(String customerEmail) async {
+  Future<void> loadBookings() async {
     if (state.isLoading) return;
-    if (customerEmail.trim().isEmpty) {
-      state = state.copyWith(
-        isLoading: false,
-        error: const ValidationError('メールアドレスが指定されていません'),
-      );
+
+    final email = ref.read(authStateProvider).currentUser?.email;
+    if (email == null) {
+      state = state.copyWith(bookings: const []);
       return;
     }
 
@@ -54,7 +54,7 @@ class BookingHistoryViewModel extends _$BookingHistoryViewModel {
 
     try {
       final repo = ref.read(travelPlanRepositoryProvider);
-      final bookings = await repo.fetchBookings(customerEmail.trim());
+      final bookings = await repo.fetchBookings(email);
 
       state = state.copyWith(bookings: bookings, isLoading: false);
     } catch (e) {

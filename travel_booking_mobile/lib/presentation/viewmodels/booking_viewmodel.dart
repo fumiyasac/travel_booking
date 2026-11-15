@@ -1,5 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../core/auth/auth_state.dart';
 import '../../core/error/app_error.dart';
 import '../../data/models/booking.dart';
 import '../../data/models/travel_plan.dart';
@@ -86,7 +87,11 @@ class BookingFormState {
 class BookingViewModel extends _$BookingViewModel {
   @override
   BookingFormState build() {
-    return const BookingFormState();
+    final user = ref.read(authStateProvider).currentUser;
+    return BookingFormState(
+      customerName: user?.name ?? '',
+      customerEmail: user?.email ?? '',
+    );
   }
 
   // ─── フィールド更新 ──────────────────────────────────────────────────────────

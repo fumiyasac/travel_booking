@@ -14,11 +14,16 @@ export const prismaMock = {
     findUnique: jest.fn(),
     update:     jest.fn(),
   },
+  user: {
+    findUnique: jest.fn(),
+    create:     jest.fn(),
+  },
   $transaction: jest.fn(),
 };
 
 export function resetPrismaMocks(): void {
   (Object.values(prismaMock.travelPlan) as jest.Mock[]).forEach((fn) => fn.mockReset());
   (Object.values(prismaMock.booking)    as jest.Mock[]).forEach((fn) => fn.mockReset());
+  (Object.values(prismaMock.user)       as jest.Mock[]).forEach((fn) => fn.mockReset());
   prismaMock.$transaction.mockReset();
 }

@@ -4,6 +4,7 @@ import { Context } from '../../index';
 import { validate } from '../validations/validate';
 import { createBookingSchema } from '../validations/schemas';
 import { handlePrismaError } from '../validations/prismaErrorMapper';
+import { requireAuth } from '../../utils/auth';
 
 export interface CreateBookingInput {
   planId: string;
@@ -35,18 +36,13 @@ export const bookingResolvers = {
   Query: {
     bookings: async (
       _: unknown,
-      args: { customerEmail?: string },
-      { prisma }: Context,
+      _args: { customerEmail?: string },
+      context: Context,
     ) => {
-      if (args.customerEmail !== undefined) {
-        validate(
-          z.object({ customerEmail: z.string().email('Invalid email address') }),
-          { customerEmail: args.customerEmail },
-        );
-      }
+      const user = requireAuth(context);
       try {
-        const bookings = await prisma.booking.findMany({
-          where: args.customerEmail ? { customerEmail: args.customerEmail } : undefined,
+        const bookings = await context.prisma.booking.findMany({
+          where: { customerEmail: user.email },
           include: { plan: { include: { images: { orderBy: { displayOrder: 'asc' as const } } } } },
           orderBy: { createdAt: 'desc' },
         });
@@ -76,9 +72,11 @@ export const bookingResolvers = {
     createBooking: async (
       _: unknown,
       args: { input: CreateBookingInput },
-      { prisma }: Context,
+      context: Context,
     ) => {
+      const user = requireAuth(context);
       const { input } = args;
+      const { prisma } = context;
 
       try {
         validate(createBookingSchema, input);
@@ -114,7 +112,7 @@ export const bookingResolvers = {
             data: {
               planId: input.planId,
               customerName: input.customerName.trim(),
-              customerEmail: input.customerEmail.trim().toLowerCase(),
+              customerEmail: user.email,
               customerPhone: input.customerPhone.trim(),
               numberOfPeople: input.numberOfPeople,
               travelDate: new Date(input.travelDate),
@@ -122,6 +120,7 @@ export const bookingResolvers = {
               totalPrice,
               status: 'CONFIRMED',
               paymentMethod: input.paymentMethod ?? null,
+              userId: user.id,
             },
             include: { plan: true },
           });
@@ -148,7 +147,9 @@ export const bookingResolvers = {
       }
     },
 
-    cancelBooking: async (_: unknown, args: { id: string }, { prisma }: Context) => {
+    cancelBooking: async (_: unknown, args: { id: string }, context: Context) => {
+      const user = requireAuth(context);
+      const { prisma } = context;
       validate(z.object({ id: z.string().min(1, 'id is required') }), args);
       try {
         const result = await prisma.$transaction(async (tx) => {
@@ -159,6 +160,12 @@ export const bookingResolvers = {
           if (!booking) {
             throw new GraphQLError('予約が見つかりません', {
               extensions: { code: 'NOT_FOUND' },
+            });
+          }
+
+          if (booking.customerEmail !== user.email) {
+            throw new GraphQLError('この予約をキャンセルする権限がありません', {
+              extensions: { code: 'FORBIDDEN' },
             });
           }
 

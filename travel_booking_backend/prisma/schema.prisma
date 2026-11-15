@@ -110,6 +110,16 @@ model Review {
   createdAt    DateTime   @default(now())
 }
 
+model User {
+  id        String    @id @default(uuid())
+  email     String    @unique
+  password  String
+  name      String
+  bookings  Booking[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
 model Booking {
   id              String     @id @default(uuid())
   customerName    String
@@ -123,6 +133,9 @@ model Booking {
   paymentMethod   String?
   plan            TravelPlan @relation(fields: [planId], references: [id])
   planId          String
+  // 段階的移行のため nullable。既存予約は user なし、新規予約から紐づけ
+  user            User?      @relation(fields: [userId], references: [id])
+  userId          String?
   createdAt       DateTime   @default(now())
   updatedAt       DateTime   @updatedAt
 }

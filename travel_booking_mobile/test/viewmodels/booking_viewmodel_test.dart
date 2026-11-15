@@ -2,6 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
+import 'package:travel_booking_mobile/core/auth/auth_state.dart';
+import 'package:travel_booking_mobile/data/models/auth_user.dart';
 import 'package:travel_booking_mobile/data/models/booking.dart';
 import 'package:travel_booking_mobile/data/models/travel_plan.dart';
 import 'package:travel_booking_mobile/data/repositories/travel_plan_repository.dart';
@@ -63,9 +65,11 @@ void main() {
 
   setUp(() {
     mockRepository = MockTravelPlanRepository();
+    // authStateProvider を未ログイン状態でオーバーライドして初期値を空にする
     container = ProviderContainer(
       overrides: [
         travelPlanRepositoryProvider.overrideWithValue(mockRepository),
+        authStateProvider.overrideWith(() => _FakeAuthStateNotifier()),
       ],
     );
   });
@@ -282,6 +286,31 @@ void main() {
       expect(total, 135000 * 3);
     });
 
+    test('currentUser の値がフォームのデフォルトに設定されること', () {
+      final loggedInContainer = ProviderContainer(
+        overrides: [
+          travelPlanRepositoryProvider.overrideWithValue(mockRepository),
+          authStateProvider.overrideWith(
+            () => _FakeAuthStateNotifier(
+              const AuthState(
+                isLoggedIn: true,
+                currentUser: AuthUser(
+                  id: 'u-1',
+                  email: 'user@example.com',
+                  name: '山田 花子',
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+      addTearDown(loggedInContainer.dispose);
+
+      final state = loggedInContainer.read(bookingViewModelProvider);
+      expect(state.customerName, '山田 花子');
+      expect(state.customerEmail, 'user@example.com');
+    });
+
     test('reset clears all form state', () {
       container
           .read(bookingViewModelProvider.notifier)
@@ -464,4 +493,15 @@ void main() {
       expect(state.isSubmitting, isFalse);
     });
   });
+}
+
+// ── テスト用フェイク ──────────────────────────────────────────────────────────
+
+class _FakeAuthStateNotifier extends AuthStateNotifier {
+  final AuthState _initialState;
+
+  _FakeAuthStateNotifier([this._initialState = const AuthState()]);
+
+  @override
+  AuthState build() => _initialState;
 }

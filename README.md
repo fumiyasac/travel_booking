@@ -673,14 +673,17 @@ travel_booking_backend/
     ├── middleware/
     │   ├── healthCheck.ts         # GET /health — DB 接続確認付きヘルスチェック
     │   ├── rateLimit.ts           # レート制限（15分 / 100リクエスト）
+    │   ├── auth.ts                # JWT 検証ミドルウェア（Bearer トークン → req.user）
     │   └── requestLogger.ts      # Apollo プラグイン — 構造化ログ（pino）
     ├── utils/
-    │   └── logger.ts              # pino ロガー（開発: pino-pretty / 本番: JSON）
+    │   ├── logger.ts              # pino ロガー（開発: pino-pretty / 本番: JSON）
+    │   └── auth.ts                # generateToken / verifyToken / hashPassword / requireAuth
     └── graphql/
         ├── typeDefs.ts            # GraphQL スキーマ定義
         └── resolvers/
             ├── planResolver.ts    # TravelPlan クエリ
-            └── bookingResolver.ts # Booking ミューテーション
+            ├── bookingResolver.ts # Booking ミューテーション
+            └── authResolver.ts    # Login / Register ミューテーション
 ```
 
 ### モバイルアプリ (`travel_booking_mobile/`)
@@ -688,19 +691,31 @@ travel_booking_backend/
 ```
 lib/
 ├── core/
-│   ├── config/graphql_config.dart  # GraphQLHttpClient（接続先 URL）
+│   ├── auth/
+│   │   ├── auth_service.dart        # flutter_secure_storage トークン管理（@keepAlive Provider）
+│   │   ├── auth_state.dart          # AuthState + AuthStateNotifier（login/register/logout）
+│   │   └── auth_state.g.dart        # build_runner 自動生成
+│   ├── config/graphql_config.dart  # GraphQLHttpClient（接続先 URL・authTokenGetter 対応）
 │   ├── database/app_database.dart  # SharedPreferences ラッパー
-│   ├── router/app_router.dart      # GoRouter 設定
+│   ├── router/app_router.dart      # GoRouter 設定（認証ガード付き @keepAlive Provider）
 │   └── theme/app_theme.dart        # カラー・テーマ定義
 ├── data/
 │   ├── models/                     # ドメインモデル（fromJson/toJson/copyWith 手書き）
+│   │   └── auth_user.dart          # AuthUser モデル（id / email / name / token）
 │   ├── datasources/
 │   │   ├── remote/                 # GraphQL 通信（http パッケージ）
+│   │   │   └── auth_remote_data_source.dart  # Login / Register GraphQL ミューテーション
 │   │   └── local/                  # SharedPreferences + Stream
 │   └── repositories/               # インターフェース + 実装ペア
+│       ├── auth_repository.dart        # AuthRepository インターフェース
+│       └── auth_repository_impl.dart   # AuthRepositoryImpl（エラーハンドリング含む）
 ├── presentation/
 │   ├── viewmodels/                  # @riverpod AsyncNotifier（.g.dart は自動生成）
-│   ├── screens/                     # home / plan_detail / booking / favorites / booking_history / recently_viewed
+│   ├── screens/                     # home / plan_detail / booking / favorites / booking_history / recently_viewed / auth
+│   │   └── auth/                    # ログイン・登録画面
+│   │       ├── login_screen.dart
+│   │       ├── register_screen.dart
+│   │       └── _auth_helpers.dart   # authTextField / AuthFormHeader / AuthSubmitButton
 │   └── widgets/                     # 共通ウィジェット（async_state_builder / app_error_widget / loading_indicator / rating_stars 等）
 └── preview/                         # Widgetbook Preview 環境（開発用）
     ├── main.dart                    # Widgetbook エントリポイント
@@ -785,6 +800,9 @@ Presentation は Riverpod Provider 経由で Data 層を参照し、Backend に�
 
 ```mermaid
 graph TB
+  ASV["authService\nProvider (keepAlive)"]
+  AST["authState\nProvider (keepAlive)"]
+  ARR["authRepository\nProvider (keepAlive)"]
   GQL["graphQLHttpClient\nProvider"]
   RDS["travelPlanRemoteDataSource\nProvider"]
   TPR["travelPlanRepository\nProvider"]
@@ -798,6 +816,11 @@ graph TB
   BHV["bookingHistoryViewModel\nProvider"]
   FAV["favoriteViewModel\nProvider"]
 
+  ASV --> GQL
+  ASV --> ARR
+  ARR --> AST
+  AST --> BKV
+  AST --> BHV
   GQL --> RDS --> TPR
   FST --> FLD
   FLD --> FRP
@@ -810,7 +833,7 @@ graph TB
   FRP --> FAV
 ```
 
-GraphQL 系（左）と SharedPreferences 系（右）の 2 系統で構成し、planDetailViewModel は両方に依存します。
+GraphQL 系（左）・SharedPreferences 系（右）・認証系（上）の 3 系統で構成し、authServiceProvider が GraphQLHttpClient に authTokenGetter を注入します。
 
 ### ルーティング（GoRouter）
 
@@ -826,6 +849,8 @@ graph TD
   Conf["/booking/confirmation/:bookingId\nBookingConfirmationScreen\n※ Shell 外のトップレベルルート"]
   RV["/recently-viewed\nRecentlyViewedScreen\n※ Shell 外のトップレベルルート"]
   RVPD["/recently-viewed/plan/:id\nPlanDetailScreen"]
+  LG["/login\nLoginScreen\n※ Shell 外のトップレベルルート"]
+  RG["/register\nRegisterScreen\n※ Shell 外のトップレベルルート"]
 
   Nav -->|"Tab: プラン"| Home
   Nav -->|"Tab: お気に入り"| Fav
@@ -834,9 +859,12 @@ graph TD
   Fav --> FPD
   BK -->|"push(extra)"| Conf
   RV --> RVPD
+  Hist -->|"未ログイン時にリダイレクト"| LG
+  BK -->|"未ログイン時にリダイレクト"| LG
+  LG -->|"アカウントがない場合"| RG
 ```
 
-ボトムナビ 3 タブ構成（StatefulShellRoute）で、BookingConfirmationScreen と RecentlyViewedScreen はシェル外のトップレベルルートです。
+ボトムナビ 3 タブ構成（StatefulShellRoute）。BookingConfirmationScreen・RecentlyViewedScreen・LoginScreen・RegisterScreen はシェル外のトップレベルルート。`/booking-history` と `/plan/:id/booking` は未ログイン時に `/login?from=<元のパス>` へリダイレクトします。
 
 ---
 
@@ -953,9 +981,9 @@ flutter test
 |---|---|
 | `plan_list_viewmodel_test.dart` | 初期状態・プラン取得・エラー処理・フィルタ・無限スクロール |
 | `plan_detail_viewmodel_test.dart` | 詳細取得・お気に入りトグル・エラー処理 |
-| `booking_viewmodel_test.dart` | フォームバリデーション・予約成功/失敗・料金計算・リセット |
+| `booking_viewmodel_test.dart` | フォームバリデーション・予約成功/失敗・料金計算・リセット・ログインユーザー情報の自動入力 |
 | `favorite_viewmodel_test.dart` | 一覧取得・リアルタイム更新・削除・エラー処理 |
-| `booking_history_viewmodel_test.dart` | 初期状態・予約履歴取得・空リスト・エラー処理・メールバリデーション・clearError・二重実行防止 |
+| `booking_history_viewmodel_test.dart` | 初期状態・予約履歴取得・空リスト・エラー処理・未ログイン時の空リスト返却・clearError・二重実行防止 |
 | `recently_viewed_viewmodel_test.dart` | 初期状態・Stream によるプラン一覧取得・空リスト・エラー処理・履歴クリア・clearError・リアクティブ更新 |
 
 ### Widget テスト（`test/widgets/`）
@@ -968,6 +996,16 @@ flutter test
 | `app_error_widget_test.dart` | NetworkError/GraphQLError/ValidationError/UnknownError の各型でアイコン・タイトル・message 表示を検証。onRetry コールバック動作・リトライボタン非表示を確認 |
 | `async_state_builder_test.dart` | ローディング表示・NetworkError/ValidationError エラー表示・コンテンツ描画・emptyBuilder・isLoading+data 同時有効時の既存データ表示・カスタムローディングウィジェット |
 | `booking_step_indicator_test.dart` | totalSteps=3 でステップ 3 つ表示・カスタムラベル表示・currentStep 進行に応じた番号／チェックアイコン切り替え・totalSteps=2 の動作を確認 |
+
+### バックエンドテスト（`src/__tests__/`）
+
+```bash
+cd travel_booking_backend && npx jest
+```
+
+| テストファイル | テスト内容 |
+|---|---|
+| `resolvers/authResolver.test.ts` | register 成功・メール重複・名前空・パスワード短すぎ / login 成功・パスワード不一致・ユーザー未存在・不正メール |
 
 ### テストでのモック再生成
 
