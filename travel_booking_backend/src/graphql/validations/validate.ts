@@ -5,7 +5,7 @@ export function validate<S extends z.ZodTypeAny>(schema: S, data: unknown): z.in
   const result = schema.safeParse(data);
   if (!result.success) {
     const messages = result.error.issues.map(
-      (issue: z.ZodIssue) => `${issue.path.join('.')}: ${issue.message}`,
+      (issue: z.ZodIssue) => issue.message,
     );
     throw new GraphQLError(messages.join(', '), {
       extensions: { code: 'VALIDATION_ERROR' },
