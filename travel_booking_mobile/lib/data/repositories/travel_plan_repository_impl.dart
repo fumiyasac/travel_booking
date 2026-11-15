@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import '../../core/config/graphql_config.dart';
 import '../../core/error/app_error.dart';
 import '../datasources/remote/travel_plan_remote_datasource.dart';
 import '../models/booking.dart';
@@ -28,6 +29,8 @@ class TravelPlanRepositoryImpl implements TravelPlanRepository {
       throw const NetworkError();
     } on HttpException catch (e) {
       throw NetworkError(e.message.isNotEmpty ? e.message : '通信エラーが発生しました');
+    } on GraphQLResponseException catch (e) {
+      throw GraphQLError(e.message);
     } on AppError {
       rethrow;
     } catch (e) {
@@ -43,6 +46,8 @@ class TravelPlanRepositoryImpl implements TravelPlanRepository {
       throw const NetworkError();
     } on HttpException catch (e) {
       throw NetworkError(e.message.isNotEmpty ? e.message : '通信エラーが発生しました');
+    } on GraphQLResponseException catch (e) {
+      throw GraphQLError(e.message);
     } on AppError {
       rethrow;
     } catch (e) {
@@ -76,6 +81,8 @@ class TravelPlanRepositoryImpl implements TravelPlanRepository {
       throw const NetworkError();
     } on HttpException catch (e) {
       throw NetworkError(e.message.isNotEmpty ? e.message : '通信エラーが発生しました');
+    } on GraphQLResponseException catch (e) {
+      throw GraphQLError(e.message);
     } on AppError {
       rethrow;
     } catch (e) {
@@ -91,6 +98,8 @@ class TravelPlanRepositoryImpl implements TravelPlanRepository {
       throw const NetworkError();
     } on HttpException catch (e) {
       throw NetworkError(e.message.isNotEmpty ? e.message : '通信エラーが発生しました');
+    } on GraphQLResponseException catch (e) {
+      throw GraphQLError(e.message);
     } on AppError {
       rethrow;
     } catch (e) {
@@ -106,6 +115,8 @@ class TravelPlanRepositoryImpl implements TravelPlanRepository {
       throw const NetworkError();
     } on HttpException catch (e) {
       throw NetworkError(e.message.isNotEmpty ? e.message : '通信エラーが発生しました');
+    } on GraphQLResponseException catch (e) {
+      throw GraphQLError(e.message);
     } on AppError {
       rethrow;
     } catch (e) {

@@ -46,6 +46,9 @@ class GraphQLHttpClient implements GraphQLClientInterface {
     final bodyJson = jsonEncode({'query': document, 'variables': ?variables});
     final bodyBytes = utf8.encode(bodyJson);
 
+    // 認証トークンは HTTP 接続を開く前に取得する（Keychain アクセスと接続の競合を避けるため）
+    final token = await _tokenGetter?.call();
+
     // Use dart:io HttpClient directly to avoid IOClient keep-alive issues on iOS
     final ioClient = HttpClient();
     ioClient.connectionTimeout = const Duration(seconds: 30);
@@ -54,7 +57,6 @@ class GraphQLHttpClient implements GraphQLClientInterface {
       ioRequest.persistentConnection = false;
       ioRequest.headers.set('Content-Type', 'application/json; charset=utf-8');
       ioRequest.headers.set('apollo-require-preflight', 'true');
-      final token = await _tokenGetter?.call();
       if (token != null) {
         ioRequest.headers.set('Authorization', 'Bearer $token');
       }
@@ -71,9 +73,13 @@ class GraphQLHttpClient implements GraphQLClientInterface {
       final body = jsonDecode(responseBody) as Map<String, dynamic>;
       if (body['errors'] != null) {
         final errors = body['errors'] as List<dynamic>;
-        throw Exception(
-          errors.map((e) => (e as Map<String, dynamic>)['message']).join(', '),
-        );
+        final first = errors.first as Map<String, dynamic>;
+        final message = errors
+            .map((e) => (e as Map<String, dynamic>)['message'])
+            .join(', ');
+        final code =
+            (first['extensions'] as Map<String, dynamic>?)?['code'] as String?;
+        throw GraphQLResponseException(message, code: code);
       }
 
       return body['data'] as Map<String, dynamic>? ?? {};
@@ -83,4 +89,14 @@ class GraphQLHttpClient implements GraphQLClientInterface {
   }
 
   void dispose() => _httpClient?.close();
+}
+
+class GraphQLResponseException implements Exception {
+  final String message;
+  final String? code;
+
+  const GraphQLResponseException(this.message, {this.code});
+
+  @override
+  String toString() => 'GraphQLResponseException: $message (code: $code)';
 }

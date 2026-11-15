@@ -53,13 +53,17 @@ async function main() {
     expressMiddleware(server, {
       context: async ({ req }): Promise<Context> => {
         if (!req.user) return { prisma, currentUser: null };
-        const user = await prisma.user.findUnique({ where: { id: req.user.userId } });
-        return {
-          prisma,
-          currentUser: user
-            ? { id: user.id, email: user.email, name: user.name }
-            : null,
-        };
+        try {
+          const user = await prisma.user.findUnique({ where: { id: req.user.userId } });
+          return {
+            prisma,
+            currentUser: user
+              ? { id: user.id, email: user.email, name: user.name }
+              : null,
+          };
+        } catch {
+          return { prisma, currentUser: null };
+        }
       },
     }),
   );
@@ -72,11 +76,15 @@ async function main() {
   });
 }
 
-main()
-  .catch((err) => {
-    console.error('Failed to start server:', err);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+main().catch((err) => {
+  console.error('Failed to start server:', err);
+  process.exit(1);
+});
+
+// Graceful shutdown — Prisma は起動中は接続を維持し、SIGTERM/SIGINT でのみ切断する
+const shutdown = async (): Promise<void> => {
+  await prisma.$disconnect();
+  process.exit(0);
+};
+process.on('SIGTERM', () => { void shutdown(); });
+process.on('SIGINT',  () => { void shutdown(); });

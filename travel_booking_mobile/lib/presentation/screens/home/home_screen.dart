@@ -165,7 +165,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             IconButton(
               icon: const Icon(Icons.login),
               tooltip: 'ログイン',
-              onPressed: () => context.go('/login'),
+              onPressed: () => context.push('/login'),
             ),
         ],
       ),
