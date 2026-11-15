@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/auth/auth_state.dart';
 import '../../../core/theme/app_theme.dart';
-import '../../widgets/app_error_widget.dart';
 import '_auth_helpers.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
@@ -46,7 +45,20 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     final authState = ref.watch(authStateProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('アカウント登録')),
+      appBar: AppBar(
+        title: const Text('アカウント登録'),
+        leading: IconButton(
+          icon: const Icon(Icons.close),
+          tooltip: '閉じる',
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go('/');
+            }
+          },
+        ),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -89,7 +101,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               ),
               const SizedBox(height: 24),
               if (authState.error != null) ...[
-                AppErrorWidget(error: authState.error!),
+                AuthInlineError(error: authState.error!),
                 const SizedBox(height: 16),
               ],
               AuthSubmitButton(
@@ -99,7 +111,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               ),
               const SizedBox(height: 16),
               TextButton(
-                onPressed: () => context.go('/login'),
+                onPressed: () {
+                  if (context.canPop()) {
+                    context.pop();
+                  } else {
+                    context.push('/login');
+                  }
+                },
                 child: const Text('既にアカウントをお持ちの方はこちら'),
               ),
             ],

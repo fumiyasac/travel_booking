@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import '../../core/auth/auth_service.dart';
+import '../../core/config/graphql_config.dart';
 import '../../core/error/app_error.dart';
 import '../datasources/remote/auth_remote_data_source.dart';
 import '../models/auth_user.dart';
@@ -28,6 +29,8 @@ class AuthRepositoryImpl implements AuthRepository {
       throw const NetworkError();
     } on HttpException catch (e) {
       throw NetworkError(e.message.isNotEmpty ? e.message : '通信エラーが発生しました');
+    } on GraphQLResponseException catch (e) {
+      throw GraphQLError(e.message, code: e.code);
     } on AppError {
       rethrow;
     } catch (e) {
@@ -53,6 +56,8 @@ class AuthRepositoryImpl implements AuthRepository {
       throw const NetworkError();
     } on HttpException catch (e) {
       throw NetworkError(e.message.isNotEmpty ? e.message : '通信エラーが発生しました');
+    } on GraphQLResponseException catch (e) {
+      throw GraphQLError(e.message, code: e.code);
     } on AppError {
       rethrow;
     } catch (e) {

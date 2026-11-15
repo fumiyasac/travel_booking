@@ -33,7 +33,7 @@ export const createBookingSchema = z.object({
   customerName: z.string().min(1, { message: 'customerName is required' }),
   customerEmail: z
     .string()
-    .email({ message: 'Invalid email address' }),
+    .email({ message: 'customerEmail: invalid email address' }),
   customerPhone: z
     .string()
     .min(1, { message: 'customerPhone is required' })
