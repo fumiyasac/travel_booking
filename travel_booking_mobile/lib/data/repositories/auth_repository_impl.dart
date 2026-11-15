@@ -30,7 +30,7 @@ class AuthRepositoryImpl implements AuthRepository {
     } on HttpException catch (e) {
       throw NetworkError(e.message.isNotEmpty ? e.message : '通信エラーが発生しました');
     } on GraphQLResponseException catch (e) {
-      throw GraphQLError(e.message);
+      throw GraphQLError(e.message, code: e.code);
     } on AppError {
       rethrow;
     } catch (e) {
@@ -57,7 +57,7 @@ class AuthRepositoryImpl implements AuthRepository {
     } on HttpException catch (e) {
       throw NetworkError(e.message.isNotEmpty ? e.message : '通信エラーが発生しました');
     } on GraphQLResponseException catch (e) {
-      throw GraphQLError(e.message);
+      throw GraphQLError(e.message, code: e.code);
     } on AppError {
       rethrow;
     } catch (e) {
